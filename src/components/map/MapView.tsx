@@ -11,6 +11,7 @@ import {
 } from "../../data/mock";
 import { RISK_COLORS } from "../ui/primitives";
 import { corridorPath, polygonPath, seaIceColor, slicePath, smoothPath } from "./geo";
+import { useTheme } from "../../theme";
 
 export interface LayerState {
   icebergs: boolean;
@@ -59,11 +60,17 @@ export default function MapView({
   selectedRegion,
   onSelectRegion,
 }: MapViewProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [hover, setHover] = useState<{ x: number; y: number; label: string } | null>(null);
   const selected = routes.find((r) => r.id === selectedRouteId) ?? routes[0];
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-md border border-[#1d445c]/70 bg-[#071a26]">
+    <div
+      className={`relative h-full w-full overflow-hidden rounded-md border transition-colors ${
+        isDark ? "border-[#1d445c]/70 bg-[#071a26]" : "border-[#d8d0c2] bg-[#dbebf3]"
+      }`}
+    >
       <svg
         viewBox="0 0 1000 700"
         preserveAspectRatio="xMidYMid slice"
@@ -72,18 +79,18 @@ export default function MapView({
       >
         <defs>
           <radialGradient id="ocean-grad" cx="35%" cy="30%" r="90%">
-            <stop offset="0%" stopColor="#0a2333" />
-            <stop offset="100%" stopColor="#061420" />
+            <stop offset="0%" stopColor={isDark ? "#0a2333" : "#d8edf7"} />
+            <stop offset="100%" stopColor={isDark ? "#061420" : "#bce0f0"} />
           </radialGradient>
           <linearGradient id="land-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#dcecef" />
-            <stop offset="100%" stopColor="#b9d2d8" />
+            <stop offset="0%" stopColor={isDark ? "#dcecef" : "#ffffff"} />
+            <stop offset="100%" stopColor={isDark ? "#b9d2d8" : "#deecf2"} />
           </linearGradient>
           <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="6" />
           </filter>
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#55d6e8" />
+            <path d="M0,0 L6,3 L0,6 Z" fill={isDark ? "#55d6e8" : "#0f768e"} />
           </marker>
         </defs>
 
@@ -91,7 +98,7 @@ export default function MapView({
         <rect x="0" y="0" width="1000" height="700" fill="url(#ocean-grad)" />
 
         {/* Graticule grid */}
-        <g stroke="#123047" strokeWidth="0.6" opacity="0.5">
+        <g stroke={isDark ? "#123047" : "#a8cfe0"} strokeWidth="0.6" opacity="0.5">
           {Array.from({ length: 9 }, (_, i) => (
             <line key={`v${i}`} x1={i * 125} y1="0" x2={i * 125} y2="700" />
           ))}
@@ -264,9 +271,9 @@ export default function MapView({
 
         {/* Destination */}
         <g>
-          <circle cx={destination.x} cy={destination.y} r="7" fill="none" stroke="#eaf6f8" strokeWidth="1.5" />
-          <circle cx={destination.x} cy={destination.y} r="2.5" fill="#eaf6f8" />
-          <text x={destination.x + 12} y={destination.y + 4} fill="#eaf6f8" fontSize="11" fontFamily="Inter">
+          <circle cx={destination.x} cy={destination.y} r="7" fill="none" stroke={isDark ? "#eaf6f8" : "#0d2433"} strokeWidth="1.5" />
+          <circle cx={destination.x} cy={destination.y} r="2.5" fill={isDark ? "#eaf6f8" : "#0d2433"} />
+          <text x={destination.x + 12} y={destination.y + 4} fill={isDark ? "#eaf6f8" : "#0d2433"} fontSize="11" fontFamily="Inter" fontWeight="600">
             Halley Station
           </text>
         </g>
@@ -277,16 +284,20 @@ export default function MapView({
           onMouseLeave={() => setHover(null)}
           style={{ cursor: "pointer" }}
         >
-          <circle cx={vessel.position.x} cy={vessel.position.y} r="9" fill="#55d6e8" style={{ animation: "pulse-halo 2.6s ease-in-out infinite", transformOrigin: `${vessel.position.x}px ${vessel.position.y}px` }} />
+          <circle cx={vessel.position.x} cy={vessel.position.y} r="9" fill={isDark ? "#55d6e8" : "#0f768e"} style={{ animation: "pulse-halo 2.6s ease-in-out infinite", transformOrigin: `${vessel.position.x}px ${vessel.position.y}px` }} />
           <g transform={`translate(${vessel.position.x} ${vessel.position.y}) rotate(${vessel.headingDeg - 90})`}>
-            <path d="M 9 0 L -6 5 L -3 0 L -6 -5 Z" fill="#55d6e8" stroke="#071a26" strokeWidth="1" />
+            <path d="M 9 0 L -6 5 L -3 0 L -6 -5 Z" fill={isDark ? "#55d6e8" : "#0f768e"} stroke={isDark ? "#071a26" : "#ffffff"} strokeWidth="1" />
           </g>
         </g>
       </svg>
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-sm border border-[#55d6e8]/50 bg-[#071521]/95 px-2 py-1 font-mono text-[10px] text-[#eaf6f8] shadow-lg"
+          className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-sm border px-2 py-1 font-mono text-[10px] shadow-lg backdrop-blur ${
+            isDark
+              ? "border-[#55d6e8]/50 bg-[#071521]/95 text-[#eaf6f8]"
+              : "border-[#0f768e]/50 bg-[#ffffff]/95 text-[#0d2433]"
+          }`}
           style={{ left: `${(hover.x / 1000) * 100}%`, top: `${(hover.y / 700) * 100}%` }}
         >
           {hover.label}
@@ -294,7 +305,9 @@ export default function MapView({
       )}
 
       {/* Corner coordinate readout */}
-      <div className="pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] text-[#91aeb9]/80">
+      <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] ${
+        isDark ? "text-[#91aeb9]/80" : "text-[#5a7686]/80"
+      }`}>
         WEDDELL SEA SECTOR · 64°S–74°S
       </div>
     </div>

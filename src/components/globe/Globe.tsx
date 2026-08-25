@@ -86,6 +86,92 @@ function arcPoints(a: THREE.Vector3, b: THREE.Vector3, radius: number, steps = 2
   return out;
 }
 
+function createProceduralEarthTexture(isDark: boolean): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    // Ocean gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, isDark ? "#0d324d" : "#6bb4d6");
+    grad.addColorStop(0.5, isDark ? "#0a263d" : "#4a9ec4");
+    grad.addColorStop(1, isDark ? "#081d2e" : "#3283a8");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1024, 512);
+
+    // Antarctica ice sheet at the bottom (lat -60 to -90 -> y ~ 420 to 512)
+    ctx.fillStyle = isDark ? "#eaf6f8" : "#ffffff";
+    ctx.beginPath();
+    ctx.moveTo(0, 512);
+    ctx.lineTo(0, 420);
+    for (let x = 0; x <= 1024; x += 32) {
+      const y = 425 + Math.sin(x * 0.02) * 18 + Math.cos(x * 0.05) * 12;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(1024, 512);
+    ctx.closePath();
+    ctx.fill();
+
+    // Weddell Sea bay indent
+    ctx.fillStyle = isDark ? "#0a263d" : "#4a9ec4";
+    ctx.beginPath();
+    ctx.ellipse(450, 455, 65, 35, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ross Sea bay indent
+    ctx.beginPath();
+    ctx.ellipse(820, 465, 60, 30, -0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rough stylized global landmasses
+    ctx.fillStyle = isDark ? "#1b4332" : "#95d5b2";
+    // South America
+    ctx.beginPath();
+    ctx.moveTo(380, 260);
+    ctx.lineTo(440, 270);
+    ctx.lineTo(430, 360);
+    ctx.lineTo(390, 390);
+    ctx.lineTo(365, 320);
+    ctx.closePath();
+    ctx.fill();
+
+    // Africa
+    ctx.beginPath();
+    ctx.moveTo(520, 220);
+    ctx.lineTo(590, 250);
+    ctx.lineTo(570, 350);
+    ctx.lineTo(540, 360);
+    ctx.lineTo(500, 280);
+    ctx.closePath();
+    ctx.fill();
+
+    // Australia
+    ctx.beginPath();
+    ctx.ellipse(830, 330, 55, 35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Graticule grid
+    ctx.strokeStyle = isDark ? "rgba(85, 214, 232, 0.15)" : "rgba(15, 118, 142, 0.2)";
+    ctx.lineWidth = 1;
+    for (let y = 64; y < 512; y += 64) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(1024, y);
+      ctx.stroke();
+    }
+    for (let x = 64; x < 1024; x += 128) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 512);
+      ctx.stroke();
+    }
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 export function Globe(props: GlobeProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -103,7 +189,7 @@ export function Globe(props: GlobeProps) {
   const [pick, setPick] = useState<PickInfo | null>(null);
   const [scale, setScale] = useState<{ label: string; px: number }>({ label: "", px: 80 });
   const [rotating, setRotating] = useState(props.autoRotate ?? true);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(true);
 
   const propsRef = useRef(props);
   propsRef.current = props;
@@ -171,13 +257,11 @@ export function Globe(props: GlobeProps) {
     });
     scene.add(new THREE.Points(starGeo, starMat));
 
-    // Base Realistic Ocean Globe
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin("anonymous");
-
-    // Realistic ocean blue material with high-fidelity specular reflections
+    // Base Realistic Ocean Globe with instant procedural fallback
+    const initialProceduralTex = createProceduralEarthTexture(isDark);
     const globeMat = new THREE.MeshPhongMaterial({
-      color: 0x184e77, // Realistic sky-blue/ocean-blue base
+      map: initialProceduralTex,
+      color: 0xffffff,
       emissive: 0x081826,
       specular: new THREE.Color(0x326e95),
       shininess: 25,
@@ -189,21 +273,21 @@ export function Globe(props: GlobeProps) {
     globe.name = "globe";
     scene.add(globe);
 
-    // Load textures
+    // Asynchronously load NASA High-Resolution Textures
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
+
     loader.load(
       TEX_DAY,
       (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = renderer.capabilities.getMaxAnisotropy();
         globeMat.map = t;
-        globeMat.color.set(0xffffff);
         globeMat.needsUpdate = true;
         setLoaded(true);
       },
       undefined,
       () => {
-        // Fallback procedural Antarctica color if CDN blocked
-        globeMat.color.set(0x195377);
         setLoaded(true);
       },
     );
