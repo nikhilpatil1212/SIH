@@ -57,6 +57,7 @@ export function AntarcticMap({ onNavigate }: { onNavigate?: (target: "iceberg" |
           speedKn: vessel.speedKn,
           status: vessel.status,
         }}
+        showMaximize={true}
         className="h-full w-full"
       />
     </div>

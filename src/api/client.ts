@@ -13,10 +13,19 @@ export interface GeoLocationOption {
   type: "Port" | "Station";
 }
 
+export interface RouteWaypointInput {
+  id?: string;
+  name?: string;
+  lat: number;
+  lon: number;
+  breakDurationHours?: number;
+}
+
 export interface RouteCalculatePayload {
   vessel_id?: string;
   start: { lat: number; lon: number; name?: string };
   destination: { lat: number; lon: number; name?: string };
+  waypoints?: RouteWaypointInput[];
   objective: "SHORTEST" | "SAFEST" | "BALANCED" | "FUEL EFFICIENT";
   vessel_speed_kn?: number;
 }
@@ -26,11 +35,15 @@ export interface RouteCalculateResult {
   objective: string;
   start: { lat: number; lon: number; name?: string };
   destination: { lat: number; lon: number; name?: string };
+  waypoints: RouteWaypointInput[];
   recommended_route_id: string;
   routes: Route[];
   why_recommended: string[];
   bounding_box: { min_lat: number; max_lat: number; min_lon: number; max_lon: number };
   vessel_speed_kn: number;
+  baseTravelHours: number;
+  totalBreakHours: number;
+  totalVoyageHours: number;
 }
 
 export interface SystemStatus {
@@ -47,74 +60,96 @@ export interface SystemStatus {
   last_updated: string;
 }
 
-export interface DataSourceItem {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  source_url: string;
-  status: string;
-  last_updated: string;
-}
-
-// Client-side Geodesic Fallback Calculator (When FastAPI backend is offline)
-function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalculateResult {
-  const { start, destination, objective, vessel_speed_kn = 14.0 } = payload;
-  
-  // Great-Circle distance in nm
-  const dLat = ((destination.lat - start.lat) * Math.PI) / 180;
-  const dLon = ((destination.lon - start.lon) * Math.PI) / 180;
+// Great-Circle Distance Calculation
+export function haversineDistanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((start.lat * Math.PI) / 180) *
-      Math.cos((destination.lat * Math.PI) / 180) *
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const baseDirectNm = Math.round(3440.065 * c);
+  return Math.round(3440.065 * c);
+}
 
-  // Generate 16 interpolated waypoints along the Great Circle arc
-  const coordsA = [];
-  for (let i = 0; i <= 15; i++) {
-    const frac = i / 15;
-    coordsA.push({
-      x: 500,
-      y: 500,
-      lat: +(start.lat + (destination.lat - start.lat) * frac).toFixed(4),
-      lon: +(start.lon + (destination.lon - start.lon) * frac).toFixed(4),
-    });
+// Client-side Geodesic Segment Calculator with Intermediate Waypoints
+export function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalculateResult {
+  const { start, destination, waypoints = [], objective, vessel_speed_kn = 14.0 } = payload;
+  
+  // Total break duration in hours
+  const totalBreakHours = waypoints.reduce((acc, wp) => acc + (wp.breakDurationHours || 0), 0);
+
+  // Build sequential path stops: Start -> WP1 -> WP2 -> Destination
+  const stopPoints = [
+    start,
+    ...waypoints.map((wp) => ({ lat: wp.lat, lon: wp.lon, name: wp.name })),
+    destination,
+  ];
+
+  // Calculate total geodesic distance across all legs
+  let totalDirectDistNm = 0;
+  const allCoordsA: { x: number; y: number; lat: number; lon: number }[] = [];
+
+  for (let s = 0; s < stopPoints.length - 1; s++) {
+    const p1 = stopPoints[s];
+    const p2 = stopPoints[s + 1];
+    const legDist = haversineDistanceNm(p1.lat, p1.lon, p2.lat, p2.lon);
+    totalDirectDistNm += legDist;
+
+    // Interpolate waypoints along each leg
+    const steps = Math.max(4, Math.round(12 / (stopPoints.length - 1)));
+    for (let i = 0; i <= steps; i++) {
+      if (s > 0 && i === 0) continue; // Avoid duplicate joining points
+      const frac = i / steps;
+      allCoordsA.push({
+        x: 500,
+        y: 500,
+        lat: +(p1.lat + (p2.lat - p1.lat) * frac).toFixed(4),
+        lon: +(p1.lon + (p2.lon - p1.lon) * frac).toFixed(4),
+      });
+    }
   }
 
-  // Route B: Safe Lateral Offset Arc
-  const midLat = (start.lat + destination.lat) / 2 + 3.2;
-  const midLon = (start.lon + destination.lon) / 2 - 4.5;
+  // Safe arc Route B
+  const midLatB = (start.lat + destination.lat) / 2 + 3.2;
+  const midLonB = (start.lon + destination.lon) / 2 - 4.5;
   const coordsB = [
     { x: 500, y: 500, lat: start.lat, lon: start.lon },
-    { x: 500, y: 500, lat: midLat, lon: midLon },
+    ...waypoints.map((wp) => ({ x: 500, y: 500, lat: wp.lat + 1.2, lon: wp.lon - 1.5 })),
+    { x: 500, y: 500, lat: midLatB, lon: midLonB },
     { x: 500, y: 500, lat: destination.lat, lon: destination.lon },
   ];
 
-  // Route C: Fuel Efficient Favorable Current Arc
+  // Fuel-efficient Route C
   const midLatC = (start.lat + destination.lat) / 2 + 1.5;
   const midLonC = (start.lon + destination.lon) / 2 + 3.8;
   const coordsC = [
     { x: 500, y: 500, lat: start.lat, lon: start.lon },
+    ...waypoints.map((wp) => ({ x: 500, y: 500, lat: wp.lat, lon: wp.lon })),
     { x: 500, y: 500, lat: midLatC, lon: midLonC },
     { x: 500, y: 500, lat: destination.lat, lon: destination.lon },
   ];
 
-  const distA = baseDirectNm;
-  const distB = Math.round(baseDirectNm * 1.06);
-  const distC = Math.round(baseDirectNm * 1.03);
+  const distA = totalDirectDistNm;
+  const distB = Math.round(totalDirectDistNm * 1.06);
+  const distC = Math.round(totalDirectDistNm * 1.03);
 
-  const etaH_A = Math.round(distA / vessel_speed_kn);
-  const etaH_B = Math.round(distB / vessel_speed_kn);
-  const etaH_C = Math.round(distC / (vessel_speed_kn * 0.95));
+  const baseTravelHoursA = Math.round(distA / vessel_speed_kn);
+  const baseTravelHoursB = Math.round(distB / vessel_speed_kn);
+  const baseTravelHoursC = Math.round(distC / (vessel_speed_kn * 0.95));
 
-  const formatH = (h: number) => {
-    const d = Math.floor(h / 24);
-    const rem = h % 24;
-    return d > 0 ? `${d}d ${rem}h` : `${rem}h`;
+  const totalVoyageHoursA = baseTravelHoursA + totalBreakHours;
+  const totalVoyageHoursB = baseTravelHoursB + totalBreakHours;
+  const totalVoyageHoursC = baseTravelHoursC + totalBreakHours;
+
+  const formatVoyageTime = (baseH: number, breakH: number) => {
+    const totalH = baseH + breakH;
+    const d = Math.floor(totalH / 24);
+    const rem = totalH % 24;
+    const timeStr = d > 0 ? `${d}d ${rem}h` : `${rem}h`;
+    return breakH > 0 ? `${timeStr} (incl. ${breakH}h breaks)` : timeStr;
   };
 
   const routes: Route[] = [
@@ -124,12 +159,12 @@ function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalcula
       type: "fastest",
       color: "#ef4444",
       distanceNm: distA,
-      eta: formatH(etaH_A),
-      fuelT: Math.round((etaH_A / 24) * 16.5),
+      eta: formatVoyageTime(baseTravelHoursA, totalBreakHours),
+      fuelT: Math.round((baseTravelHoursA / 24) * 16.5),
       riskScore: 78,
       riskLevel: "high",
-      coordinates: coordsA,
-      waypoints: [coordsA[0], coordsA[7], coordsA[15]],
+      coordinates: allCoordsA,
+      waypoints: stopPoints.map((p) => ({ x: 500, y: 500, lat: p.lat, lon: p.lon })),
     },
     {
       id: "route-b",
@@ -137,8 +172,8 @@ function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalcula
       type: "safest",
       color: "#10b981",
       distanceNm: distB,
-      eta: formatH(etaH_B),
-      fuelT: Math.round((etaH_B / 24) * 16.5),
+      eta: formatVoyageTime(baseTravelHoursB, totalBreakHours),
+      fuelT: Math.round((baseTravelHoursB / 24) * 16.5),
       riskScore: 32,
       riskLevel: "low",
       coordinates: coordsB,
@@ -150,8 +185,8 @@ function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalcula
       type: "fuel",
       color: "#38bdf8",
       distanceNm: distC,
-      eta: formatH(etaH_C),
-      fuelT: Math.round((etaH_C / 24) * 16.5 * 0.91),
+      eta: formatVoyageTime(baseTravelHoursC, totalBreakHours),
+      fuelT: Math.round((baseTravelHoursC / 24) * 16.5 * 0.91),
       riskScore: 44,
       riskLevel: "medium",
       coordinates: coordsC,
@@ -163,25 +198,34 @@ function clientSideCalculateRoutes(payload: RouteCalculatePayload): RouteCalcula
   if (objective === "SHORTEST") recId = "route-a";
   if (objective === "FUEL EFFICIENT") recId = "route-c";
 
+  // Calculate bounding box across all points
+  const allLats = [start.lat, destination.lat, ...waypoints.map((w) => w.lat)];
+  const allLons = [start.lon, destination.lon, ...waypoints.map((w) => w.lon)];
+
   return {
     calculation_id: `calc-${Date.now().toString(36)}`,
     objective,
     start,
     destination,
+    waypoints,
     recommended_route_id: recId,
     routes,
     why_recommended: [
       "Lower iceberg encounter probability (↓ 41% vs direct)",
       "Marginal pack-ice concentration buffer (28% vs 64%)",
       "Maintains 15+ nm safety standoff from active hazard clusters",
+      ...(totalBreakHours > 0 ? [`Includes ${totalBreakHours}h scheduled operational/rest breaks`] : []),
     ],
     bounding_box: {
-      min_lat: Math.min(start.lat, destination.lat) - 2,
-      max_lat: Math.max(start.lat, destination.lat) + 2,
-      min_lon: Math.min(start.lon, destination.lon) - 3,
-      max_lon: Math.max(start.lon, destination.lon) + 3,
+      min_lat: Math.min(...allLats) - 2.5,
+      max_lat: Math.max(...allLats) + 2.5,
+      min_lon: Math.min(...allLons) - 3.5,
+      max_lon: Math.max(...allLons) + 3.5,
     },
     vessel_speed_kn,
+    baseTravelHours: baseTravelHoursB,
+    totalBreakHours,
+    totalVoyageHours: totalVoyageHoursB,
   };
 }
 
@@ -207,10 +251,10 @@ export const apiClient = {
     return {
       status: "ONLINE",
       environment: "SIMULATION",
-      version: "1.2.0",
+      version: "1.0.0",
       api_health: "HEALTHY",
       database: "CONNECTED",
-      routing_engine: "OPERATIONAL",
+      routing_engine: "READY",
       risk_engine: "ACTIVE",
       tracked_icebergs_count: baseIcebergs.length,
       active_hazards_count: baseHazards.length,

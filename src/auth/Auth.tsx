@@ -81,7 +81,7 @@ function Shell({ children, onHome }: { children: ReactNode; onHome: () => void }
               </svg>
             </div>
             <div className="leading-tight">
-              <div className="text-[17px] font-bold tracking-[0.03em] text-[#eaf6f8]">ध्रुव सारथी</div>
+              <div className="text-[17px] font-bold tracking-[0.03em] text-[#eaf6f8]">Dhruv Sarthi</div>
               <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#55d6e8]">
                 Antarctic Navigation AI
               </div>
@@ -101,7 +101,7 @@ function Shell({ children, onHome }: { children: ReactNode; onHome: () => void }
           </div>
 
           <div className="font-mono text-[10px] uppercase tracking-wider text-[#5f7d89]">
-            ध्रुव सारथी · Prototype Platform · NCPOR Research Operations
+            Dhruv Sarthi · Prototype Platform · NCPOR Research Operations
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ function Shell({ children, onHome }: { children: ReactNode; onHome: () => void }
         <div className="mx-auto my-auto w-full max-w-sm py-8">{children}</div>
 
         <div className={`text-center font-mono text-[10px] ${isDark ? "text-[#5f7d89]" : "text-[#879ea9]"}`}>
-          ध्रुव सारथी (Dhruva Sarathi) — Polar Maritime AI
+          Dhruv Sarthi — Polar Maritime AI
         </div>
       </div>
     </div>
@@ -175,7 +175,7 @@ function UserLogin({
     <Shell onHome={onHome}>
       <h1 className="text-[28px] font-bold tracking-tight">Welcome back</h1>
       <p className={`mt-1.5 text-[14px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-        Sign in to the <span className="font-semibold">ध्रुव सारथी</span> operational console.
+        Sign in to the <span className="font-semibold">Dhruv Sarthi</span> operational console.
       </p>
 
       <form onSubmit={submit} className="mt-7 space-y-4">
@@ -241,7 +241,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
           </div>
           <h1 className="text-[26px] font-bold tracking-tight">Account created successfully</h1>
           <p className={`mt-2 text-[14px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-            Your prototype account is ready. Sign in to explore the <span className="font-semibold">ध्रुव सारथी</span> console.
+            Your prototype account is ready. Sign in to explore the <span className="font-semibold">Dhruv Sarthi</span> console.
           </p>
           <div className="mt-7">
             <PrimaryBtn onClick={() => onView("user-login")}>Continue to login</PrimaryBtn>
@@ -254,7 +254,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
     <Shell onHome={onHome}>
       <h1 className="text-[28px] font-bold tracking-tight">Create your account</h1>
       <p className={`mt-1.5 text-[14px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-        Join the <span className="font-semibold">ध्रुव सारथी</span> polar navigation platform.
+        Join the <span className="font-semibold">Dhruv Sarthi</span> polar navigation platform.
       </p>
 
       <form onSubmit={submit} className="mt-6 space-y-4">
@@ -484,7 +484,7 @@ export function AdminDashboard({ user, onSignOut }: { user: User; onSignOut: () 
             <Shield size={18} />
           </div>
           <div className="leading-tight">
-            <div className="text-[15px] font-bold">ध्रुव सारथी · Admin Hub</div>
+            <div className="text-[15px] font-bold">Dhruv Sarthi · Admin Hub</div>
             <div className={`text-[11px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
               {user.name} · {user.organization}
             </div>

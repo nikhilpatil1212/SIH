@@ -98,7 +98,7 @@ export function Sidebar({ page, onNavigate }: { page: PageId; onNavigate: (p: Pa
         </div>
         <div className="leading-tight">
           <div className="text-[15px] font-bold tracking-[0.04em] text-[#eaf6f8] light:text-[#0d2433]">
-            ध्रुव सारथी
+            Dhruv Sarthi
           </div>
           <div className="text-[9px] font-semibold tracking-[0.14em] uppercase text-[#55d6e8] light:text-[#0f768e]">
             Antarctic AI Nav

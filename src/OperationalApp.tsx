@@ -18,18 +18,18 @@ import { NavProvider } from "./state";
 import type { User } from "./data/auth";
 
 const META: Record<PageId, { title: string; subtitle: string }> = {
-  dashboard: { title: "ध्रुव सारथी · Mission Console", subtitle: "AI-powered iceberg trajectories, sea-ice dynamics & route risk support" },
-  map: { title: "Operational Polar Chart", subtitle: "Interactive Antarctic navigational chart — Weddell & Southern Ocean sectors" },
-  routes: { title: "Passage & Route Planning", subtitle: "Multi-corridor comparative intelligence and structural risk scoring" },
-  iceberg: { title: "Iceberg Prediction Intelligence", subtitle: "2D Antarctic polar trajectory forecasting, 72h horizon & uncertainty corridors" },
-  seaice: { title: "Sea-Ice Concentration Dynamics", subtitle: "Basin-scale concentration forecasting, pack-ice pressure & route impact" },
-  environmental: { title: "Metocean Intelligence", subtitle: "Atmospheric and oceanic telemetry timelines across forecast windows" },
-  hazards: { title: "Active & Predicted Hazards", subtitle: "Collision hazard matrix, severe weather fronts & drift intersections" },
-  rerouting: { title: "Dynamic Tactical Re-Routing", subtitle: "Autonomous observation-driven corridor synthesis and bridge dispatch" },
-  whatif: { title: "What-If Scenario Simulation", subtitle: "Sensitivity modeling for vessel velocity, ice class limits & weather shifts" },
-  reports: { title: "Voyage & Mission Reports", subtitle: "Historical mission logs, collision risk analysis & reroute audits" },
-  help: { title: "Help & Operational Documentation", subtitle: "Platform guidance, telemetry specifications & support triage" },
-  contact: { title: "Contact ध्रुव सारथी Operations", subtitle: "Reach the NCPOR and Ministry of Earth Sciences polar navigation team" },
+  dashboard: { title: "Dhruv Sarthi · Mission Console", subtitle: "AI-powered iceberg trajectories, sea-ice dynamics & route risk support" },
+  map: { title: "Whole-World Polar Navigation Map", subtitle: "Interactive global maritime visualization and corridor safety analysis" },
+  routes: { title: "Passage Planning & Route Synthesis", subtitle: "AI-optimized Antarctic routes: fastest, safest & fuel-optimal" },
+  iceberg: { title: "Iceberg Drift & Collision Prediction", subtitle: "Physics-informed AI trajectory models & distance monitoring" },
+  seaice: { title: "Sea-Ice Concentration Dynamics", subtitle: "High-resolution satellite observation & compression risk estimation" },
+  environmental: { title: "Environmental & Metocean Intelligence", subtitle: "ERA5 & ECMWF wind fields, waves, surface currents & SST" },
+  hazards: { title: "Navigational Hazard Alert Register", subtitle: "Active & predicted ice threats, extreme weather & shallow bathymetry" },
+  rerouting: { title: "Dynamic Tactical Re-Routing", subtitle: "Trigger automated corridor re-evaluation on severe ice anomalies" },
+  whatif: { title: "What-If Scenario Simulator", subtitle: "Stress-test passage plans under simulated severe weather and speed changes" },
+  reports: { title: "Mission Reports & Voyage Summary", subtitle: "Compliance, telemetry logs & operational debrief export" },
+  help: { title: "Help & Operational Guide", subtitle: "Complete documentation for polar navigation and AI capabilities" },
+  contact: { title: "Contact Dhruv Sarthi Operations", subtitle: "Reach the NCPOR and Ministry of Earth Sciences polar navigation team" },
   settings: { title: "Platform Settings & Theme", subtitle: "Telemetry refresh intervals, unit preferences & display customization" },
 };
 

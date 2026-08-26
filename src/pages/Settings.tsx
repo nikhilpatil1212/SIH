@@ -52,7 +52,7 @@ export function Settings() {
         <Card title="Interface & Visual Theme">
           <div className="p-4 space-y-3">
             <p className="text-[12px] text-[#91aeb9] light:text-[#4a6878] leading-relaxed">
-              Select your preferred visual mode for <span className="font-semibold text-[#eaf6f8] light:text-[#0d2433]">ध्रुव सारथी</span>.
+              Select your preferred visual mode for <span className="font-semibold text-[#eaf6f8] light:text-[#0d2433]">Dhruv Sarthi</span>.
               Light theme provides an authentic warm cream/off-white palette optimized for daytime bridge operations,
               while Dark theme provides deep contrast for night watch.
             </p>
@@ -113,7 +113,7 @@ export function Settings() {
       </div>
 
       <p className="max-w-2xl text-[11px] text-[#91aeb9] light:text-[#7a93a1]">
-        ध्रुव सारथी preferences are persisted locally in this environment and apply across all operational modules.
+        Dhruv Sarthi preferences are persisted locally in this environment and apply across all operational modules.
       </p>
     </div>
   );

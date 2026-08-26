@@ -2,7 +2,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -10,7 +9,7 @@ import {
 import type { LayerState } from "./components/map/MapView";
 import { alerts as baseAlerts, icebergs as baseIcebergs, routes as baseRoutes } from "./data/mock";
 import type { AlertItem, Iceberg, Route } from "./data/types";
-import apiClient, { type RouteCalculatePayload } from "./api/client";
+import apiClient, { type RouteCalculatePayload, type RouteWaypointInput } from "./api/client";
 
 export interface BoundingBox {
   min_lat: number;
@@ -25,6 +24,14 @@ export interface NamedPoint {
   name?: string;
 }
 
+export interface OperationalWaypoint {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  breakDurationHours: number;
+}
+
 interface NavState {
   routes: Route[];
   icebergs: Iceberg[];
@@ -37,11 +44,18 @@ interface NavState {
   activeBoundingBox: BoundingBox | null;
   activeStartPoint: NamedPoint | null;
   activeDestinationPoint: NamedPoint | null;
+  waypoints: OperationalWaypoint[];
   whyRecommended: string[];
   isCalculating: boolean;
+  baseTravelHours: number;
+  totalBreakHours: number;
+  totalVoyageHours: number;
   setSelectedRoute: (id: string) => void;
   setSelectedIceberg: (id: string) => void;
   toggleLayer: (k: keyof LayerState) => void;
+  addWaypoint: (wp: Omit<OperationalWaypoint, "id">) => void;
+  removeWaypoint: (id: string) => void;
+  updateWaypoint: (id: string, updates: Partial<OperationalWaypoint>) => void;
   simulateObservation: () => Promise<void>;
   calculateNewRoutes: (payload: RouteCalculatePayload) => Promise<void>;
   setActiveBoundingBox: (bbox: BoundingBox | null) => void;
@@ -60,16 +74,24 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [rerouted, setRerouted] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [activeBoundingBox, setActiveBoundingBox] = useState<BoundingBox | null>(null);
+  
   const [activeStartPoint, setActiveStartPoint] = useState<NamedPoint | null>({
     lat: -33.92,
     lon: 18.42,
     name: "Port of Cape Town",
   });
+  
   const [activeDestinationPoint, setActiveDestinationPoint] = useState<NamedPoint | null>({
     lat: -70.77,
     lon: 11.73,
     name: "Maitri Station (India)",
   });
+
+  const [waypoints, setWaypoints] = useState<OperationalWaypoint[]>([]);
+  const [baseTravelHours, setBaseTravelHours] = useState(177);
+  const [totalBreakHours, setTotalBreakHours] = useState(0);
+  const [totalVoyageHours, setTotalVoyageHours] = useState(177);
+
   const [whyRecommended, setWhyRecommended] = useState<string[]>([
     "Lower iceberg encounter probability (↓ 41% vs direct)",
     "Marginal pack-ice concentration buffer (28% vs 64%)",
@@ -87,6 +109,19 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setLayers((l) => ({ ...l, [k]: !l[k] }));
   }, []);
 
+  const addWaypoint = useCallback((wp: Omit<OperationalWaypoint, "id">) => {
+    const id = `wp-${Date.now()}`;
+    setWaypoints((prev) => [...prev, { ...wp, id }]);
+  }, []);
+
+  const removeWaypoint = useCallback((id: string) => {
+    setWaypoints((prev) => prev.filter((w) => w.id !== id));
+  }, []);
+
+  const updateWaypoint = useCallback((id: string, updates: Partial<OperationalWaypoint>) => {
+    setWaypoints((prev) => prev.map((w) => (w.id === id ? { ...w, ...updates } : w)));
+  }, []);
+
   // Calculate Routes with real backend API & geodesic fallback
   const calculateNewRoutes = useCallback(async (payload: RouteCalculatePayload) => {
     setIsCalculating(true);
@@ -99,6 +134,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
       setActiveBoundingBox(result.bounding_box);
       setActiveStartPoint(result.start);
       setActiveDestinationPoint(result.destination);
+      setBaseTravelHours(result.baseTravelHours);
+      setTotalBreakHours(result.totalBreakHours);
+      setTotalVoyageHours(result.totalVoyageHours);
     } finally {
       setIsCalculating(false);
     }
@@ -147,6 +185,8 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setRecommended("route-b");
     setRerouted(false);
     setActiveBoundingBox(null);
+    setWaypoints([]);
+    setTotalBreakHours(0);
   }, []);
 
   const value = useMemo(
@@ -162,11 +202,18 @@ export function NavProvider({ children }: { children: ReactNode }) {
       activeBoundingBox,
       activeStartPoint,
       activeDestinationPoint,
+      waypoints,
       whyRecommended,
       isCalculating,
+      baseTravelHours,
+      totalBreakHours,
+      totalVoyageHours,
       setSelectedRoute,
       setSelectedIceberg,
       toggleLayer,
+      addWaypoint,
+      removeWaypoint,
+      updateWaypoint,
       simulateObservation,
       calculateNewRoutes,
       setActiveBoundingBox,
@@ -184,11 +231,18 @@ export function NavProvider({ children }: { children: ReactNode }) {
       activeBoundingBox,
       activeStartPoint,
       activeDestinationPoint,
+      waypoints,
       whyRecommended,
       isCalculating,
+      baseTravelHours,
+      totalBreakHours,
+      totalVoyageHours,
       setSelectedRoute,
       setSelectedIceberg,
       toggleLayer,
+      addWaypoint,
+      removeWaypoint,
+      updateWaypoint,
       simulateObservation,
       calculateNewRoutes,
       setActiveBoundingBox,

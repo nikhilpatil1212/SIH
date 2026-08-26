@@ -11,7 +11,7 @@ export function Reports() {
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">
       <Card
-        title="ध्रुव सारथी · Voyage & Mission Summary"
+        title="Dhruv Sarthi · Voyage & Mission Summary"
         action={
           <button className="flex items-center gap-2 rounded-md border border-[#55d6e8]/50 bg-[#55d6e8]/10 light:border-[#0f768e]/40 light:bg-[#0f768e]/10 px-3 py-1.5 text-[11px] font-semibold text-[#55d6e8] light:text-[#0f768e] transition-colors hover:bg-[#55d6e8]/20">
             <Download size={13} /> Export Mission Audit
@@ -27,7 +27,7 @@ export function Reports() {
           <Metric label="Fuel Expenditure" value={route.fuelT} unit="t" />
           <Metric label="Composite Risk" value={`${route.riskScore}/100`} accent={route.riskScore >= 60 ? "#ef4444" : "#10b981"} />
           <Metric label="Dynamic Reroutes" value={nav.rerouted ? 1 : 0} />
-          <Metric label="Neural Platform" value="ध्रुव सारथी v1.2" />
+          <Metric label="Neural Platform" value="Dhruv Sarthi v1.2" />
         </div>
       </Card>
 

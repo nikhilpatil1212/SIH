@@ -197,13 +197,6 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                     Tactical Sector
                   </button>
                 </div>
-
-                <button
-                  onClick={() => setFullscreen((f) => !f)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8]"
-                >
-                  {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-                </button>
               </div>
             </div>
 
@@ -225,6 +218,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                     speedKn: vessel.speedKn,
                     status: vessel.status,
                   }}
+                  showMaximize={false}
                   compact={true}
                   className="h-full w-full border-none rounded-none"
                 />

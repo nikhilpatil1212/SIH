@@ -1,4 +1,4 @@
-// Mock user directory + auth types for ध्रुव सारथी.
+// Mock user directory + auth types for Dhruv Sarthi.
 // FRONTEND MOCK ONLY — no real password storage.
 
 export type UserRole = "Researcher" | "Vessel Operator" | "Admin";
@@ -12,9 +12,9 @@ export interface User {
 }
 
 export const mockUsers: User[] = [
-  { id: "usr-001", name: "Dr. Ana Køhler", email: "researcher@example.org", organization: "NCPOR / ध्रुव सारथी", role: "Researcher" },
+  { id: "usr-001", name: "Dr. Ana Køhler", email: "researcher@example.org", organization: "NCPOR / Dhruv Sarthi", role: "Researcher" },
   { id: "usr-002", name: "Capt. Ravi Menon", email: "operator@example.org", organization: "RV Polar Star", role: "Vessel Operator" },
-  { id: "adm-001", name: "System Administrator", email: "admin@example.org", organization: "ध्रुव सारथी Mission Ops", role: "Admin" },
+  { id: "adm-001", name: "System Administrator", email: "admin@example.org", organization: "Dhruv Sarthi Mission Ops", role: "Admin" },
 ];
 
 /** Simulated sign-in. Any password is accepted in the prototype. */

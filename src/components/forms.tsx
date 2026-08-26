@@ -89,7 +89,7 @@ export function ContactForm() {
     return (
       <SubmissionSuccess
         title="Message dispatched to bridge control."
-        message="Thank you — the ध्रुव सारथी operational team has received your communication."
+        message="Thank you — the Dhruv Sarthi operational team has received your communication."
         onReset={() => setSubmitted(false)}
       />
     );

@@ -24,7 +24,7 @@ export type LandingTarget = "user-login" | "admin-login" | "signup";
 const NAV = [
   { id: "how", label: "How It Works" },
   { id: "features", label: "Capabilities" },
-  { id: "about", label: "About ध्रुव सारथी" },
+  { id: "about", label: "About Dhruv Sarthi" },
   { id: "why", label: "Why It Matters" },
 ];
 
@@ -147,7 +147,7 @@ function Header({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
             </svg>
           </div>
           <div className="leading-tight">
-            <div className="text-[17px] font-bold tracking-[0.03em]">ध्रुव सारथी</div>
+            <div className="text-[17px] font-bold tracking-[0.03em]">Dhruv Sarthi</div>
             <div
               className={`text-[9px] font-semibold uppercase tracking-[0.2em] ${
                 isDark ? "text-[#8ccfe0]" : "text-[#0f768e]"
@@ -292,7 +292,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
                 isDark ? "text-[#91aeb9]" : "text-[#4a6878]"
               }`}
             >
-              <strong className={isDark ? "text-[#eaf6f8]" : "text-[#0d2433]"}>ध्रुव सारथी (Dhruva Sarathi)</strong> is
+              <strong className={isDark ? "text-[#eaf6f8]" : "text-[#0d2433]"}>Dhruv Sarthi</strong> is
               an AI-powered polar navigation and route decision-support platform. Forecast iceberg drift, assess
               sea-ice compression dynamics, and dynamically re-route around drifting hazards across Southern Ocean waters.
             </p>
@@ -340,7 +340,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
                 <div className="flex items-center gap-2">
                   <Ship size={14} className={isDark ? "text-[#55d6e8]" : "text-[#0f768e]"} />
                   <span className="font-mono text-[11px] font-semibold uppercase tracking-wider">
-                    ध्रुव सारथी · Live Polar Chart
+                    Dhruv Sarthi · Live Polar Chart
                   </span>
                 </div>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-[#10b981]">
@@ -522,7 +522,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
         </div>
       </section>
 
-      {/* About ध्रुव सारथी */}
+      {/* About Dhruv Sarthi */}
       <section id="about" className="mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
@@ -537,7 +537,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
             }`}
           >
             <p>
-              <strong className={isDark ? "text-[#eaf6f8]" : "text-[#0d2433]"}>ध्रुव सारथी (Dhruva Sarathi)</strong> is
+              <strong className={isDark ? "text-[#eaf6f8]" : "text-[#0d2433]"}>Dhruv Sarthi</strong> is
               a dedicated polar navigation decision-support platform. It unites tabular iceberg drift modeling,
               sea-ice concentration forecasting, environmental hazard fusion, and composite risk scoring into an
               intuitive 2D Polar Navigation console.
@@ -587,7 +587,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
               onClick={() => onAuth("signup")}
               className="rounded-md bg-[#55d6e8] px-7 py-3.5 text-[15px] font-bold text-[#071521] transition-colors hover:bg-[#7be3f2] shadow-lg shadow-[#55d6e8]/20"
             >
-              Access ध्रुव सारथी Console
+              Access Dhruv Sarthi Console
             </button>
             <button
               onClick={() => onAuth("user-login")}
@@ -607,7 +607,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
       >
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="text-[16px] font-bold tracking-wide">ध्रुव सारथी</div>
+            <div className="text-[16px] font-bold tracking-wide">Dhruv Sarthi</div>
             <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55d6e8] light:text-[#0f768e]">
               Antarctic Navigation AI
             </div>
@@ -619,7 +619,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
               AI-powered route decision-support platform for Antarctic research and maritime navigation.
             </p>
           </div>
-          <FooterCol title="Navigation" items={["How It Works", "Core Capabilities", "About ध्रुव सारथी", "Why It Matters"]} />
+          <FooterCol title="Navigation" items={["How It Works", "Core Capabilities", "About Dhruv Sarthi", "Why It Matters"]} />
           <FooterCol title="Decision Support" items={["Iceberg Drift AI", "Sea-Ice Compression", "Multi-Route Risk", "Dynamic Rerouting"]} />
           <FooterCol title="Operations" items={["NCPOR Research Fleet", "Ministry of Earth Sciences", "Polar Telemetry Lab", "Goa, India"]} />
         </div>
@@ -629,7 +629,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
           }`}
         >
           <div className="mx-auto max-w-6xl text-[12px] flex flex-wrap items-center justify-between gap-2">
-            <span>© 2026 ध्रुव सारथी (Dhruva Sarathi) — Polar Maritime AI Decision Support.</span>
+            <span>© 2026 Dhruv Sarthi (Dhruva Sarathi) — Polar Maritime AI Decision Support.</span>
             <span>All coordinates & telemetry are high-fidelity demonstrations.</span>
           </div>
         </div>

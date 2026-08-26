@@ -41,7 +41,7 @@ export function Help({ onNavigate }: { onNavigate: (p: PageId) => void }) {
           <div className="p-4">
             <div className="mb-1 flex items-center gap-2">
               <LifeBuoy size={16} className="text-[#55d6e8] light:text-[#0f768e]" />
-              <h2 className="text-[15px] font-bold text-[#eaf6f8] light:text-[#0d2433]">ध्रुव सारथी · Help &amp; Support Hub</h2>
+              <h2 className="text-[15px] font-bold text-[#eaf6f8] light:text-[#0d2433]">Dhruv Sarthi · Help &amp; Support Hub</h2>
             </div>
             <p className="mb-3 text-[12px] text-[#91aeb9] light:text-[#4a6878]">
               Operational guidance, physics-informed neural network specifications, and voyage dispatch assistance.

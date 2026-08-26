@@ -1,4 +1,4 @@
-// Mock data source for ध्रुव सारथी (DHRUVA SARATHI) — Antarctic Navigation AI.
+// Mock data source for Dhruv Sarthi — Antarctic Navigation AI.
 // All values are illustrative high-fidelity demo data for maritime decision support.
 
 import type {

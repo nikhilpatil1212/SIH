@@ -1,8 +1,10 @@
 import { useState } from "react";
 import {
+  AlertTriangle,
   Anchor,
   ArrowRight,
   Calculator,
+  Clock,
   Compass,
   CornerDownRight,
   ExternalLink,
@@ -11,10 +13,12 @@ import {
   Layers,
   MapPin,
   Navigation,
+  Plus,
   RotateCcw,
   Shield,
   Ship,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import { RouteComparison, RiskFactors } from "../components/panels";
 import { Card, Metric, RiskMeter, RISK_COLORS, cx } from "../components/ui/primitives";
@@ -24,11 +28,11 @@ import { useNav } from "../state";
 import type { PageId } from "../components/Sidebar";
 
 const START_PRESETS = [
-  { id: "capetown", name: "Port of Cape Town (South Africa)", lat: -33.92, lon: 18.42, flag: "🇿🇦" },
-  { id: "ushuaia", name: "Port of Ushuaia (Argentina)", lat: -54.8, lon: -68.3, flag: "🇦🇷" },
-  { id: "hobart", name: "Port of Hobart (Australia)", lat: -42.88, lon: 147.32, flag: "🇦🇺" },
-  { id: "puntaarenas", name: "Punta Arenas (Chile)", lat: -53.16, lon: -70.91, flag: "🇨🇱" },
-  { id: "goa", name: "NCPOR Expedition Base / Mormugao (India)", lat: 15.4, lon: 73.8, flag: "🇮🇳" },
+  { id: "capetown", name: "Port of Cape Town", lat: -33.92, lon: 18.42, flag: "🇿🇦" },
+  { id: "ushuaia", name: "Port of Ushuaia", lat: -54.8, lon: -68.3, flag: "🇦🇷" },
+  { id: "hobart", name: "Port of Hobart", lat: -42.88, lon: 147.32, flag: "🇦🇺" },
+  { id: "puntaarenas", name: "Punta Arenas", lat: -53.16, lon: -70.91, flag: "🇨🇱" },
+  { id: "goa", name: "NCPOR Expedition Base / Mormugao", lat: 15.4, lon: 73.8, flag: "🇮🇳" },
   { id: "custom", name: "Custom Latitude / Longitude...", lat: -34.0, lon: 18.0, flag: "📍" },
 ];
 
@@ -63,28 +67,61 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
   const [objective, setObjective] = useState<"SHORTEST" | "SAFEST" | "BALANCED" | "FUEL EFFICIENT">("SAFEST");
   const [speedKn, setSpeedKn] = useState(14);
 
-  const activeStart =
-    startPreset === "custom"
-      ? { lat: customStartLat, lon: customStartLon, name: "Custom Departure" }
-      : START_PRESETS.find((p) => p.id === startPreset)!;
+  // New Waypoint Form State
+  const [newWpName, setNewWpName] = useState("");
+  const [newWpLat, setNewWpLat] = useState(-55.0);
+  const [newWpLon, setNewWpLon] = useState(5.0);
+  const [newWpBreakH, setNewWpBreakH] = useState(2);
+  const [showWpForm, setShowWpForm] = useState(false);
 
-  const activeDest =
-    destPreset === "custom"
-      ? { lat: customDestLat, lon: customDestLon, name: "Custom Destination" }
-      : DESTINATION_PRESETS.find((p) => p.id === destPreset)!;
+  const isCustomStart = startPreset === "custom";
+  const isCustomDest = destPreset === "custom";
+
+  const activeStart = isCustomStart
+    ? { lat: customStartLat, lon: customStartLon, name: `Custom Start (${customStartLat.toFixed(2)}°, ${customStartLon.toFixed(2)}°)` }
+    : START_PRESETS.find((p) => p.id === startPreset)!;
+
+  const activeDest = isCustomDest
+    ? { lat: customDestLat, lon: customDestLon, name: `Custom Dest (${customDestLat.toFixed(2)}°, ${customDestLon.toFixed(2)}°)` }
+    : DESTINATION_PRESETS.find((p) => p.id === destPreset)!;
+
+  // Validation
+  const isStartValid = customStartLat >= -90 && customStartLat <= 90 && customStartLon >= -180 && customStartLon <= 180;
+  const isDestValid = customDestLat >= -90 && customDestLat <= 90 && customDestLon >= -180 && customDestLon <= 180;
+  const hasCoordinateError = (isCustomStart && !isStartValid) || (isCustomDest && !isDestValid);
 
   const handleCalculate = async () => {
+    if (hasCoordinateError) return;
+
     await nav.calculateNewRoutes({
       start: { lat: activeStart.lat, lon: activeStart.lon, name: activeStart.name },
       destination: { lat: activeDest.lat, lon: activeDest.lon, name: activeDest.name },
+      waypoints: nav.waypoints.map((w) => ({
+        lat: w.lat,
+        lon: w.lon,
+        name: w.name,
+        breakDurationHours: w.breakDurationHours,
+      })),
       objective,
       vessel_speed_kn: speedKn,
     });
   };
 
+  const handleAddWaypoint = () => {
+    if (newWpLat < -90 || newWpLat > 90 || newWpLon < -180 || newWpLon > 180) return;
+    nav.addWaypoint({
+      name: newWpName.trim() || `Operational Stop 0${nav.waypoints.length + 1}`,
+      lat: newWpLat,
+      lon: newWpLon,
+      breakDurationHours: Math.max(0, newWpBreakH),
+    });
+    setNewWpName("");
+    setShowWpForm(false);
+  };
+
   return (
-    <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-4 xl:grid-cols-[400px_1fr]">
-      {/* 1. Left Column: Interactive Route Planning Form & Route Comparison */}
+    <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-4 xl:grid-cols-[430px_1fr]">
+      {/* 1. Left Column: Route Planning Console */}
       <div className="flex flex-col gap-3">
         {/* Route Planning Parameter Console */}
         <Card title="Passage Planning & Route Synthesis">
@@ -116,6 +153,36 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                   </option>
                 ))}
               </select>
+
+              {/* Custom Start Coordinate Inputs */}
+              {isCustomStart && (
+                <div className="mt-2 grid grid-cols-2 gap-2 rounded border border-[#55d6e8]/40 bg-[#0d2433]/70 p-2">
+                  <div>
+                    <span className="text-[9px] text-[#91aeb9]">Start Latitude (-90 to +90)</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="-90"
+                      max="90"
+                      value={customStartLat}
+                      onChange={(e) => setCustomStartLat(parseFloat(e.target.value) || 0)}
+                      className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-[#91aeb9]">Start Longitude (-180 to +180)</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="-180"
+                      max="180"
+                      value={customStartLon}
+                      onChange={(e) => setCustomStartLon(parseFloat(e.target.value) || 0)}
+                      className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Destination Selection */}
@@ -134,6 +201,151 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                   </option>
                 ))}
               </select>
+
+              {/* Custom Destination Coordinate Inputs */}
+              {isCustomDest && (
+                <div className="mt-2 grid grid-cols-2 gap-2 rounded border border-[#55d6e8]/40 bg-[#0d2433]/70 p-2">
+                  <div>
+                    <span className="text-[9px] text-[#91aeb9]">Dest Latitude (-90 to +90)</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="-90"
+                      max="90"
+                      value={customDestLat}
+                      onChange={(e) => setCustomDestLat(parseFloat(e.target.value) || 0)}
+                      className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-[#91aeb9]">Dest Longitude (-180 to +180)</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="-180"
+                      max="180"
+                      value={customDestLon}
+                      onChange={(e) => setCustomDestLon(parseFloat(e.target.value) || 0)}
+                      className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error banner for invalid coordinates */}
+            {hasCoordinateError && (
+              <div className="flex items-center gap-1.5 rounded bg-[#ef4444]/20 border border-[#ef4444]/60 p-2 text-[#ef4444] text-[10px]">
+                <AlertTriangle size={13} />
+                <span>Latitude must be -90 to +90, Longitude -180 to +180.</span>
+              </div>
+            )}
+
+            {/* 2. Route Waypoints / Break Points Section */}
+            <div className="border-t border-[#1d445c]/60 pt-2.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="font-bold text-[#55d6e8] light:text-[#0f768e] flex items-center gap-1">
+                  <MapPin size={12} />
+                  <span>OPERATIONAL WAYPOINTS / REST STOPS ({nav.waypoints.length}):</span>
+                </span>
+                <button
+                  onClick={() => setShowWpForm((s) => !s)}
+                  className="flex items-center gap-1 rounded bg-[#55d6e8]/20 hover:bg-[#55d6e8]/30 px-2 py-0.5 text-[9.5px] font-bold text-[#55d6e8] transition-colors"
+                >
+                  <Plus size={11} />
+                  <span>{showWpForm ? "Cancel" : "Add Stop"}</span>
+                </button>
+              </div>
+
+              {/* Waypoint Addition Form */}
+              {showWpForm && (
+                <div className="mb-2.5 rounded-lg border border-[#55d6e8]/40 bg-[#071521] p-2.5 flex flex-col gap-2 animate-in fade-in">
+                  <div>
+                    <span className="text-[9px] text-[#91aeb9]">Stop / Break Point Name:</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Bouvet Island Staging Break"
+                      value={newWpName}
+                      onChange={(e) => setNewWpName(e.target.value)}
+                      className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#0d2433] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div>
+                      <span className="text-[8.5px] text-[#91aeb9]">Latitude:</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={newWpLat}
+                        onChange={(e) => setNewWpLat(parseFloat(e.target.value) || 0)}
+                        className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[8.5px] text-[#91aeb9]">Longitude:</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={newWpLon}
+                        onChange={(e) => setNewWpLon(parseFloat(e.target.value) || 0)}
+                        className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[8.5px] text-[#91aeb9]">Break (Hours):</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="72"
+                        value={newWpBreakH}
+                        onChange={(e) => setNewWpBreakH(parseInt(e.target.value) || 0)}
+                        className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleAddWaypoint}
+                    className="rounded bg-[#55d6e8] py-1 font-bold text-[#071521] text-[10px] hover:bg-[#7be3f2]"
+                  >
+                    Save Operational Waypoint
+                  </button>
+                </div>
+              )}
+
+              {/* List of Active Waypoints */}
+              {nav.waypoints.length > 0 ? (
+                <div className="space-y-1.5 mb-2">
+                  {nav.waypoints.map((wp, idx) => (
+                    <div
+                      key={wp.id}
+                      className="flex items-center justify-between rounded border border-[#1d445c]/70 bg-[#0d2433]/70 px-2.5 py-1.5 text-[10.5px]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#55d6e8]/20 text-[#55d6e8] text-[9px] font-bold">
+                          {idx + 1}
+                        </span>
+                        <div>
+                          <div className="font-bold text-[#eaf6f8]">{wp.name}</div>
+                          <div className="text-[9px] text-[#91aeb9]">
+                            {Math.abs(wp.lat).toFixed(2)}°S, {Math.abs(wp.lon).toFixed(2)}°{wp.lon >= 0 ? "E" : "W"} · Break: <b className="text-[#55d6e8]">{wp.breakDurationHours}h</b>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => nav.removeWaypoint(wp.id)}
+                        className="text-[#91aeb9] hover:text-[#ef4444] p-1 transition-colors"
+                        title="Remove Waypoint"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-[9.5px] text-[#91aeb9] italic mb-2">
+                  No intermediate rest breaks added (direct passage).
+                </div>
+              )}
             </div>
 
             {/* Objective Selection */}
@@ -168,7 +380,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             {/* Speed Slider */}
             <div>
               <div className="flex justify-between text-[10px] mb-1 font-bold">
-                <span className="text-[#91aeb9] light:text-[#5a7686]">PLANNED SPEED:</span>
+                <span className="text-[#91aeb9] light:text-[#5a7686]">CRUISING SPEED:</span>
                 <span className="text-[#55d6e8] light:text-[#0f768e]">{speedKn} KNOTS</span>
               </div>
               <input
@@ -184,7 +396,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             {/* Calculate Button */}
             <button
               onClick={handleCalculate}
-              disabled={nav.isCalculating}
+              disabled={nav.isCalculating || hasCoordinateError}
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#55d6e8] px-4 py-2.5 text-[12px] font-bold text-[#071521] shadow-lg hover:bg-[#7be3f2] transition-colors cursor-pointer disabled:opacity-50"
             >
               <Calculator size={15} />
@@ -202,7 +414,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
         />
       </div>
 
-      {/* 2. Right Column: Selected Route Telemetry, Waypoints & View on Map Action */}
+      {/* 2. Right Column: Selected Route Telemetry, Total Voyage Time & Waypoints */}
       <div className="flex flex-col gap-3">
         {/* Selected Route Hero Card */}
         <Card>
@@ -232,12 +444,22 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             </div>
           </div>
 
+          {/* Voyage Time Breakdown */}
           <div className="grid grid-cols-2 gap-4 border-t border-[#1d445c]/50 light:border-[#e8e0d2] p-4 md:grid-cols-4 font-mono">
             <Metric label="Geodesic Distance" value={route.distanceNm.toLocaleString()} unit="nm" />
-            <Metric label="Calculated ETA" value={route.eta} accent="#55d6e8" />
+            <Metric label="Total Estimated Voyage Time" value={route.eta} accent="#55d6e8" />
             <Metric label="Bunker Fuel Burn" value={route.fuelT} unit="t" />
             <Metric label="Route Waypoints" value={route.coordinates.length} />
           </div>
+
+          {nav.totalBreakHours > 0 && (
+            <div className="flex items-center gap-2 border-t border-[#1d445c]/40 bg-[#0d2433]/40 px-4 py-2 text-[11px] font-mono text-[#8ccfe0]">
+              <Clock size={13} className="text-[#55d6e8]" />
+              <span>
+                Breakdown: <b>{Math.floor(nav.baseTravelHours / 24)}d {nav.baseTravelHours % 24}h</b> base transit + <b>{nav.totalBreakHours}h</b> operational/rest breaks = <b>{Math.floor(nav.totalVoyageHours / 24)}d {nav.totalVoyageHours % 24}h</b> total voyage time.
+              </span>
+            </div>
+          )}
         </Card>
 
         {/* Why Recommended / Decision Support Reasoning */}

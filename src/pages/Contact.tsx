@@ -17,7 +17,7 @@ export function Contact() {
         <Card>
           <div className="p-4">
             <div className="mb-1 flex items-center gap-2">
-              <h2 className="text-[15px] font-bold text-[#eaf6f8] light:text-[#0d2433]">Contact ध्रुव सारथी Mission Ops</h2>
+              <h2 className="text-[15px] font-bold text-[#eaf6f8] light:text-[#0d2433]">Contact Dhruv Sarthi Mission Ops</h2>
               <DemoTag label="POLAR TELEMETRY" />
             </div>
             <p className="text-[12px] leading-relaxed text-[#91aeb9] light:text-[#4a6878]">
@@ -49,7 +49,7 @@ export function Contact() {
         <Card title="Operational Headquarters">
           <div className="grid grid-cols-1 gap-px overflow-hidden bg-[#1d445c]/40 light:bg-[#e2d8c7] sm:grid-cols-2">
             <div className="flex items-center gap-2.5 bg-[#132f40] light:bg-[#faf6ee] px-4 py-3.5 text-[12px] text-[#c8dde3] light:text-[#3a5563]">
-              <Building2 size={15} className="text-[#55d6e8] light:text-[#0f768e]" /> ध्रुव सारथी · NCPOR / MoES, Goa, India
+              <Building2 size={15} className="text-[#55d6e8] light:text-[#0f768e]" /> Dhruv Sarthi · NCPOR / MoES, Goa, India
             </div>
             <div className="flex items-center gap-2.5 bg-[#132f40] light:bg-[#faf6ee] px-4 py-3.5 text-[12px] text-[#c8dde3] light:text-[#3a5563]">
               <Clock size={15} className="text-[#55d6e8] light:text-[#0f768e]" /> Operational Bridge Watch: 24/7/365 UTC

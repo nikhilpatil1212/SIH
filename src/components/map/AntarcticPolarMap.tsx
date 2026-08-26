@@ -4,9 +4,9 @@ import { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "map
 import {
   AlertTriangle,
   Anchor,
+  Clock,
   Compass,
   Crosshair,
-  Eye,
   Globe,
   Layers,
   MapPin,
@@ -15,20 +15,17 @@ import {
   Minus,
   Navigation,
   Plus,
-  RotateCcw,
-  Search,
   ShieldAlert,
   Ship,
   Snowflake,
   Triangle,
-  Waves,
-  Wind,
   X,
 } from "lucide-react";
 import type { Hazard, Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
 import { hazards as mockHazards } from "../../data/mock";
+import { useNav, type OperationalWaypoint } from "../../state";
 
 // ---------------------------------------------------------------------------
 // Reliable Base Map Providers
@@ -75,29 +72,6 @@ export const MAP_PROVIDERS: MapTileProvider[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Geographic Utilities & Calculations
-// ---------------------------------------------------------------------------
-export function geoDistanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 3440.065; // Nautical miles
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c);
-}
-
-export function geoBearingDeg(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const y = Math.sin(((lon2 - lon1) * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180);
-  const x =
-    Math.cos((lat1 * Math.PI) / 180) * Math.sin((lat2 * Math.PI) / 180) -
-    Math.sin((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.cos(((lon2 - lon1) * Math.PI) / 180);
-  const brng = (Math.atan2(y, x) * 180) / Math.PI;
-  return Math.round((brng + 360) % 360);
-}
-
 export function getSectorName(lat: number, lon: number): string {
   if (lat > -40) return "Sub-Tropical Maritime Gateway Zone";
   if (lat > -50) return "Roaring Forties · Southern Ocean";
@@ -109,9 +83,6 @@ export function getSectorName(lat: number, lon: number): string {
   return "Queen Maud Land · Polar Continental Sector";
 }
 
-// ---------------------------------------------------------------------------
-// Scientific Research Stations & Gateways
-// ---------------------------------------------------------------------------
 export interface ResearchStation {
   id: string;
   name: string;
@@ -189,16 +160,6 @@ export const RESEARCH_STATIONS: ResearchStation[] = [
     desc: "British Antarctic Survey logistics hub with all-weather airstrip on Adelaide Island, Antarctic Peninsula.",
   },
   {
-    id: "vostok",
-    name: "Vostok Station",
-    country: "Russia",
-    flag: "🇷🇺",
-    lat: -78.46,
-    lon: 106.87,
-    type: "Permanent",
-    desc: "Inland plateau base above subglacial Lake Vostok. Coldest recorded ground temperature on Earth (-89.2°C).",
-  },
-  {
     id: "casey",
     name: "Casey Station",
     country: "Australia",
@@ -217,41 +178,6 @@ export const GATEWAY_PORTS = [
   { id: "hobart", name: "Port of Hobart", country: "Australia", flag: "🇦🇺", lat: -42.88, lon: 147.32, desc: "Home port of RSV Nuyina and gateway for Australian and East Antarctic research." },
 ];
 
-export const EXPEDITION_CORRIDORS = [
-  {
-    id: "india-capetown-maitri",
-    name: "Cape Town 🇿🇦 ➔ Maitri 🇮🇳",
-    color: "#55d6e8",
-    coords: [[18.42, -33.92], [15.0, -50.0], [13.0, -62.0], [11.73, -70.77]],
-  },
-  {
-    id: "india-capetown-bharati",
-    name: "Cape Town 🇿🇦 ➔ Bharati 🇮🇳",
-    color: "#10b981",
-    coords: [[18.42, -33.92], [42.0, -48.0], [60.0, -58.0], [76.19, -69.41]],
-  },
-];
-
-const SEA_ICE_POLYGONS = [
-  {
-    id: "weddell-pack",
-    name: "Weddell Sea Pack Ice",
-    concentration: 78,
-    color: "#0284c7",
-    coords: [[[-60, -65], [-30, -65], [-20, -74], [-55, -76], [-60, -65]]],
-  },
-  {
-    id: "queen-maud-pack",
-    name: "Queen Maud Land Coastal Ice",
-    concentration: 70,
-    color: "#0ea5e9",
-    coords: [[[0, -68], [25, -68], [20, -71], [-5, -71], [0, -68]]],
-  },
-];
-
-// ---------------------------------------------------------------------------
-// Main Antarctic Polar Map Component (Whole-World Context)
-// ---------------------------------------------------------------------------
 export interface AntarcticPolarMapProps {
   routes?: Route[];
   icebergs?: Iceberg[];
@@ -267,9 +193,19 @@ export interface AntarcticPolarMapProps {
     speedKn: number;
     status: string;
   };
+  showMaximize?: boolean;
   className?: string;
   compact?: boolean;
 }
+
+export type HoveredEntity =
+  | { type: "iceberg"; data: Iceberg }
+  | { type: "vessel"; data: any }
+  | { type: "station"; data: ResearchStation }
+  | { type: "gateway"; data: typeof GATEWAY_PORTS[0] }
+  | { type: "hazard"; data: Hazard }
+  | { type: "waypoint"; data: OperationalWaypoint; index: number }
+  | null;
 
 export function AntarcticPolarMap({
   routes = [],
@@ -280,11 +216,13 @@ export function AntarcticPolarMap({
   onSelectIceberg,
   horizonFraction = 0.001,
   vessel,
+  showMaximize = false,
   className = "",
   compact = false,
 }: AntarcticPolarMapProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const nav = useNav();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreInstance | null>(null);
 
@@ -292,30 +230,27 @@ export function AntarcticPolarMap({
   const [providerId, setProviderId] = useState<MapTileProviderId>("esri-satellite");
   const [fullscreen, setFullscreen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
-  const [currentZoom, setCurrentZoom] = useState(2.3);
+  const [currentZoom, setCurrentZoom] = useState(2.5);
 
   // Operational Layer Visibility
   const [layers, setLayers] = useState({
     stations: true,
     gateways: true,
-    corridors: true,
     icebergs: true,
     icebergPrediction: true,
-    seaIce: true,
     vessel: true,
     hazards: true,
+    waypoints: true,
   });
 
   const toggleLayer = (key: keyof typeof layers) => {
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Telemetry & Inspector States
+  // Hovered / Selected Entity State (Floating Card with Zero Layout Shift)
+  const [hoveredEntity, setHoveredEntity] = useState<HoveredEntity>(null);
   const [cursorPos, setCursorPos] = useState<{ lat: number; lon: number; sector: string } | null>(null);
-  const [clickedPin, setClickedPin] = useState<{ lat: number; lon: number; sector: string } | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [selectedStation, setSelectedStation] = useState<ResearchStation | null>(null);
-  const [selectedHazard, setSelectedHazard] = useState<Hazard | null>(null);
+  const hoverTimeoutRef = useRef<any>(null);
 
   const activeProvider = useMemo(() => {
     return MAP_PROVIDERS.find((p) => p.id === providerId) || MAP_PROVIDERS[0];
@@ -352,7 +287,7 @@ export function AntarcticPolarMap({
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: mapStyle,
-      center: [18, -55], // Centered on Cape Town ➔ Antarctica corridor
+      center: [18, -55], // Cape Town ➔ Antarctica corridor
       zoom: 2.5,
       minZoom: 1,
       maxZoom: 18,
@@ -371,26 +306,29 @@ export function AntarcticPolarMap({
       setCursorPos({ lat, lon, sector: getSectorName(lat, lon) });
     });
 
-    map.on("click", (e: any) => {
-      const lat = +e.lngLat.lat.toFixed(4);
-      const lon = +e.lngLat.lng.toFixed(4);
-      setClickedPin({ lat, lon, sector: getSectorName(lat, lon) });
-      setCopied(false);
-    });
-
     return () => {
       map.remove();
       mapRef.current = null;
     };
   }, []);
 
-  // Update Style on Provider Change
+  // Update Style on Provider Change seamlessly
   useEffect(() => {
-    if (!mapRef.current) return;
-    mapRef.current.setStyle(mapStyle);
+    const map = mapRef.current;
+    if (!map) return;
+    map.setStyle(mapStyle);
   }, [mapStyle]);
 
-  // 2. Intelligent Auto-Fitting Map Viewport to Selected Route Coordinates
+  // Trigger resize when fullscreen state toggles
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    setTimeout(() => {
+      map.resize();
+    }, 100);
+  }, [fullscreen]);
+
+  // 2. Auto-Fit Viewport to Selected Route Coordinates
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -407,15 +345,26 @@ export function AntarcticPolarMap({
 
     map.fitBounds(
       [
-        [minLon - 3, minLat - 3],
-        [maxLon + 3, maxLat + 3],
+        [minLon - 2.5, minLat - 2.5],
+        [maxLon + 2.5, maxLat + 2.5],
       ],
-      { padding: 70, duration: 1200 }
+      { padding: 60, duration: 1000 }
     );
   }, [selectedRouteId, routes]);
 
   // Markers management
   const markersRef = useRef<MapLibreMarker[]>([]);
+
+  const handleEntityMouseEnter = (entity: HoveredEntity) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredEntity(entity);
+  };
+
+  const handleEntityMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredEntity(null);
+    }, 250);
+  };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -424,11 +373,8 @@ export function AntarcticPolarMap({
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    const addMarker = (lng: number, lat: number, el: HTMLElement, popupHtml?: string) => {
+    const addMarker = (lng: number, lat: number, el: HTMLElement) => {
       const m = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]);
-      if (popupHtml) {
-        m.setPopup(new maplibregl.Popup({ offset: 15, className: "anm-popup" }).setHTML(popupHtml));
-      }
       m.addTo(map);
       markersRef.current.push(m);
     };
@@ -449,21 +395,24 @@ export function AntarcticPolarMap({
           <span>SARATHI-1</span>
         </div>
       `;
-
-      const popupHtml = `
-        <div style="font-family: Inter, sans-serif; padding: 4px;">
-          <div style="display:flex; align-items:center; gap: 6px; font-weight:bold; font-size: 13px; color: #55d6e8;">
-            <span>🚢</span><span>${vessel.name}</span>
-          </div>
-          <div style="font-size: 11px; margin-top: 3px; color: #10b981;">● Status: ${vessel.status} (Ice Class PC6)</div>
-          <div style="font-size: 11px; margin-top: 2px;"><b>Heading:</b> ${vessel.headingDeg}° · <b>Speed:</b> ${vessel.speedKn} kn</div>
-          <div style="font-size: 11px; margin-top: 2px;"><b>Position:</b> ${Math.abs(vessel.position.lat).toFixed(2)}°S, ${Math.abs(vessel.position.lon).toFixed(2)}°W</div>
-        </div>
-      `;
-      addMarker(vessel.position.lon, vessel.position.lat, el, popupHtml);
+      el.onmouseenter = () => handleEntityMouseEnter({ type: "vessel", data: vessel });
+      el.onmouseleave = handleEntityMouseLeave;
+      addMarker(vessel.position.lon, vessel.position.lat, el);
     }
 
-    // B. Research Stations Markers
+    // B. Operational Waypoints / Rest Breaks along Route
+    if (layers.waypoints && nav.waypoints.length > 0) {
+      nav.waypoints.forEach((wp, idx) => {
+        const el = document.createElement("div");
+        el.className = "flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-2 py-0.5 rounded-full border border-[#38bdf8] bg-[#071521] text-[#38bdf8] shadow-[0_0_10px_#38bdf8] font-mono text-[9px] font-bold";
+        el.innerHTML = `<span>⚓ WP${idx + 1}</span><span>${wp.breakDurationHours > 0 ? `(${wp.breakDurationHours}h)` : ""}</span>`;
+        el.onmouseenter = () => handleEntityMouseEnter({ type: "waypoint", data: wp, index: idx + 1 });
+        el.onmouseleave = handleEntityMouseLeave;
+        addMarker(wp.lon, wp.lat, el);
+      });
+    }
+
+    // C. Research Stations Markers
     if (layers.stations) {
       RESEARCH_STATIONS.forEach((st) => {
         const isIndian = st.country === "India";
@@ -477,25 +426,25 @@ export function AntarcticPolarMap({
         }`;
         el.innerHTML = showLabel ? `<span>${st.flag}</span><span>${st.name}</span>` : `<span>${st.flag}</span>`;
 
-        el.onclick = (e) => {
-          e.stopPropagation();
-          setSelectedStation(st);
-        };
+        el.onmouseenter = () => handleEntityMouseEnter({ type: "station", data: st });
+        el.onmouseleave = handleEntityMouseLeave;
         addMarker(st.lon, st.lat, el);
       });
     }
 
-    // C. Gateway Ports Markers
+    // D. Gateway Ports Markers
     if (layers.gateways) {
       GATEWAY_PORTS.forEach((p) => {
         const el = document.createElement("div");
         el.className = "flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-1.5 py-0.5 rounded-full border border-[#10b981] bg-[#071521]/90 text-[#10b981] shadow-md font-mono text-[9px] font-bold";
         el.innerHTML = currentZoom >= 3 ? `<span>⚓</span><span>${p.flag}</span><span>${p.name}</span>` : `<span>⚓ ${p.flag}</span>`;
+        el.onmouseenter = () => handleEntityMouseEnter({ type: "gateway", data: p });
+        el.onmouseleave = handleEntityMouseLeave;
         addMarker(p.lon, p.lat, el);
       });
     }
 
-    // D. Tracked Icebergs (With Zoom Clustering)
+    // E. Tracked Icebergs
     if (layers.icebergs) {
       icebergs.forEach((ibg) => {
         const path = ibg.predictedPath || [{ lat: ibg.position.lat, lon: ibg.position.lon }];
@@ -511,9 +460,11 @@ export function AntarcticPolarMap({
             ? "border-[#55d6e8] bg-[#55d6e8] text-[#071521] shadow-[0_0_12px_#55d6e8] scale-110"
             : isHigh
             ? "bg-[#ef4444]/20 border-[#ef4444] text-[#ef4444] shadow-[0_0_8px_#ef4444]"
-            : "bg-[#f59e0b]/20 border-[#f59e0b] text-[#f59e0b]"
+            : "bg-[#f5b942]/20 border-[#f5b942] text-[#f5b942]"
         }`;
         el.innerHTML = `<span>▲</span><span>${ibg.id}</span>`;
+        el.onmouseenter = () => handleEntityMouseEnter({ type: "iceberg", data: ibg });
+        el.onmouseleave = handleEntityMouseLeave;
         el.onclick = (e) => {
           e.stopPropagation();
           onSelectIceberg?.(ibg.id);
@@ -522,7 +473,7 @@ export function AntarcticPolarMap({
       });
     }
 
-    // E. Hazards Layer
+    // F. Hazards Layer
     if (layers.hazards) {
       mockHazards.forEach((hz) => {
         const parts = hz.location.split(" ");
@@ -536,24 +487,14 @@ export function AntarcticPolarMap({
           isHigh ? "bg-[#ef4444]/20 border-[#ef4444] text-[#ef4444] animate-pulse" : "bg-[#f59e0b]/20 border-[#f59e0b] text-[#f59e0b]"
         }`;
         el.innerHTML = `<span>⚠️</span><span>${hz.id}</span>`;
-        el.onclick = (e) => {
-          e.stopPropagation();
-          setSelectedHazard(hz);
-        };
+        el.onmouseenter = () => handleEntityMouseEnter({ type: "hazard", data: hz });
+        el.onmouseleave = handleEntityMouseLeave;
         addMarker(lon, lat, el);
       });
     }
+  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, nav.waypoints]);
 
-    // F. Clicked Pin Marker
-    if (clickedPin) {
-      const el = document.createElement("div");
-      el.className = "h-5 w-5 rounded-full border-2 border-[#55d6e8] bg-[#55d6e8]/40 animate-bounce flex items-center justify-center text-[#071521] text-[10px] font-bold shadow-[0_0_12px_#55d6e8]";
-      el.innerHTML = "📍";
-      addMarker(clickedPin.lon, clickedPin.lat, el);
-    }
-  }, [layers, vessel, icebergs, clickedPin, providerId, currentZoom, horizonFraction, selectedIcebergId]);
-
-  // GeoJSON Line & Polygon Layers (Routes, Iceberg Trajectories, Corridors, Sea Ice)
+  // GeoJSON Line & Polygon Layers
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -570,7 +511,12 @@ export function AntarcticPolarMap({
           },
         }));
 
-        if (!map.getSource("iceberg-trajectories-source")) {
+        if (map.getSource("iceberg-trajectories-source")) {
+          (map.getSource("iceberg-trajectories-source") as maplibregl.GeoJSONSource).setData({
+            type: "FeatureCollection",
+            features: trajectoryFeatures,
+          });
+        } else {
           map.addSource("iceberg-trajectories-source", {
             type: "geojson",
             data: { type: "FeatureCollection", features: trajectoryFeatures },
@@ -633,20 +579,12 @@ export function AntarcticPolarMap({
     }
   }, [routes, selectedRouteId, providerId, layers, icebergs]);
 
-  const copyCoordinates = () => {
-    if (!clickedPin) return;
-    const txt = `${Math.abs(clickedPin.lat).toFixed(4)}°S, ${Math.abs(clickedPin.lon).toFixed(4)}°${clickedPin.lon >= 0 ? "E" : "W"}`;
-    navigator.clipboard.writeText(txt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div
       className={cx(
         "relative flex flex-col overflow-hidden select-none transition-colors border",
         isDark ? "border-[#1d445c] bg-[#071521] text-[#eaf6f8]" : "border-[#d8d0c2] bg-[#f8f5ee] text-[#0d2433]",
-        fullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-xl",
+        fullscreen ? "fixed inset-0 z-50 rounded-none h-screen w-screen" : "rounded-xl",
         className,
       )}
     >
@@ -686,16 +624,20 @@ export function AntarcticPolarMap({
             <span>Layers</span>
           </button>
 
-          <button
-            onClick={() => setFullscreen((f) => !f)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8]"
-          >
-            {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-          </button>
+          {/* Maximize Button: only present on Map View (showMaximize = true) */}
+          {showMaximize && (
+            <button
+              onClick={() => setFullscreen((f) => !f)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8] cursor-pointer"
+              title={fullscreen ? "Exit Fullscreen" : "Maximize Map View"}
+            >
+              {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 2. Top Base Map & Operational Layers Ribbon */}
+      {/* 2. Base Map & Operational Layers Ribbon */}
       {layersOpen && (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1d445c]/60 bg-[#071927]/98 light:border-[#e2d8c7] light:bg-[#f8f5ee] px-3.5 py-2 backdrop-blur z-20">
           <div className="flex flex-wrap items-center gap-1">
@@ -724,6 +666,9 @@ export function AntarcticPolarMap({
             <LayerChip label="📈 Trajectories" active={layers.icebergPrediction} onClick={() => toggleLayer("icebergPrediction")} />
             <LayerChip label="📡 AIS Vessel" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
             <LayerChip label="⚠️ Hazards" active={layers.hazards} onClick={() => toggleLayer("hazards")} />
+            {nav.waypoints.length > 0 && (
+              <LayerChip label="⚓ Waypoints" active={layers.waypoints} onClick={() => toggleLayer("waypoints")} />
+            )}
           </div>
         </div>
       )}
@@ -732,22 +677,121 @@ export function AntarcticPolarMap({
       <div className="relative flex-1 min-h-[380px] overflow-hidden bg-[#050d17]">
         <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
 
-        {/* Selected Hazard Panel */}
-        {selectedHazard && (
-          <div className="absolute right-4 top-4 z-30 flex w-80 flex-col gap-2 rounded-xl border border-[#ef4444]/80 bg-[#071927]/98 p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-right-2 font-mono">
-            <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-2">
-              <div className="flex items-center gap-2 text-[12px] font-bold text-[#ef4444]">
-                <ShieldAlert size={15} />
-                <span>HAZARD ALERT: {selectedHazard.id}</span>
-              </div>
-              <button onClick={() => setSelectedHazard(null)} className="text-[#91aeb9] hover:text-[#eaf6f8]">
-                <X size={14} />
-              </button>
-            </div>
-            <div className="text-[10.5px]">
-              <div><b>Type:</b> {selectedHazard.type} · <b>ETA:</b> {selectedHazard.predictedTime}</div>
-              <div><b>Affected:</b> {selectedHazard.affectedRoute} (Confidence {selectedHazard.confidence}%)</div>
-            </div>
+        {/* Temporary Entity Hover / Click Information Dashboard (Zero Layout Shift) */}
+        {hoveredEntity && (
+          <div
+            onMouseEnter={() => {
+              if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+            }}
+            onMouseLeave={handleEntityMouseLeave}
+            className="absolute left-4 top-4 z-30 flex w-76 flex-col gap-2 rounded-xl border border-[#55d6e8]/80 bg-[#071927]/95 p-3.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 pointer-events-auto font-mono text-[11px]"
+          >
+            {hoveredEntity.type === "iceberg" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#f59e0b]">
+                    <Triangle size={13} />
+                    <span>ICEBERG: {hoveredEntity.data.id}</span>
+                  </div>
+                  <span className={cx("rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", hoveredEntity.data.riskLevel === "high" ? "bg-[#ef4444]/20 text-[#ef4444]" : "bg-[#f59e0b]/20 text-[#f59e0b]")}>
+                    {hoveredEntity.data.riskLevel} RISK
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[#eaf6f8]">
+                  <div><b>Position:</b> {Math.abs(hoveredEntity.data.position.lat).toFixed(2)}°S, {Math.abs(hoveredEntity.data.position.lon).toFixed(2)}°W</div>
+                  <div><b>Size:</b> {hoveredEntity.data.sizeKm} km</div>
+                  <div><b>Speed:</b> {(hoveredEntity.data.speedMs * 1.94).toFixed(1)} kn</div>
+                  <div><b>Heading:</b> {hoveredEntity.data.headingDeg}°</div>
+                </div>
+                <div className="text-[10px] text-[#55d6e8] border-t border-[#1d445c]/40 pt-1">
+                  AI Trajectory Confidence: {hoveredEntity.data.confidence}%
+                </div>
+              </>
+            )}
+
+            {hoveredEntity.type === "vessel" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#55d6e8]">
+                    <Ship size={14} />
+                    <span>{hoveredEntity.data.name}</span>
+                  </div>
+                  <span className="rounded bg-[#10b981]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#10b981]">
+                    {hoveredEntity.data.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[#eaf6f8]">
+                  <div><b>Speed:</b> {hoveredEntity.data.speedKn} kn</div>
+                  <div><b>Heading:</b> {hoveredEntity.data.headingDeg}°</div>
+                  <div className="col-span-2"><b>Coordinates:</b> {Math.abs(hoveredEntity.data.position.lat).toFixed(2)}°S, {Math.abs(hoveredEntity.data.position.lon).toFixed(2)}°W</div>
+                </div>
+              </>
+            )}
+
+            {hoveredEntity.type === "waypoint" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#38bdf8]">
+                    <MapPin size={13} />
+                    <span>WAYPOINT {hoveredEntity.index}: {hoveredEntity.data.name}</span>
+                  </div>
+                </div>
+                <div className="text-[#eaf6f8]">
+                  <div><b>Coordinates:</b> {Math.abs(hoveredEntity.data.lat).toFixed(2)}°S, {Math.abs(hoveredEntity.data.lon).toFixed(2)}°{hoveredEntity.data.lon >= 0 ? "E" : "W"}</div>
+                  <div className="mt-1 flex items-center gap-1.5 text-[#55d6e8]">
+                    <Clock size={12} />
+                    <span>Scheduled Rest Break: <b>{hoveredEntity.data.breakDurationHours} hours</b></span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {hoveredEntity.type === "station" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#ffb703]">
+                    <span>{hoveredEntity.data.flag}</span>
+                    <span>{hoveredEntity.data.name}</span>
+                  </div>
+                  <span className="text-[9px] text-[#91aeb9]">{hoveredEntity.data.country}</span>
+                </div>
+                <div className="text-[10.5px] text-[#cbe5ee] leading-tight">{hoveredEntity.data.desc}</div>
+                <div className="text-[10px] text-[#91aeb9]">
+                  {Math.abs(hoveredEntity.data.lat)}°S, {Math.abs(hoveredEntity.data.lon)}°{hoveredEntity.data.lon >= 0 ? "E" : "W"}
+                </div>
+              </>
+            )}
+
+            {hoveredEntity.type === "gateway" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#10b981]">
+                    <span>{hoveredEntity.data.flag}</span>
+                    <span>{hoveredEntity.data.name}</span>
+                  </div>
+                  <span className="text-[9px] text-[#91aeb9]">Gateway</span>
+                </div>
+                <div className="text-[10.5px] text-[#cbe5ee] leading-tight">{hoveredEntity.data.desc}</div>
+              </>
+            )}
+
+            {hoveredEntity.type === "hazard" && (
+              <>
+                <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#ef4444]">
+                    <ShieldAlert size={14} />
+                    <span>HAZARD: {hoveredEntity.data.id}</span>
+                  </div>
+                  <span className="rounded bg-[#ef4444]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#ef4444]">
+                    {hoveredEntity.data.severity.toUpperCase()}
+                  </span>
+                </div>
+                <div className="text-[#eaf6f8]">
+                  <div><b>Type:</b> {hoveredEntity.data.type} · <b>ETA:</b> {hoveredEntity.data.predictedTime}</div>
+                  <div><b>Affected:</b> {hoveredEntity.data.affectedRoute} (Confidence {hoveredEntity.data.confidence}%)</div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -776,7 +820,7 @@ function LayerChip({ label, active, onClick }: { label: string; active: boolean;
     <button
       onClick={onClick}
       className={cx(
-        "flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[9.5px] font-semibold transition-all shadow-sm",
+        "flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[9.5px] font-semibold transition-all shadow-sm cursor-pointer",
         active
           ? "border-[#55d6e8] bg-[#55d6e8]/20 text-[#55d6e8]"
           : "border-[#1d445c]/50 bg-[#0d2433]/50 text-[#91aeb9] hover:border-[#55d6e8]/40",
