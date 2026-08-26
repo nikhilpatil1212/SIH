@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import maplibregl, { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
 import { Crosshair, Layers, Maximize2, Minimize2, Ship, X } from "lucide-react";
 import type { Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import maplibregl, { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
 import {
   Anchor,
   Compass,
