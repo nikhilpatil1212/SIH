@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent, type MouseEvent, type Whee
 import {
   Anchor,
   Compass,
-  Eye,
+  Crosshair,
   Globe,
   Layers,
   MapPin,
@@ -11,7 +11,6 @@ import {
   Minus,
   Navigation,
   Plus,
-  Radio,
   RotateCcw,
   Search,
   Ship,
@@ -20,7 +19,6 @@ import {
   Waves,
   Wind,
   X,
-  Zap,
 } from "lucide-react";
 import type { Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
@@ -57,6 +55,41 @@ export function xyToPolar(x: number, y: number): { lat: number; lon: number } {
   while (lon > 180) lon -= 360;
   while (lon < -180) lon += 360;
   return { lat: +lat.toFixed(2), lon: +lon.toFixed(2) };
+}
+
+/** Calculate Great Circle Distance in Nautical Miles */
+export function geoDistanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 3440.065; // Nautical miles
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
+/** Calculate Initial Bearing in Degrees */
+export function geoBearingDeg(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const y = Math.sin(((lon2 - lon1) * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180);
+  const x =
+    Math.cos((lat1 * Math.PI) / 180) * Math.sin((lat2 * Math.PI) / 180) -
+    Math.sin((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.cos(((lon2 - lon1) * Math.PI) / 180);
+  const brng = (Math.atan2(y, x) * 180) / Math.PI;
+  return Math.round((brng + 360) % 360);
+}
+
+/** Get Descriptive Sector Name for Antarctic Geolocation */
+export function getSectorName(lat: number, lon: number): string {
+  if (lat > -40) return "Sub-Tropical Maritime Gateway Zone";
+  if (lat > -50) return "Roaring Forties · Southern Ocean";
+  if (lat > -60) return "Furious Fifties · Antarctic Circumpolar Current";
+  // Lat <= -60 (Antarctic Treaty Zone)
+  if (lon >= -75 && lon <= -20) return "Weddell Sea Sector · Antarctic Peninsula";
+  if (lon >= -150 && lon < -75) return "Bellingshausen & Amundsen Sea Sector";
+  if (lon >= 150 || lon < -150) return "Ross Sea & Victoria Land Sector";
+  if (lon >= 60 && lon < 150) return "East Antarctica · Wilkes & Prydz Bay";
+  return "Queen Maud Land · Polar Continental Sector";
 }
 
 // Research Stations
@@ -691,8 +724,12 @@ export function AntarcticPolarMap({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
-  const panStartRef = useRef({ x: 0, y: 0, initPanX: 0, initPanY: 0 });
+  const panStartRef = useRef({ clientX: 0, clientY: 0, initPanX: 0, initPanY: 0, hasMoved: false });
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [layersOpen, setLayersOpen] = useState(false);
+  const [clickedPin, setClickedPin] = useState<{ lat: number; lon: number; mapX: number; mapY: number } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Map View Presets
   const [viewPreset, setViewPreset] = useState<"global" | "polar" | "india">("global");
@@ -816,40 +853,82 @@ export function AntarcticPolarMap({
     );
   }, [stationQuery]);
 
-  // Mouse pan handlers
+  // Mouse pan & click handlers
   const handleMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
     setIsPanning(true);
-    panStartRef.current = { x: e.clientX, y: e.clientY, initPanX: pan.x, initPanY: pan.y };
+    panStartRef.current = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      initPanX: pan.x,
+      initPanY: pan.y,
+      hasMoved: false,
+    };
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
     const clientX = e.clientX - rect.left;
     const clientY = e.clientY - rect.top;
 
-    // Calculate map coordinate under cursor taking zoom and pan into account
-    const scale = (zoom * rect.width) / 1000;
-    const mapX = (clientX - rect.width / 2 - pan.x * scale) / scale + MAP_CX;
-    const mapY = (clientY - rect.height / 2 - pan.y * scale) / scale + MAP_CY;
+    // Convert screen coordinates to SVG viewBox space (0..1000, 0..1000)
+    const svgX = (clientX / rect.width) * 1000;
+    const svgY = (clientY / rect.height) * 1000;
+
+    // Invert pan & zoom transformation around center (500, 500)
+    const mapX = 500 + (svgX - 500 - pan.x) / zoom;
+    const mapY = 500 + (svgY - 500 - pan.y) / zoom;
 
     const polar = xyToPolar(mapX, mapY);
     setHoverCoord({ lat: polar.lat, lon: polar.lon, sx: clientX, sy: clientY });
 
     if (isPanning) {
-      const dx = (e.clientX - panStartRef.current.x) / (zoom * 0.9);
-      const dy = (e.clientY - panStartRef.current.y) / (zoom * 0.9);
+      const dx = ((e.clientX - panStartRef.current.clientX) / rect.width) * 1000;
+      const dy = ((e.clientY - panStartRef.current.clientY) / rect.height) * 1000;
+      if (Math.hypot(e.clientX - panStartRef.current.clientX, e.clientY - panStartRef.current.clientY) > 4) {
+        panStartRef.current.hasMoved = true;
+      }
       setPan({ x: panStartRef.current.initPanX + dx, y: panStartRef.current.initPanY + dy });
     }
   };
 
-  const handleMouseUp = () => setIsPanning(false);
+  const handleMouseUp = (e: MouseEvent) => {
+    if (isPanning && !panStartRef.current.hasMoved && svgRef.current) {
+      const rect = svgRef.current.getBoundingClientRect();
+      const clientX = e.clientX - rect.left;
+      const clientY = e.clientY - rect.top;
+      const svgX = (clientX / rect.width) * 1000;
+      const svgY = (clientY / rect.height) * 1000;
+      const mapX = 500 + (svgX - 500 - pan.x) / zoom;
+      const mapY = 500 + (svgY - 500 - pan.y) / zoom;
+      const polar = xyToPolar(mapX, mapY);
+      setClickedPin({ lat: polar.lat, lon: polar.lon, mapX, mapY });
+      setCopied(false);
+    }
+    setIsPanning(false);
+  };
 
-  // Wheel zoom handler
+  // Wheel zoom handler with smooth cursor anchor
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.15 : 0.87;
-    setZoom((z) => Math.min(5.0, Math.max(0.7, +(z * factor).toFixed(2))));
+    e.stopPropagation();
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const clientX = e.clientX - rect.left;
+    const clientY = e.clientY - rect.top;
+    const svgX = (clientX / rect.width) * 1000;
+    const svgY = (clientY / rect.height) * 1000;
+
+    const factor = e.deltaY < 0 ? 1.16 : 0.86;
+    const newZoom = Math.min(6.0, Math.max(0.7, +(zoom * factor).toFixed(2)));
+    const scaleChange = newZoom / zoom;
+    // Anchor zoom to cursor:
+    const newPanX = svgX - 500 - (svgX - 500 - pan.x) * scaleChange;
+    const newPanY = svgY - 500 - (svgY - 500 - pan.y) * scaleChange;
+
+    setZoom(newZoom);
+    setPan({ x: newPanX, y: newPanY });
   };
 
   // Parallels of latitude to draw: 80°S, 70°S, 60°S (Treaty limit), 50°S, 40°S, 30°S
@@ -872,93 +951,99 @@ export function AntarcticPolarMap({
         isDark
           ? "border-[#1d445c] bg-[#071624] text-[#eaf6f8]"
           : "border-[#dfd8cc] bg-[#f8f5ee] text-[#0d2433]",
-        fullscreen ? "fixed inset-0 z-50 rounded-none" : "h-full min-h-[560px] w-full",
+        fullscreen ? "fixed inset-0 z-50 rounded-none" : "h-full min-h-[500px] w-full",
         className,
       )}
     >
       {/* Top Polar Toolbar */}
       <div
         className={cx(
-          "flex flex-wrap items-center justify-between gap-2 border-b px-3.5 py-2.5 backdrop-blur-md transition-colors",
+          "flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 backdrop-blur-md transition-colors",
           isDark
             ? "border-[#1d445c]/70 bg-[#071927]/90"
             : "border-[#e2d8c7] bg-[#fdfbf7]/90",
         )}
       >
         {/* Left: Map Title & Status */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-[#55d6e8]/40 bg-[#55d6e8]/10 text-[#55d6e8]">
-            <Compass size={16} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold tracking-tight">
-                {viewPreset === "global"
-                  ? "Southern Hemisphere & Pan-Antarctic Polar Projection"
-                  : viewPreset === "india"
-                  ? "Indian Antarctic Mission Sector (Maitri & Bharati)"
-                  : "Pan-Antarctic Polar Stereographic Chart"}
-              </span>
-              <span className="rounded bg-[#55d6e8]/15 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#55d6e8]">
-                WGS-84 / EPSG:3031
-              </span>
+        {!compact ? (
+          <div className="flex items-center gap-2">
+            <div className="flex h-6.5 w-6.5 items-center justify-center rounded-md border border-[#55d6e8]/40 bg-[#55d6e8]/10 text-[#55d6e8]">
+              <Compass size={15} />
             </div>
-            <div className="text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-              Real-time multi-continent perspective with Antarctic ice sheet in central focus
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[12px] font-bold tracking-tight">
+                  {viewPreset === "global"
+                    ? "Southern Hemisphere Polar Projection"
+                    : viewPreset === "india"
+                    ? "Indian Antarctic Mission Sector (Maitri & Bharati)"
+                    : "Pan-Antarctic Polar Chart"}
+                </span>
+                <span className="rounded bg-[#55d6e8]/15 px-1 py-0.2 font-mono text-[8.5px] font-bold uppercase text-[#55d6e8]">
+                  EPSG:3031
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8ccfe0] light:text-[#0f768e]">
+            <Compass size={14} />
+            <span className="font-bold">2D Polar Projection</span>
+            <span className="text-[#5f7d89]">·</span>
+            <span className="text-[10px] text-[#91aeb9] light:text-[#5a7686]">Click map for coordinates</span>
+          </div>
+        )}
 
         {/* Center: Search for Stations / Ports / Features */}
         {!compact && (
-          <div className="flex items-center gap-1.5 rounded-md border border-[#1d445c]/60 bg-[#0d2433]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] px-2.5 py-1 text-[11px] focus-within:border-[#55d6e8]/70">
-            <Search size={13} className="text-[#91aeb9] light:text-[#5a7686]" />
+          <div className="hidden lg:flex items-center gap-1.5 rounded-md border border-[#1d445c]/60 bg-[#0d2433]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] px-2 py-1 text-[11px] focus-within:border-[#55d6e8]/70">
+            <Search size={12} className="text-[#91aeb9] light:text-[#5a7686]" />
             <input
               value={stationQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setStationQuery(e.target.value)}
-              placeholder="Search station, port (e.g. Maitri, Cape Town, Hobart)..."
-              className="w-56 bg-transparent font-sans text-[11px] outline-none text-[#eaf6f8] light:text-[#0d2433] placeholder:text-[#5f7d89] light:placeholder:text-[#8ea5b3]"
+              placeholder="Search station, port (e.g. Maitri, Cape Town)..."
+              className="w-48 bg-transparent font-sans text-[11px] outline-none text-[#eaf6f8] light:text-[#0d2433] placeholder:text-[#5f7d89] light:placeholder:text-[#8ea5b3]"
             />
             {stationQuery && (
               <button onClick={() => setStationQuery("")} className="text-[#91aeb9] hover:text-[#eaf6f8]" aria-label="Clear search">
-                <X size={12} />
+                <X size={11} />
               </button>
             )}
           </div>
         )}
 
-        {/* View Presets & Zoom Controls */}
+        {/* View Presets, Zoom Controls, Layers & Fullscreen */}
         <div className="flex items-center gap-1.5">
           {/* View Preset Buttons */}
           <div className="hidden sm:flex items-center rounded-lg border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
             <button
               onClick={() => applyViewPreset("global")}
               className={cx(
-                "rounded px-2 py-1 text-[10px] font-bold transition-all",
+                "rounded px-2 py-0.5 text-[10px] font-bold transition-all",
                 viewPreset === "global"
                   ? "bg-[#55d6e8] text-[#071521] shadow-sm"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
               )}
               title="Full Southern Hemisphere with South America, Africa, Australia, New Zealand"
             >
-              <Globe size={11} className="inline mr-1 -mt-0.5" /> All Continents
+              <Globe size={11} className="inline mr-1 -mt-0.5" /> All
             </button>
             <button
               onClick={() => applyViewPreset("polar")}
               className={cx(
-                "rounded px-2 py-1 text-[10px] font-bold transition-all",
+                "rounded px-2 py-0.5 text-[10px] font-bold transition-all",
                 viewPreset === "polar"
                   ? "bg-[#55d6e8] text-[#071521] shadow-sm"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
               )}
               title="Zoom to Antarctic Polar Circle (60°S - 90°S)"
             >
-              <Snowflake size={11} className="inline mr-1 -mt-0.5" /> Antarctic Ice Sheet
+              <Snowflake size={11} className="inline mr-1 -mt-0.5" /> Polar Sheet
             </button>
             <button
               onClick={() => applyViewPreset("india")}
               className={cx(
-                "rounded px-2 py-1 text-[10px] font-bold transition-all",
+                "rounded px-2 py-0.5 text-[10px] font-bold transition-all",
                 viewPreset === "india"
                   ? "bg-[#55d6e8] text-[#071521] shadow-sm"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
@@ -972,21 +1057,21 @@ export function AntarcticPolarMap({
           {/* Zoom controls */}
           <div className="flex items-center rounded-lg border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
             <button
-              onClick={() => setZoom((z) => Math.min(5.0, +(z + 0.25).toFixed(2)))}
+              onClick={() => setZoom((z) => Math.min(6.0, +(z + 0.25).toFixed(2)))}
               className="rounded p-1 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#eaf6f8] light:text-[#5a7686]"
               title="Zoom in"
               aria-label="Zoom in"
             >
-              <Plus size={13} />
+              <Plus size={12} />
             </button>
-            <span className="px-1.5 font-mono text-[10px] font-bold text-[#8ccfe0] light:text-[#0f768e]">{Math.round(zoom * 100)}%</span>
+            <span className="px-1 font-mono text-[10px] font-bold text-[#8ccfe0] light:text-[#0f768e]">{Math.round(zoom * 100)}%</span>
             <button
               onClick={() => setZoom((z) => Math.max(0.7, +(z - 0.25).toFixed(2)))}
               className="rounded p-1 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#eaf6f8] light:text-[#5a7686]"
               title="Zoom out"
               aria-label="Zoom out"
             >
-              <Minus size={13} />
+              <Minus size={12} />
             </button>
             <button
               onClick={() => {
@@ -998,39 +1083,83 @@ export function AntarcticPolarMap({
               title="Reset view"
               aria-label="Reset view"
             >
-              <RotateCcw size={12} />
+              <RotateCcw size={11} />
             </button>
+          </div>
+
+          {/* Collapsible Layers Dropdown Button */}
+          <div className="relative">
+            <button
+              onClick={() => setLayersOpen((o) => !o)}
+              className={cx(
+                "flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-bold transition-all",
+                layersOpen
+                  ? "border-[#55d6e8] bg-[#55d6e8]/20 text-[#55d6e8] light:border-[#0f768e] light:bg-[#0f768e]/15 light:text-[#0f768e]"
+                  : "border-[#1d445c]/60 bg-[#0d2433]/60 text-[#91aeb9] hover:text-[#eaf6f8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686]",
+              )}
+              title="Toggle Map Layers"
+            >
+              <Layers size={12} />
+              <span>Layers</span>
+              <span className="rounded bg-[#55d6e8]/20 light:bg-[#0f768e]/20 px-1 font-mono text-[9px]">
+                {Object.values(layers).filter(Boolean).length}
+              </span>
+            </button>
+
+            {layersOpen && (
+              <div
+                className={cx(
+                  "absolute right-0 top-full mt-1.5 z-40 flex w-60 flex-col gap-0.5 rounded-xl border p-2 shadow-2xl backdrop-blur-md",
+                  isDark ? "border-[#1d445c] bg-[#071927]/98 text-[#c8dde3]" : "border-[#dfd8cc] bg-[#faf8f5]/98 text-[#3a5563]",
+                )}
+              >
+                <div className="mb-1 flex items-center justify-between border-b border-[#1d445c]/40 light:border-[#e2d8c7] pb-1 px-1 text-[9px] font-bold uppercase tracking-wider text-[#55d6e8] light:text-[#0f768e]">
+                  <span className="flex items-center gap-1">
+                    <Layers size={11} /> Map Layers
+                  </span>
+                  <button onClick={() => setLayersOpen(false)} className="text-[#91aeb9] hover:text-[#eaf6f8]">
+                    <X size={11} />
+                  </button>
+                </div>
+
+                <LayerToggleBtn label="Continents & Borders" active={layers.continents} onClick={() => toggleLayer("continents")} />
+                <LayerToggleBtn label="Research Stations" active={layers.stations} onClick={() => toggleLayer("stations")} />
+                <LayerToggleBtn label="Gateway Ports" active={layers.gateways} onClick={() => toggleLayer("gateways")} />
+                <LayerToggleBtn label="Expedition Corridors" active={layers.corridors} onClick={() => toggleLayer("corridors")} />
+                <LayerToggleBtn label="Polar Graticule & Parallels" active={layers.graticule} onClick={() => toggleLayer("graticule")} />
+                <LayerToggleBtn label="Polar Front & ACC Current" active={layers.currents} onClick={() => toggleLayer("currents")} />
+                <LayerToggleBtn label="Sea-Ice Concentration" active={layers.seaIce} onClick={() => toggleLayer("seaIce")} />
+                <LayerToggleBtn label="Iceberg Drift Corridors" active={layers.icebergs} onClick={() => toggleLayer("icebergs")} />
+                <LayerToggleBtn label="Live Research Vessel (AIS)" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
+              </div>
+            )}
           </div>
 
           {/* Fullscreen toggle */}
           <button
             onClick={() => setFullscreen((f) => !f)}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
+            className="flex h-6.5 w-6.5 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#0d2433]/60 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
             title={fullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
             aria-label={fullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
           >
-            {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+            {fullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
           </button>
         </div>
       </div>
 
       {/* Main SVG Vector Canvas */}
       <div
-        className="relative flex-1 cursor-grab active:cursor-grabbing overflow-hidden"
+        className="relative flex-1 cursor-crosshair overflow-hidden"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => setIsPanning(false)}
         onWheel={handleWheel}
       >
         <svg
+          ref={svgRef}
           viewBox="0 0 1000 1000"
           className="h-full w-full select-none"
-          style={{
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            transformOrigin: "500px 500px",
-            transition: isPanning ? "none" : "transform 0.15s ease-out",
-          }}
         >
           <defs>
             {/* Realistic Southern Ocean Deep Gradient */}
@@ -1075,8 +1204,10 @@ export function AntarcticPolarMap({
             </filter>
           </defs>
 
-          {/* Background Ocean Disk */}
-          <circle cx="500" cy="500" r="485" fill="url(#oceanGradient)" stroke={isDark ? "#1d445c" : "#b0d2de"} strokeWidth="2" />
+          {/* Interactive Zoomable Map Canvas Group */}
+          <g transform={`translate(500, 500) translate(${pan.x}, ${pan.y}) scale(${zoom}) translate(-500, -500)`}>
+            {/* Background Ocean Disk */}
+            <circle cx="500" cy="500" r="485" fill="url(#oceanGradient)" stroke={isDark ? "#1d445c" : "#b0d2de"} strokeWidth="2" />
 
           {/* Graticule Latitude Parallels */}
           {layers.graticule && (
@@ -1544,53 +1675,103 @@ export function AntarcticPolarMap({
               })}
             </g>
           )}
-        </svg>
+          {/* 11. Clicked Point Coordinate Marker */}
+          {clickedPin && (
+            <g transform={`translate(${clickedPin.mapX}, ${clickedPin.mapY})`} className="pointer-events-none">
+              <circle cx="0" cy="0" r="16" fill="#55d6e8" opacity="0.35" className="animate-ping" />
+              <circle cx="0" cy="0" r="6" fill="#55d6e8" stroke="#ffffff" strokeWidth="2" />
+              <path d="M 0 0 L -5 -14 A 6 6 0 1 1 5 -14 Z" fill="#55d6e8" stroke="#071521" strokeWidth="1.2" transform="translate(0, -2)" />
+              <circle cx="0" cy="-16" r="2.5" fill="#ffffff" />
+            </g>
+          )}
+        </g>
+      </svg>
 
-        {/* Live Cursor Coordinate Inspector (Floating HUD) */}
-        {hoverCoord && (
-          <div
-            className={cx(
-              "pointer-events-none absolute bottom-3 left-3 flex items-center gap-3 rounded-lg border px-3 py-1.5 font-mono text-[11px] shadow-lg backdrop-blur-md transition-colors",
-              isDark
-                ? "border-[#1d445c] bg-[#071624]/90 text-[#8ccfe0]"
-                : "border-[#dfd8cc] bg-[#f8f5ee]/95 text-[#0f768e]",
-            )}
-          >
-            <div className="flex items-center gap-1.5">
-              <CrosshairIcon />
-              <span className="font-bold text-[#eaf6f8] light:text-[#0d2433]">
-                {Math.abs(hoverCoord.lat).toFixed(2)}°S, {hoverCoord.lon >= 0 ? `${hoverCoord.lon.toFixed(2)}°E` : `${Math.abs(hoverCoord.lon).toFixed(2)}°W`}
-              </span>
-            </div>
-            <span className="text-[#5f7d89]">|</span>
-            <span className="text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-              {hoverCoord.lat < -60 ? "Antarctic Polar Circle" : hoverCoord.lat < -40 ? "Roaring Forties / Southern Ocean" : "Sub-Tropical Maritime Zone"}
-            </span>
-          </div>
-        )}
-
-        {/* Layer Toggles Palette (Floating Right Controls) */}
+      {/* Floating Hover Coordinate Indicator (Subtle pill) */}
+      {hoverCoord && !clickedPin && (
         <div
           className={cx(
-            "absolute top-3 right-3 flex flex-col gap-1 rounded-xl border p-2 shadow-xl backdrop-blur-md transition-colors",
-            isDark ? "border-[#1d445c] bg-[#071927]/90 text-[#c8dde3]" : "border-[#dfd8cc] bg-[#faf8f5]/95 text-[#3a5563]",
+            "pointer-events-none absolute bottom-3 left-3 flex items-center gap-2.5 rounded-lg border px-2.5 py-1 font-mono text-[10px] shadow-md backdrop-blur-md transition-colors",
+            isDark
+              ? "border-[#1d445c] bg-[#071624]/90 text-[#8ccfe0]"
+              : "border-[#dfd8cc] bg-[#f8f5ee]/95 text-[#0f768e]",
           )}
         >
-          <div className="mb-1 flex items-center gap-1.5 border-b border-[#1d445c]/40 light:border-[#e2d8c7] pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#55d6e8]">
-            <Layers size={12} /> Map Layers
+          <div className="flex items-center gap-1.5 font-bold text-[#eaf6f8] light:text-[#0d2433]">
+            <Crosshair size={12} className="text-[#55d6e8] light:text-[#0f768e]" />
+            <span>
+              {Math.abs(hoverCoord.lat).toFixed(2)}°S, {hoverCoord.lon >= 0 ? `${hoverCoord.lon.toFixed(2)}°E` : `${Math.abs(hoverCoord.lon).toFixed(2)}°W`}
+            </span>
+          </div>
+          <span className="text-[#5f7d89]">·</span>
+          <span className="text-[#91aeb9] light:text-[#5a7686]">
+            {getSectorName(hoverCoord.lat, hoverCoord.lon)}
+          </span>
+        </div>
+      )}
+
+      {/* Interactive Clicked Point Coordinate Inspector Card */}
+      {clickedPin && (
+        <div
+          className={cx(
+            "absolute bottom-3 left-3 z-30 flex flex-col gap-2 rounded-xl border p-3 shadow-2xl backdrop-blur-md max-w-xs transition-all animate-in fade-in slide-in-from-bottom-2",
+            isDark
+              ? "border-[#55d6e8]/40 bg-[#071927]/95 text-[#eaf6f8]"
+              : "border-[#0f768e]/40 bg-[#fdfbf7]/98 text-[#0d2433]",
+          )}
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-[#1d445c]/40 light:border-[#e2d8c7] pb-1.5">
+            <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-[#55d6e8] light:text-[#0f768e]">
+              <Crosshair size={13} />
+              <span>POINT INSPECTOR</span>
+            </div>
+            <button
+              onClick={() => setClickedPin(null)}
+              className="text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#7a94a2] light:hover:text-[#0d2433]"
+              title="Close Inspector"
+            >
+              <X size={13} />
+            </button>
           </div>
 
-          <LayerToggleBtn label="Continents & Neighbors" active={layers.continents} onClick={() => toggleLayer("continents")} />
-          <LayerToggleBtn label="Indian & Global Stations" active={layers.stations} onClick={() => toggleLayer("stations")} />
-          <LayerToggleBtn label="Gateway Ports (Cape Town, Hobart, etc.)" active={layers.gateways} onClick={() => toggleLayer("gateways")} />
-          <LayerToggleBtn label="Expedition Transit Corridors" active={layers.corridors} onClick={() => toggleLayer("corridors")} />
-          <LayerToggleBtn label="Polar Graticule & Parallels" active={layers.graticule} onClick={() => toggleLayer("graticule")} />
-          <LayerToggleBtn label="Polar Front & ACC Currents" active={layers.currents} onClick={() => toggleLayer("currents")} />
-          <LayerToggleBtn label="Sea Ice Concentration Heatmap" active={layers.seaIce} onClick={() => toggleLayer("seaIce")} />
-          <LayerToggleBtn label="Iceberg Drift Corridors (72h)" active={layers.icebergs} onClick={() => toggleLayer("icebergs")} />
-          <LayerToggleBtn label="Live Research Vessel (AIS)" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
+          <div>
+            <div className="font-mono text-[14px] font-bold tracking-tight text-[#55d6e8] light:text-[#0f768e]">
+              {Math.abs(clickedPin.lat).toFixed(3)}°S, {clickedPin.lon >= 0 ? `${clickedPin.lon.toFixed(3)}°E` : `${Math.abs(clickedPin.lon).toFixed(3)}°W`}
+            </div>
+            <div className="text-[10.5px] text-[#91aeb9] light:text-[#5a7686] leading-snug">
+              {getSectorName(clickedPin.lat, clickedPin.lon)}
+            </div>
+          </div>
+
+          {vessel && (
+            <div className="rounded-md border border-[#1d445c]/40 light:border-[#e2d8c7] bg-[#0d2433]/60 light:bg-[#f4eee3] p-1.5 text-[10px] font-mono">
+              <div className="text-[#91aeb9] light:text-[#6b8594]">From {vessel.name}:</div>
+              <div className="font-bold text-[#eaf6f8] light:text-[#0d2433]">
+                {geoDistanceNm(vessel.position.lat, vessel.position.lon, clickedPin.lat, clickedPin.lon)} nm · Bearing {geoBearingDeg(vessel.position.lat, vessel.position.lon, clickedPin.lat, clickedPin.lon)}°
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              const text = `${Math.abs(clickedPin.lat).toFixed(3)}°S, ${clickedPin.lon >= 0 ? `${clickedPin.lon.toFixed(3)}°E` : `${Math.abs(clickedPin.lon).toFixed(3)}°W`}`;
+              navigator.clipboard.writeText(text);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className={cx(
+              "flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10.5px] font-bold transition-all",
+              copied
+                ? "bg-[#10b981] text-white shadow-sm"
+                : "bg-[#55d6e8] text-[#071521] hover:bg-[#7be3f2] light:bg-[#0f768e] light:text-white",
+            )}
+          >
+            {copied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
+            <span>{copied ? "Copied Coordinates!" : "Copy Coordinates"}</span>
+          </button>
         </div>
-      </div>
+      )}
+    </div>
 
       {/* Interactive Station / Gateway Detail Modal */}
       {selectedStation && (
@@ -1682,6 +1863,23 @@ function CrosshairIcon() {
       <line x1="8" y1="12" x2="8" y2="15" />
       <line x1="1" y1="8" x2="4" y2="8" />
       <line x1="12" y1="8" x2="15" y2="8" />
+    </svg>
+  );
+}
+
+function CopyIcon({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </svg>
+  );
+}
+
+function CheckIcon({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }

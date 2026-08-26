@@ -17,7 +17,6 @@ import {
   Wind,
 } from "lucide-react";
 import { PredictionCard } from "../components/PredictionCard";
-import { Workflow } from "../components/Workflow";
 import MapView, { type LayerState } from "../components/map/MapView";
 import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { AlertsPanel, EnvironmentalCard, RiskFactors, RouteComparison, VesselCard } from "../components/panels";
@@ -86,8 +85,6 @@ export function Dashboard() {
         ))}
       </div>
 
-      <Workflow />
-
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_360px]">
         {/* Map hero + bottom cards */}
         <div className="flex flex-col gap-3">
@@ -95,20 +92,20 @@ export function Dashboard() {
           <div
             className={cx(
               "flex flex-col overflow-hidden rounded-xl border border-[#1d445c]/80 bg-[#071521] light:border-[#e2d8c7] light:bg-white shadow-lg transition-colors",
-              fullscreen ? "fixed inset-3 z-50 h-[calc(100vh-24px)]" : "h-[530px]",
+              fullscreen ? "fixed inset-3 z-50 h-[calc(100vh-24px)]" : "h-[540px]",
             )}
           >
             {/* Map Header Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1d445c]/60 light:border-[#e2d8c7] bg-[#0c2333]/90 light:bg-[#f8f5ee] px-3.5 py-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1d445c]/60 light:border-[#e2d8c7] bg-[#0c2333]/90 light:bg-[#f8f5ee] px-3 py-2">
               {/* Left Title & Status */}
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#55d6e8]/15 text-[#55d6e8] light:bg-[#0f768e]/15 light:text-[#0f768e]">
-                  <Compass size={16} />
+              <div className="flex items-center gap-2">
+                <div className="flex h-6.5 w-6.5 items-center justify-center rounded-md bg-[#55d6e8]/15 text-[#55d6e8] light:bg-[#0f768e]/15 light:text-[#0f768e]">
+                  <Compass size={15} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
-                      Operational 2D Polar Chart
+                      Operational Polar Chart
                     </span>
                     <span className="flex items-center gap-1 rounded bg-[#46d7a1]/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#46d7a1] light:text-[#059669]">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#46d7a1] light:bg-[#059669]" />
@@ -116,7 +113,7 @@ export function Dashboard() {
                     </span>
                   </div>
                   <div className="font-mono text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-                    Antarctica 60°S–90°S · Graticules & Research Stations · Active: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span>
+                    Active Corridor: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span>
                   </div>
                 </div>
               </div>
@@ -126,7 +123,7 @@ export function Dashboard() {
                 {/* Forecast Timeline */}
                 <div className="hidden sm:flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <span className="px-1.5 font-mono text-[9px] font-semibold uppercase text-[#91aeb9] light:text-[#5a7686]">
-                    Forecast:
+                    Horizon:
                   </span>
                   {FORECAST_HORIZONS.map((h) => (
                     <button
@@ -149,7 +146,7 @@ export function Dashboard() {
                   <button
                     onClick={() => setViewMode("polar")}
                     className={cx(
-                      "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors",
+                      "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-wider transition-colors",
                       viewMode === "polar"
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
@@ -157,12 +154,12 @@ export function Dashboard() {
                     title="2D Antarctic Polar Stereographic Chart (All Basins & Stations)"
                   >
                     <Compass size={13} />
-                    Pan-Antarctic (2D)
+                    Pan-Antarctic
                   </button>
                   <button
                     onClick={() => setViewMode("tactical")}
                     className={cx(
-                      "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors",
+                      "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-wider transition-colors",
                       viewMode === "tactical"
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
@@ -177,11 +174,11 @@ export function Dashboard() {
                 {/* Fullscreen Button */}
                 <button
                   onClick={() => setFullscreen((f) => !f)}
-                  className="flex h-8 w-8 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#55d6e8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686] light:hover:text-[#0d2433] transition-colors"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#55d6e8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686] light:hover:text-[#0d2433] transition-colors"
                   title={fullscreen ? "Exit Fullscreen" : "Fullscreen View"}
                   aria-label="Toggle Fullscreen"
                 >
-                  {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
                 </button>
               </div>
             </div>
@@ -204,6 +201,7 @@ export function Dashboard() {
                     speedKn: vessel.speedKn,
                     status: vessel.status,
                   }}
+                  compact={true}
                   className="h-full w-full border-none rounded-none"
                 />
               ) : (

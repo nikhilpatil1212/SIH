@@ -33,6 +33,9 @@ export function IcebergPrediction() {
               Neural Drift Horizon
             </span>
             <DemoTag label="PINN ENSEMBLE" />
+            <span className="rounded bg-[#f5b942]/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-[#f5b942] light:text-[#d97706]">
+              95% Dispersion · {horizon}
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -70,13 +73,6 @@ export function IcebergPrediction() {
           />
 
           <PredictionLegend />
-
-          {/* Uncertainty banner */}
-          <div className="pointer-events-none absolute left-3 top-14 z-10 rounded-md border border-[#f5b942]/40 bg-[#071521]/90 light:border-[#d97706]/40 light:bg-[#fdfbf7]/90 px-2.5 py-1.5 backdrop-blur shadow-sm">
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[#f5b942] light:text-[#d97706]">
-              95% Spatial Dispersion Corridor · {horizon}
-            </span>
-          </div>
         </div>
       </div>
 
