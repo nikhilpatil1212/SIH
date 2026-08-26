@@ -1,0 +1,21 @@
+{
+  "source_product": "reanalysis-era5-single-levels",
+  "variables": [
+    "10m_u_component_of_wind",
+    "10m_v_component_of_wind"
+  ],
+  "spatial_resolution_deg": 0.25,
+  "temporal_resolution": "hourly / daily_aggregated",
+  "units": "m/s",
+  "requested_bbox": {
+    "min_lat": -67.5894,
+    "max_lat": -65.4657,
+    "min_lon": 147.2685,
+    "max_lon": 150.0858
+  },
+  "requested_period": [
+    "2006-02-04",
+    "2006-06-03"
+  ],
+  "query_timestamp": "2026-08-26T15:12:48.615706"
+}

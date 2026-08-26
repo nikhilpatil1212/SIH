@@ -1,0 +1,16 @@
+{
+  "source_product": "GEBCO_2024_Grid",
+  "variables": [
+    "elevation"
+  ],
+  "spatial_resolution_arcsec": 15.0,
+  "temporal_resolution": "static",
+  "units": "meters",
+  "requested_bbox": {
+    "min_lat": -69.1451,
+    "max_lat": -66.4901,
+    "min_lon": -63.5051,
+    "max_lon": -59.3183
+  },
+  "query_timestamp": "2026-08-26T15:12:47.982690"
+}

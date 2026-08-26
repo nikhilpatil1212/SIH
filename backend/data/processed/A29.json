@@ -1,0 +1,4898 @@
+[
+  {
+    "iceberg_id": "A29",
+    "original_date": 1989358,
+    "calendar_date": "1989-12-24",
+    "latitude": -72.1,
+    "longitude": -15.5,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -72.1,
+        "lon": -15.5,
+        "flag": 1
+      }
+    },
+    "step_index": 0,
+    "delta_time_days": 0.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": null,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1991335,
+    "calendar_date": "1991-12-01",
+    "latitude": -60.9,
+    "longitude": -52.8,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -60.9,
+        "lon": -52.8,
+        "flag": 1
+      }
+    },
+    "step_index": 1,
+    "delta_time_days": 707.0,
+    "delta_distance_km": 2015.354,
+    "speed_km_day": 2.851,
+    "speed_knots": 0.064,
+    "speed_m_s": 0.033,
+    "bearing_deg": 288.67,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992019,
+    "calendar_date": "1992-01-19",
+    "latitude": -55.4,
+    "longitude": -42.2,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -55.4,
+        "lon": -42.2,
+        "flag": 1
+      }
+    },
+    "step_index": 2,
+    "delta_time_days": 49.0,
+    "delta_distance_km": 870.333,
+    "speed_km_day": 17.762,
+    "speed_knots": 0.4,
+    "speed_m_s": 0.2056,
+    "bearing_deg": 50.09,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992033,
+    "calendar_date": "1992-02-02",
+    "latitude": -55.2,
+    "longitude": -38.8,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -55.2,
+        "lon": -38.8,
+        "flag": 1
+      }
+    },
+    "step_index": 3,
+    "delta_time_days": 14.0,
+    "delta_distance_km": 216.348,
+    "speed_km_day": 15.453,
+    "speed_knots": 0.348,
+    "speed_m_s": 0.1789,
+    "bearing_deg": 85.5,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992085,
+    "calendar_date": "1992-03-25",
+    "latitude": -59.7202,
+    "longitude": -51.5126,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.7202,
+        "lon": -51.5126,
+        "flag": 1
+      }
+    },
+    "step_index": 4,
+    "delta_time_days": 52.0,
+    "delta_distance_km": 909.156,
+    "speed_km_day": 17.484,
+    "speed_knots": 0.393,
+    "speed_m_s": 0.2024,
+    "bearing_deg": 231.28,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992086,
+    "calendar_date": "1992-03-26",
+    "latitude": -59.6407,
+    "longitude": -51.5378,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.6407,
+        "lon": -51.5378,
+        "flag": 1
+      }
+    },
+    "step_index": 5,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 8.952,
+    "speed_km_day": 8.952,
+    "speed_knots": 0.201,
+    "speed_m_s": 0.1036,
+    "bearing_deg": 350.9,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992087,
+    "calendar_date": "1992-03-27",
+    "latitude": -59.5613,
+    "longitude": -51.5631,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.5613,
+        "lon": -51.5631,
+        "flag": 1
+      }
+    },
+    "step_index": 6,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 8.943,
+    "speed_km_day": 8.943,
+    "speed_knots": 0.201,
+    "speed_m_s": 0.1035,
+    "bearing_deg": 350.83,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992088,
+    "calendar_date": "1992-03-28",
+    "latitude": -59.4846,
+    "longitude": -51.6413,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.4846,
+        "lon": -51.6413,
+        "flag": 1
+      }
+    },
+    "step_index": 7,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 9.601,
+    "speed_km_day": 9.601,
+    "speed_knots": 0.216,
+    "speed_m_s": 0.1111,
+    "bearing_deg": 332.62,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992089,
+    "calendar_date": "1992-03-29",
+    "latitude": -59.4108,
+    "longitude": -51.7724,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.4108,
+        "lon": -51.7724,
+        "flag": 1
+      }
+    },
+    "step_index": 8,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.057,
+    "speed_km_day": 11.057,
+    "speed_knots": 0.249,
+    "speed_m_s": 0.128,
+    "bearing_deg": 317.86,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992090,
+    "calendar_date": "1992-03-30",
+    "latitude": -59.3369,
+    "longitude": -51.9035,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.3369,
+        "lon": -51.9035,
+        "flag": 1
+      }
+    },
+    "step_index": 9,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.076,
+    "speed_km_day": 11.076,
+    "speed_knots": 0.249,
+    "speed_m_s": 0.1282,
+    "bearing_deg": 317.84,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992091,
+    "calendar_date": "1992-03-31",
+    "latitude": -59.2971,
+    "longitude": -51.8752,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2971,
+        "lon": -51.8752,
+        "flag": 1
+      }
+    },
+    "step_index": 10,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 4.708,
+    "speed_km_day": 4.708,
+    "speed_knots": 0.106,
+    "speed_m_s": 0.0545,
+    "bearing_deg": 19.96,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992092,
+    "calendar_date": "1992-04-01",
+    "latitude": -59.2912,
+    "longitude": -51.6874,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2912,
+        "lon": -51.6874,
+        "flag": 1
+      }
+    },
+    "step_index": 11,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.683,
+    "speed_km_day": 10.683,
+    "speed_knots": 0.24,
+    "speed_m_s": 0.1237,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992093,
+    "calendar_date": "1992-04-02",
+    "latitude": -59.2853,
+    "longitude": -51.4997,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2853,
+        "lon": -51.4997,
+        "flag": 1
+      }
+    },
+    "step_index": 12,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.68,
+    "speed_km_day": 10.68,
+    "speed_knots": 0.24,
+    "speed_m_s": 0.1236,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992094,
+    "calendar_date": "1992-04-03",
+    "latitude": -59.2794,
+    "longitude": -51.3119,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2794,
+        "lon": -51.3119,
+        "flag": 1
+      }
+    },
+    "step_index": 13,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.687,
+    "speed_km_day": 10.687,
+    "speed_knots": 0.24,
+    "speed_m_s": 0.1237,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992095,
+    "calendar_date": "1992-04-04",
+    "latitude": -59.2735,
+    "longitude": -51.1241,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2735,
+        "lon": -51.1241,
+        "flag": 1
+      }
+    },
+    "step_index": 14,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.689,
+    "speed_km_day": 10.689,
+    "speed_knots": 0.24,
+    "speed_m_s": 0.1237,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992096,
+    "calendar_date": "1992-04-05",
+    "latitude": -59.2676,
+    "longitude": -50.9364,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2676,
+        "lon": -50.9364,
+        "flag": 1
+      }
+    },
+    "step_index": 15,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.685,
+    "speed_km_day": 10.685,
+    "speed_knots": 0.24,
+    "speed_m_s": 0.1237,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992097,
+    "calendar_date": "1992-04-06",
+    "latitude": -59.2617,
+    "longitude": -50.7486,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2617,
+        "lon": -50.7486,
+        "flag": 1
+      }
+    },
+    "step_index": 16,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.693,
+    "speed_km_day": 10.693,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1238,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992098,
+    "calendar_date": "1992-04-07",
+    "latitude": -59.2558,
+    "longitude": -50.5608,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2558,
+        "lon": -50.5608,
+        "flag": 1
+      }
+    },
+    "step_index": 17,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.694,
+    "speed_km_day": 10.694,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1238,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992099,
+    "calendar_date": "1992-04-08",
+    "latitude": -59.2499,
+    "longitude": -50.373,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2499,
+        "lon": -50.373,
+        "flag": 1
+      }
+    },
+    "step_index": 18,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.696,
+    "speed_km_day": 10.696,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1238,
+    "bearing_deg": 86.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992100,
+    "calendar_date": "1992-04-09",
+    "latitude": -59.2441,
+    "longitude": -50.1853,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2441,
+        "lon": -50.1853,
+        "flag": 1
+      }
+    },
+    "step_index": 19,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.692,
+    "speed_km_day": 10.692,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1237,
+    "bearing_deg": 86.62,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992101,
+    "calendar_date": "1992-04-10",
+    "latitude": -59.2382,
+    "longitude": -49.9975,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2382,
+        "lon": -49.9975,
+        "flag": 1
+      }
+    },
+    "step_index": 20,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.7,
+    "speed_km_day": 10.7,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1238,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992102,
+    "calendar_date": "1992-04-11",
+    "latitude": -59.2323,
+    "longitude": -49.8097,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2323,
+        "lon": -49.8097,
+        "flag": 1
+      }
+    },
+    "step_index": 21,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.702,
+    "speed_km_day": 10.702,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1239,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992103,
+    "calendar_date": "1992-04-12",
+    "latitude": -59.2264,
+    "longitude": -49.6219,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2264,
+        "lon": -49.6219,
+        "flag": 1
+      }
+    },
+    "step_index": 22,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.704,
+    "speed_km_day": 10.704,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1239,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992104,
+    "calendar_date": "1992-04-13",
+    "latitude": -59.2205,
+    "longitude": -49.4342,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2205,
+        "lon": -49.4342,
+        "flag": 1
+      }
+    },
+    "step_index": 23,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.7,
+    "speed_km_day": 10.7,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1238,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992105,
+    "calendar_date": "1992-04-14",
+    "latitude": -59.2146,
+    "longitude": -49.2464,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2146,
+        "lon": -49.2464,
+        "flag": 1
+      }
+    },
+    "step_index": 24,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.707,
+    "speed_km_day": 10.707,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1239,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992106,
+    "calendar_date": "1992-04-15",
+    "latitude": -59.2087,
+    "longitude": -49.0586,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2087,
+        "lon": -49.0586,
+        "flag": 1
+      }
+    },
+    "step_index": 25,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.709,
+    "speed_km_day": 10.709,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1239,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992107,
+    "calendar_date": "1992-04-16",
+    "latitude": -59.2028,
+    "longitude": -48.8709,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.2028,
+        "lon": -48.8709,
+        "flag": 1
+      }
+    },
+    "step_index": 26,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.705,
+    "speed_km_day": 10.705,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.1239,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992108,
+    "calendar_date": "1992-04-17",
+    "latitude": -59.1969,
+    "longitude": -48.6831,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.1969,
+        "lon": -48.6831,
+        "flag": 1
+      }
+    },
+    "step_index": 27,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.713,
+    "speed_km_day": 10.713,
+    "speed_knots": 0.241,
+    "speed_m_s": 0.124,
+    "bearing_deg": 86.57,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992109,
+    "calendar_date": "1992-04-18",
+    "latitude": -59.0466,
+    "longitude": -48.5073,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -59.0466,
+        "lon": -48.5073,
+        "flag": 0
+      }
+    },
+    "step_index": 28,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 19.493,
+    "speed_km_day": 19.493,
+    "speed_knots": 0.439,
+    "speed_m_s": 0.2256,
+    "bearing_deg": 31.05,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992110,
+    "calendar_date": "1992-04-19",
+    "latitude": -58.7284,
+    "longitude": -48.3317,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.7284,
+        "lon": -48.3317,
+        "flag": 0
+      }
+    },
+    "step_index": 29,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 36.793,
+    "speed_km_day": 36.793,
+    "speed_knots": 0.828,
+    "speed_m_s": 0.4258,
+    "bearing_deg": 15.99,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992111,
+    "calendar_date": "1992-04-20",
+    "latitude": -58.4127,
+    "longitude": -48.1967,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.4127,
+        "lon": -48.1967,
+        "flag": 0
+      }
+    },
+    "step_index": 30,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 35.966,
+    "speed_km_day": 35.966,
+    "speed_knots": 0.809,
+    "speed_m_s": 0.4163,
+    "bearing_deg": 12.63,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992112,
+    "calendar_date": "1992-04-21",
+    "latitude": -58.2696,
+    "longitude": -48.1427,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.2696,
+        "lon": -48.1427,
+        "flag": 1
+      }
+    },
+    "step_index": 31,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 16.221,
+    "speed_km_day": 16.221,
+    "speed_knots": 0.365,
+    "speed_m_s": 0.1877,
+    "bearing_deg": 11.23,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992113,
+    "calendar_date": "1992-04-22",
+    "latitude": -58.2696,
+    "longitude": -48.1427,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.2696,
+        "lon": -48.1427,
+        "flag": 1
+      }
+    },
+    "step_index": 32,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992114,
+    "calendar_date": "1992-04-23",
+    "latitude": -58.2696,
+    "longitude": -48.1427,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.2696,
+        "lon": -48.1427,
+        "flag": 1
+      }
+    },
+    "step_index": 33,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992115,
+    "calendar_date": "1992-04-24",
+    "latitude": -58.2394,
+    "longitude": -47.92,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.2394,
+        "lon": -47.92,
+        "flag": 1
+      }
+    },
+    "step_index": 34,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 13.455,
+    "speed_km_day": 13.455,
+    "speed_knots": 0.303,
+    "speed_m_s": 0.1557,
+    "bearing_deg": 75.64,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992116,
+    "calendar_date": "1992-04-25",
+    "latitude": -58.179,
+    "longitude": -47.4747,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.179,
+        "lon": -47.4747,
+        "flag": 1
+      }
+    },
+    "step_index": 35,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 26.936,
+    "speed_km_day": 26.936,
+    "speed_knots": 0.606,
+    "speed_m_s": 0.3118,
+    "bearing_deg": 75.75,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992117,
+    "calendar_date": "1992-04-26",
+    "latitude": -58.1185,
+    "longitude": -47.0294,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.1185,
+        "lon": -47.0294,
+        "flag": 1
+      }
+    },
+    "step_index": 36,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 26.982,
+    "speed_km_day": 26.982,
+    "speed_knots": 0.607,
+    "speed_m_s": 0.3123,
+    "bearing_deg": 75.75,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992118,
+    "calendar_date": "1992-04-27",
+    "latitude": -58.0581,
+    "longitude": -46.584,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -58.0581,
+        "lon": -46.584,
+        "flag": 1
+      }
+    },
+    "step_index": 37,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 27.028,
+    "speed_km_day": 27.028,
+    "speed_knots": 0.608,
+    "speed_m_s": 0.3128,
+    "bearing_deg": 75.8,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992119,
+    "calendar_date": "1992-04-28",
+    "latitude": -57.9977,
+    "longitude": -46.1387,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.9977,
+        "lon": -46.1387,
+        "flag": 1
+      }
+    },
+    "step_index": 38,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 27.065,
+    "speed_km_day": 27.065,
+    "speed_knots": 0.609,
+    "speed_m_s": 0.3133,
+    "bearing_deg": 75.82,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992120,
+    "calendar_date": "1992-04-29",
+    "latitude": -57.9372,
+    "longitude": -45.6934,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.9372,
+        "lon": -45.6934,
+        "flag": 1
+      }
+    },
+    "step_index": 39,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 27.111,
+    "speed_km_day": 27.111,
+    "speed_knots": 0.61,
+    "speed_m_s": 0.3138,
+    "bearing_deg": 75.82,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992121,
+    "calendar_date": "1992-04-30",
+    "latitude": -57.907,
+    "longitude": -45.4707,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.907,
+        "lon": -45.4707,
+        "flag": 1
+      }
+    },
+    "step_index": 40,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 13.573,
+    "speed_km_day": 13.573,
+    "speed_knots": 0.305,
+    "speed_m_s": 0.1571,
+    "bearing_deg": 75.77,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992122,
+    "calendar_date": "1992-05-01",
+    "latitude": -57.907,
+    "longitude": -45.4707,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.907,
+        "lon": -45.4707,
+        "flag": 1
+      }
+    },
+    "step_index": 41,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992123,
+    "calendar_date": "1992-05-02",
+    "latitude": -57.907,
+    "longitude": -45.4707,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.907,
+        "lon": -45.4707,
+        "flag": 1
+      }
+    },
+    "step_index": 42,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992124,
+    "calendar_date": "1992-05-03",
+    "latitude": -57.805,
+    "longitude": -45.4578,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.805,
+        "lon": -45.4578,
+        "flag": 1
+      }
+    },
+    "step_index": 43,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.368,
+    "speed_km_day": 11.368,
+    "speed_knots": 0.256,
+    "speed_m_s": 0.1316,
+    "bearing_deg": 3.86,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992125,
+    "calendar_date": "1992-05-04",
+    "latitude": -57.6009,
+    "longitude": -45.4321,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.6009,
+        "lon": -45.4321,
+        "flag": 1
+      }
+    },
+    "step_index": 44,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 22.746,
+    "speed_km_day": 22.746,
+    "speed_knots": 0.512,
+    "speed_m_s": 0.2633,
+    "bearing_deg": 3.86,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992126,
+    "calendar_date": "1992-05-05",
+    "latitude": -57.3968,
+    "longitude": -45.4063,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.3968,
+        "lon": -45.4063,
+        "flag": 1
+      }
+    },
+    "step_index": 45,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 22.747,
+    "speed_km_day": 22.747,
+    "speed_knots": 0.512,
+    "speed_m_s": 0.2633,
+    "bearing_deg": 3.9,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992127,
+    "calendar_date": "1992-05-06",
+    "latitude": -57.2948,
+    "longitude": -45.3934,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.2948,
+        "lon": -45.3934,
+        "flag": 1
+      }
+    },
+    "step_index": 46,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.368,
+    "speed_km_day": 11.368,
+    "speed_knots": 0.256,
+    "speed_m_s": 0.1316,
+    "bearing_deg": 3.91,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992128,
+    "calendar_date": "1992-05-07",
+    "latitude": -57.2948,
+    "longitude": -45.3934,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.2948,
+        "lon": -45.3934,
+        "flag": 1
+      }
+    },
+    "step_index": 47,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992129,
+    "calendar_date": "1992-05-08",
+    "latitude": -57.2948,
+    "longitude": -45.3934,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.2948,
+        "lon": -45.3934,
+        "flag": 1
+      }
+    },
+    "step_index": 48,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992130,
+    "calendar_date": "1992-05-09",
+    "latitude": -57.2498,
+    "longitude": -45.1537,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.2498,
+        "lon": -45.1537,
+        "flag": 1
+      }
+    },
+    "step_index": 49,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 15.254,
+    "speed_km_day": 15.254,
+    "speed_knots": 0.343,
+    "speed_m_s": 0.1766,
+    "bearing_deg": 70.95,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992131,
+    "calendar_date": "1992-05-10",
+    "latitude": -57.1597,
+    "longitude": -44.6744,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.1597,
+        "lon": -44.6744,
+        "flag": 1
+      }
+    },
+    "step_index": 50,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 30.556,
+    "speed_km_day": 30.556,
+    "speed_knots": 0.687,
+    "speed_m_s": 0.3537,
+    "bearing_deg": 71.06,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992132,
+    "calendar_date": "1992-05-11",
+    "latitude": -57.0696,
+    "longitude": -44.1951,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.0696,
+        "lon": -44.1951,
+        "flag": 1
+      }
+    },
+    "step_index": 51,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 30.623,
+    "speed_km_day": 30.623,
+    "speed_knots": 0.689,
+    "speed_m_s": 0.3544,
+    "bearing_deg": 71.1,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992133,
+    "calendar_date": "1992-05-12",
+    "latitude": -57.0103,
+    "longitude": -43.9515,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -57.0103,
+        "lon": -43.9515,
+        "flag": 1
+      }
+    },
+    "step_index": 52,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 16.145,
+    "speed_km_day": 16.145,
+    "speed_knots": 0.363,
+    "speed_m_s": 0.1869,
+    "bearing_deg": 66.0,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992134,
+    "calendar_date": "1992-05-13",
+    "latitude": -56.9817,
+    "longitude": -43.9438,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.9817,
+        "lon": -43.9438,
+        "flag": 1
+      }
+    },
+    "step_index": 53,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 3.214,
+    "speed_km_day": 3.214,
+    "speed_knots": 0.072,
+    "speed_m_s": 0.0372,
+    "bearing_deg": 8.35,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992135,
+    "calendar_date": "1992-05-14",
+    "latitude": -56.953,
+    "longitude": -43.9361,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.953,
+        "lon": -43.9361,
+        "flag": 1
+      }
+    },
+    "step_index": 54,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 3.225,
+    "speed_km_day": 3.225,
+    "speed_knots": 0.073,
+    "speed_m_s": 0.0373,
+    "bearing_deg": 8.32,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992136,
+    "calendar_date": "1992-05-15",
+    "latitude": -56.9022,
+    "longitude": -43.6985,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.9022,
+        "lon": -43.6985,
+        "flag": 1
+      }
+    },
+    "step_index": 55,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 15.484,
+    "speed_km_day": 15.484,
+    "speed_knots": 0.348,
+    "speed_m_s": 0.1792,
+    "bearing_deg": 68.7,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992137,
+    "calendar_date": "1992-05-16",
+    "latitude": -56.8292,
+    "longitude": -43.2308,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8292,
+        "lon": -43.2308,
+        "flag": 1
+      }
+    },
+    "step_index": 56,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.563,
+    "speed_km_day": 29.563,
+    "speed_knots": 0.665,
+    "speed_m_s": 0.3422,
+    "bearing_deg": 74.26,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992138,
+    "calendar_date": "1992-05-17",
+    "latitude": -56.7562,
+    "longitude": -42.763,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7562,
+        "lon": -42.763,
+        "flag": 1
+      }
+    },
+    "step_index": 57,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.622,
+    "speed_km_day": 29.622,
+    "speed_knots": 0.666,
+    "speed_m_s": 0.3428,
+    "bearing_deg": 74.29,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992139,
+    "calendar_date": "1992-05-18",
+    "latitude": -56.7755,
+    "longitude": -42.2119,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7755,
+        "lon": -42.2119,
+        "flag": 0
+      }
+    },
+    "step_index": 58,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 33.653,
+    "speed_km_day": 33.653,
+    "speed_knots": 0.757,
+    "speed_m_s": 0.3895,
+    "bearing_deg": 93.89,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992140,
+    "calendar_date": "1992-05-19",
+    "latitude": -56.818,
+    "longitude": -41.6048,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.818,
+        "lon": -41.6048,
+        "flag": 0
+      }
+    },
+    "step_index": 59,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 37.268,
+    "speed_km_day": 37.268,
+    "speed_knots": 0.838,
+    "speed_m_s": 0.4313,
+    "bearing_deg": 97.54,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992141,
+    "calendar_date": "1992-05-20",
+    "latitude": -56.8605,
+    "longitude": -41.1141,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8605,
+        "lon": -41.1141,
+        "flag": 0
+      }
+    },
+    "step_index": 60,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 30.217,
+    "speed_km_day": 30.217,
+    "speed_knots": 0.68,
+    "speed_m_s": 0.3497,
+    "bearing_deg": 99.2,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992142,
+    "calendar_date": "1992-05-21",
+    "latitude": -56.8798,
+    "longitude": -40.9123,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8798,
+        "lon": -40.9123,
+        "flag": 1
+      }
+    },
+    "step_index": 61,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 12.45,
+    "speed_km_day": 12.45,
+    "speed_knots": 0.28,
+    "speed_m_s": 0.1441,
+    "bearing_deg": 100.01,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992143,
+    "calendar_date": "1992-05-22",
+    "latitude": -56.8798,
+    "longitude": -40.9123,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8798,
+        "lon": -40.9123,
+        "flag": 1
+      }
+    },
+    "step_index": 62,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992144,
+    "calendar_date": "1992-05-23",
+    "latitude": -56.8798,
+    "longitude": -40.9123,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8798,
+        "lon": -40.9123,
+        "flag": 1
+      }
+    },
+    "step_index": 63,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992145,
+    "calendar_date": "1992-05-24",
+    "latitude": -56.8899,
+    "longitude": -40.785,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8899,
+        "lon": -40.785,
+        "flag": 1
+      }
+    },
+    "step_index": 64,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.814,
+    "speed_km_day": 7.814,
+    "speed_knots": 0.176,
+    "speed_m_s": 0.0904,
+    "bearing_deg": 98.32,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992146,
+    "calendar_date": "1992-05-25",
+    "latitude": -56.91,
+    "longitude": -40.5306,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.91,
+        "lon": -40.5306,
+        "flag": 1
+      }
+    },
+    "step_index": 65,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 15.609,
+    "speed_km_day": 15.609,
+    "speed_knots": 0.351,
+    "speed_m_s": 0.1807,
+    "bearing_deg": 98.34,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992147,
+    "calendar_date": "1992-05-26",
+    "latitude": -56.9302,
+    "longitude": -40.2761,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.9302,
+        "lon": -40.2761,
+        "flag": 1
+      }
+    },
+    "step_index": 66,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 15.608,
+    "speed_km_day": 15.608,
+    "speed_knots": 0.351,
+    "speed_m_s": 0.1807,
+    "bearing_deg": 98.38,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992148,
+    "calendar_date": "1992-05-27",
+    "latitude": -56.9242,
+    "longitude": -40.1441,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.9242,
+        "lon": -40.1441,
+        "flag": 1
+      }
+    },
+    "step_index": 67,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 8.037,
+    "speed_km_day": 8.037,
+    "speed_knots": 0.181,
+    "speed_m_s": 0.093,
+    "bearing_deg": 85.29,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992149,
+    "calendar_date": "1992-05-28",
+    "latitude": -56.8919,
+    "longitude": -40.1346,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8919,
+        "lon": -40.1346,
+        "flag": 1
+      }
+    },
+    "step_index": 68,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 3.638,
+    "speed_km_day": 3.638,
+    "speed_knots": 0.082,
+    "speed_m_s": 0.0421,
+    "bearing_deg": 9.13,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992150,
+    "calendar_date": "1992-05-29",
+    "latitude": -56.8595,
+    "longitude": -40.1251,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8595,
+        "lon": -40.1251,
+        "flag": 1
+      }
+    },
+    "step_index": 69,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 3.649,
+    "speed_km_day": 3.649,
+    "speed_knots": 0.082,
+    "speed_m_s": 0.0422,
+    "bearing_deg": 9.11,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992151,
+    "calendar_date": "1992-05-30",
+    "latitude": -56.8208,
+    "longitude": -40.0931,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.8208,
+        "lon": -40.0931,
+        "flag": 1
+      }
+    },
+    "step_index": 70,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 4.723,
+    "speed_km_day": 4.723,
+    "speed_knots": 0.106,
+    "speed_m_s": 0.0547,
+    "bearing_deg": 24.35,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992152,
+    "calendar_date": "1992-05-31",
+    "latitude": -56.7756,
+    "longitude": -40.0386,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7756,
+        "lon": -40.0386,
+        "flag": 1
+      }
+    },
+    "step_index": 71,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 6.023,
+    "speed_km_day": 6.023,
+    "speed_knots": 0.136,
+    "speed_m_s": 0.0697,
+    "bearing_deg": 33.46,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992153,
+    "calendar_date": "1992-06-01",
+    "latitude": -56.7305,
+    "longitude": -39.9841,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7305,
+        "lon": -39.9841,
+        "flag": 1
+      }
+    },
+    "step_index": 72,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 6.016,
+    "speed_km_day": 6.016,
+    "speed_knots": 0.135,
+    "speed_m_s": 0.0696,
+    "bearing_deg": 33.55,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992154,
+    "calendar_date": "1992-06-02",
+    "latitude": -56.7032,
+    "longitude": -39.9497,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7032,
+        "lon": -39.9497,
+        "flag": 1
+      }
+    },
+    "step_index": 73,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 3.691,
+    "speed_km_day": 3.691,
+    "speed_knots": 0.083,
+    "speed_m_s": 0.0427,
+    "bearing_deg": 34.68,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992155,
+    "calendar_date": "1992-06-03",
+    "latitude": -56.6937,
+    "longitude": -39.9353,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.6937,
+        "lon": -39.9353,
+        "flag": 1
+      }
+    },
+    "step_index": 74,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 1.374,
+    "speed_km_day": 1.374,
+    "speed_knots": 0.031,
+    "speed_m_s": 0.0159,
+    "bearing_deg": 39.77,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992156,
+    "calendar_date": "1992-06-04",
+    "latitude": -56.6842,
+    "longitude": -39.921,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.6842,
+        "lon": -39.921,
+        "flag": 1
+      }
+    },
+    "step_index": 75,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 1.371,
+    "speed_km_day": 1.371,
+    "speed_knots": 0.031,
+    "speed_m_s": 0.0159,
+    "bearing_deg": 39.59,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992157,
+    "calendar_date": "1992-06-05",
+    "latitude": -56.646,
+    "longitude": -39.9192,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.646,
+        "lon": -39.9192,
+        "flag": 1
+      }
+    },
+    "step_index": 76,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 4.249,
+    "speed_km_day": 4.249,
+    "speed_knots": 0.096,
+    "speed_m_s": 0.0492,
+    "bearing_deg": 1.48,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992158,
+    "calendar_date": "1992-06-06",
+    "latitude": -56.5789,
+    "longitude": -39.93,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.5789,
+        "lon": -39.93,
+        "flag": 1
+      }
+    },
+    "step_index": 77,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.49,
+    "speed_km_day": 7.49,
+    "speed_knots": 0.169,
+    "speed_m_s": 0.0867,
+    "bearing_deg": 354.93,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992159,
+    "calendar_date": "1992-06-07",
+    "latitude": -56.5118,
+    "longitude": -39.9407,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.5118,
+        "lon": -39.9407,
+        "flag": 1
+      }
+    },
+    "step_index": 78,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.49,
+    "speed_km_day": 7.49,
+    "speed_knots": 0.169,
+    "speed_m_s": 0.0867,
+    "bearing_deg": 354.97,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992160,
+    "calendar_date": "1992-06-08",
+    "latitude": -56.4428,
+    "longitude": -39.9517,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.4428,
+        "lon": -39.9517,
+        "flag": 1
+      }
+    },
+    "step_index": 79,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.702,
+    "speed_km_day": 7.702,
+    "speed_knots": 0.173,
+    "speed_m_s": 0.0891,
+    "bearing_deg": 354.96,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992161,
+    "calendar_date": "1992-06-09",
+    "latitude": -56.3719,
+    "longitude": -39.963,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.3719,
+        "lon": -39.963,
+        "flag": 1
+      }
+    },
+    "step_index": 80,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.914,
+    "speed_km_day": 7.914,
+    "speed_knots": 0.178,
+    "speed_m_s": 0.0916,
+    "bearing_deg": 354.96,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992162,
+    "calendar_date": "1992-06-10",
+    "latitude": -56.301,
+    "longitude": -39.9743,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.301,
+        "lon": -39.9743,
+        "flag": 1
+      }
+    },
+    "step_index": 81,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 7.914,
+    "speed_km_day": 7.914,
+    "speed_knots": 0.178,
+    "speed_m_s": 0.0916,
+    "bearing_deg": 354.95,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992163,
+    "calendar_date": "1992-06-11",
+    "latitude": -56.2143,
+    "longitude": -40.0059,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.2143,
+        "lon": -40.0059,
+        "flag": 1
+      }
+    },
+    "step_index": 82,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 9.836,
+    "speed_km_day": 9.836,
+    "speed_knots": 0.221,
+    "speed_m_s": 0.1138,
+    "bearing_deg": 348.54,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992164,
+    "calendar_date": "1992-06-12",
+    "latitude": -56.1118,
+    "longitude": -40.058,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.1118,
+        "lon": -40.058,
+        "flag": 1
+      }
+    },
+    "step_index": 83,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.845,
+    "speed_km_day": 11.845,
+    "speed_knots": 0.266,
+    "speed_m_s": 0.1371,
+    "bearing_deg": 344.18,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992165,
+    "calendar_date": "1992-06-13",
+    "latitude": -56.0092,
+    "longitude": -40.1101,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.0092,
+        "lon": -40.1101,
+        "flag": 1
+      }
+    },
+    "step_index": 84,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.858,
+    "speed_km_day": 11.858,
+    "speed_knots": 0.267,
+    "speed_m_s": 0.1372,
+    "bearing_deg": 344.15,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992166,
+    "calendar_date": "1992-06-14",
+    "latitude": -55.9496,
+    "longitude": -40.1412,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9496,
+        "lon": -40.1412,
+        "flag": 1
+      }
+    },
+    "step_index": 85,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 6.904,
+    "speed_km_day": 6.904,
+    "speed_knots": 0.155,
+    "speed_m_s": 0.0799,
+    "bearing_deg": 343.71,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992167,
+    "calendar_date": "1992-06-15",
+    "latitude": -55.9331,
+    "longitude": -40.1515,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9331,
+        "lon": -40.1515,
+        "flag": 1
+      }
+    },
+    "step_index": 86,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 1.944,
+    "speed_km_day": 1.944,
+    "speed_knots": 0.044,
+    "speed_m_s": 0.0225,
+    "bearing_deg": 340.73,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992168,
+    "calendar_date": "1992-06-16",
+    "latitude": -55.9166,
+    "longitude": -40.1618,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9166,
+        "lon": -40.1618,
+        "flag": 1
+      }
+    },
+    "step_index": 87,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 1.944,
+    "speed_km_day": 1.944,
+    "speed_knots": 0.044,
+    "speed_m_s": 0.0225,
+    "bearing_deg": 340.72,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992169,
+    "calendar_date": "1992-06-17",
+    "latitude": -55.8402,
+    "longitude": -40.023,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8402,
+        "lon": -40.023,
+        "flag": 1
+      }
+    },
+    "step_index": 88,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 12.13,
+    "speed_km_day": 12.13,
+    "speed_knots": 0.273,
+    "speed_m_s": 0.1404,
+    "bearing_deg": 45.6,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992170,
+    "calendar_date": "1992-06-18",
+    "latitude": -55.7041,
+    "longitude": -39.7353,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7041,
+        "lon": -39.7353,
+        "flag": 1
+      }
+    },
+    "step_index": 89,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 23.512,
+    "speed_km_day": 23.512,
+    "speed_knots": 0.529,
+    "speed_m_s": 0.2721,
+    "bearing_deg": 50.05,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992171,
+    "calendar_date": "1992-06-19",
+    "latitude": -55.568,
+    "longitude": -39.4477,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.568,
+        "lon": -39.4477,
+        "flag": 1
+      }
+    },
+    "step_index": 90,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 23.555,
+    "speed_km_day": 23.555,
+    "speed_knots": 0.53,
+    "speed_m_s": 0.2726,
+    "bearing_deg": 50.14,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992172,
+    "calendar_date": "1992-06-20",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 91,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 11.804,
+    "speed_km_day": 11.804,
+    "speed_knots": 0.266,
+    "speed_m_s": 0.1366,
+    "bearing_deg": 50.16,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992173,
+    "calendar_date": "1992-06-21",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 92,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992174,
+    "calendar_date": "1992-06-22",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 93,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992175,
+    "calendar_date": "1992-06-23",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 94,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 3.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992176,
+    "calendar_date": "1992-06-24",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 95,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 4.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992177,
+    "calendar_date": "1992-06-25",
+    "latitude": -55.4999,
+    "longitude": -39.3038,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.4999,
+        "lon": -39.3038,
+        "flag": 1
+      }
+    },
+    "step_index": 96,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 5.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992178,
+    "calendar_date": "1992-06-26",
+    "latitude": -55.5551,
+    "longitude": -39.0882,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.5551,
+        "lon": -39.0882,
+        "flag": 1
+      }
+    },
+    "step_index": 97,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 14.893,
+    "speed_km_day": 14.893,
+    "speed_knots": 0.335,
+    "speed_m_s": 0.1724,
+    "bearing_deg": 114.43,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992179,
+    "calendar_date": "1992-06-27",
+    "latitude": -55.6655,
+    "longitude": -38.657,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.6655,
+        "lon": -38.657,
+        "flag": 1
+      }
+    },
+    "step_index": 98,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.734,
+    "speed_km_day": 29.734,
+    "speed_knots": 0.669,
+    "speed_m_s": 0.3441,
+    "bearing_deg": 114.56,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992180,
+    "calendar_date": "1992-06-28",
+    "latitude": -55.7759,
+    "longitude": -38.2258,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7759,
+        "lon": -38.2258,
+        "flag": 1
+      }
+    },
+    "step_index": 99,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.664,
+    "speed_km_day": 29.664,
+    "speed_knots": 0.667,
+    "speed_m_s": 0.3433,
+    "bearing_deg": 114.62,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992181,
+    "calendar_date": "1992-06-29",
+    "latitude": -55.8862,
+    "longitude": -37.7947,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8862,
+        "lon": -37.7947,
+        "flag": 1
+      }
+    },
+    "step_index": 100,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.585,
+    "speed_km_day": 29.585,
+    "speed_knots": 0.666,
+    "speed_m_s": 0.3424,
+    "bearing_deg": 114.67,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992182,
+    "calendar_date": "1992-06-30",
+    "latitude": -55.9966,
+    "longitude": -37.3635,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9966,
+        "lon": -37.3635,
+        "flag": 1
+      }
+    },
+    "step_index": 101,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.525,
+    "speed_km_day": 29.525,
+    "speed_knots": 0.664,
+    "speed_m_s": 0.3417,
+    "bearing_deg": 114.75,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992183,
+    "calendar_date": "1992-07-01",
+    "latitude": -56.107,
+    "longitude": -36.9323,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.107,
+        "lon": -36.9323,
+        "flag": 1
+      }
+    },
+    "step_index": 102,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 29.456,
+    "speed_km_day": 29.456,
+    "speed_knots": 0.663,
+    "speed_m_s": 0.3409,
+    "bearing_deg": 114.81,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992184,
+    "calendar_date": "1992-07-02",
+    "latitude": -56.1598,
+    "longitude": -36.6333,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.1598,
+        "lon": -36.6333,
+        "flag": 1
+      }
+    },
+    "step_index": 103,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 19.435,
+    "speed_km_day": 19.435,
+    "speed_knots": 0.437,
+    "speed_m_s": 0.2249,
+    "bearing_deg": 107.71,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992185,
+    "calendar_date": "1992-07-03",
+    "latitude": -56.155,
+    "longitude": -36.4664,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.155,
+        "lon": -36.4664,
+        "flag": 1
+      }
+    },
+    "step_index": 104,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.349,
+    "speed_km_day": 10.349,
+    "speed_knots": 0.233,
+    "speed_m_s": 0.1198,
+    "bearing_deg": 87.11,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992186,
+    "calendar_date": "1992-07-04",
+    "latitude": -56.1502,
+    "longitude": -36.2995,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.1502,
+        "lon": -36.2995,
+        "flag": 1
+      }
+    },
+    "step_index": 105,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.351,
+    "speed_km_day": 10.351,
+    "speed_knots": 0.233,
+    "speed_m_s": 0.1198,
+    "bearing_deg": 87.11,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992187,
+    "calendar_date": "1992-07-05",
+    "latitude": -56.2605,
+    "longitude": -36.3032,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.2605,
+        "lon": -36.3032,
+        "flag": 1
+      }
+    },
+    "step_index": 106,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 12.267,
+    "speed_km_day": 12.267,
+    "speed_knots": 0.276,
+    "speed_m_s": 0.142,
+    "bearing_deg": 181.07,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992188,
+    "calendar_date": "1992-07-06",
+    "latitude": -56.4858,
+    "longitude": -36.4772,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.4858,
+        "lon": -36.4772,
+        "flag": 1
+      }
+    },
+    "step_index": 107,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 27.247,
+    "speed_km_day": 27.247,
+    "speed_knots": 0.613,
+    "speed_m_s": 0.3154,
+    "bearing_deg": 203.08,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992189,
+    "calendar_date": "1992-07-07",
+    "latitude": -56.7112,
+    "longitude": -36.6513,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.7112,
+        "lon": -36.6513,
+        "flag": 1
+      }
+    },
+    "step_index": 108,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 27.235,
+    "speed_km_day": 27.235,
+    "speed_knots": 0.613,
+    "speed_m_s": 0.3152,
+    "bearing_deg": 202.96,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992190,
+    "calendar_date": "1992-07-08",
+    "latitude": -56.733,
+    "longitude": -36.8485,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.733,
+        "lon": -36.8485,
+        "flag": 1
+      }
+    },
+    "step_index": 109,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 12.273,
+    "speed_km_day": 12.273,
+    "speed_knots": 0.276,
+    "speed_m_s": 0.1421,
+    "bearing_deg": 258.53,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992191,
+    "calendar_date": "1992-07-09",
+    "latitude": -56.5512,
+    "longitude": -37.0688,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.5512,
+        "lon": -37.0688,
+        "flag": 1
+      }
+    },
+    "step_index": 110,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 24.292,
+    "speed_km_day": 24.292,
+    "speed_knots": 0.547,
+    "speed_m_s": 0.2812,
+    "bearing_deg": 326.23,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992192,
+    "calendar_date": "1992-07-10",
+    "latitude": -56.3695,
+    "longitude": -37.2891,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.3695,
+        "lon": -37.2891,
+        "flag": 1
+      }
+    },
+    "step_index": 111,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 24.319,
+    "speed_km_day": 24.319,
+    "speed_knots": 0.547,
+    "speed_m_s": 0.2815,
+    "bearing_deg": 326.09,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992193,
+    "calendar_date": "1992-07-11",
+    "latitude": -56.275,
+    "longitude": -37.5475,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.275,
+        "lon": -37.5475,
+        "flag": 1
+      }
+    },
+    "step_index": 112,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 19.086,
+    "speed_km_day": 19.086,
+    "speed_knots": 0.429,
+    "speed_m_s": 0.2209,
+    "bearing_deg": 303.3,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992194,
+    "calendar_date": "1992-07-12",
+    "latitude": -56.2678,
+    "longitude": -37.8441,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.2678,
+        "lon": -37.8441,
+        "flag": 1
+      }
+    },
+    "step_index": 113,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 18.33,
+    "speed_km_day": 18.33,
+    "speed_knots": 0.412,
+    "speed_m_s": 0.2122,
+    "bearing_deg": 272.38,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992195,
+    "calendar_date": "1992-07-13",
+    "latitude": -56.2607,
+    "longitude": -38.1408,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.2607,
+        "lon": -38.1408,
+        "flag": 1
+      }
+    },
+    "step_index": 114,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 18.339,
+    "speed_km_day": 18.339,
+    "speed_knots": 0.413,
+    "speed_m_s": 0.2123,
+    "bearing_deg": 272.34,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992196,
+    "calendar_date": "1992-07-14",
+    "latitude": -56.1544,
+    "longitude": -38.2834,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -56.1544,
+        "lon": -38.2834,
+        "flag": 1
+      }
+    },
+    "step_index": 115,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 14.748,
+    "speed_km_day": 14.748,
+    "speed_knots": 0.332,
+    "speed_m_s": 0.1707,
+    "bearing_deg": 323.21,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992197,
+    "calendar_date": "1992-07-15",
+    "latitude": -55.9489,
+    "longitude": -38.2721,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9489,
+        "lon": -38.2721,
+        "flag": 1
+      }
+    },
+    "step_index": 116,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 22.861,
+    "speed_km_day": 22.861,
+    "speed_knots": 0.514,
+    "speed_m_s": 0.2646,
+    "bearing_deg": 1.76,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992198,
+    "calendar_date": "1992-07-16",
+    "latitude": -55.7434,
+    "longitude": -38.2607,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7434,
+        "lon": -38.2607,
+        "flag": 1
+      }
+    },
+    "step_index": 117,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 22.862,
+    "speed_km_day": 22.862,
+    "speed_knots": 0.514,
+    "speed_m_s": 0.2646,
+    "bearing_deg": 1.79,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992199,
+    "calendar_date": "1992-07-17",
+    "latitude": -55.651,
+    "longitude": -38.2549,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.651,
+        "lon": -38.2549,
+        "flag": 1
+      }
+    },
+    "step_index": 118,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 10.281,
+    "speed_km_day": 10.281,
+    "speed_knots": 0.231,
+    "speed_m_s": 0.119,
+    "bearing_deg": 2.03,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992200,
+    "calendar_date": "1992-07-18",
+    "latitude": -55.6716,
+    "longitude": -38.2547,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.6716,
+        "lon": -38.2547,
+        "flag": 1
+      }
+    },
+    "step_index": 119,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992201,
+    "calendar_date": "1992-07-19",
+    "latitude": -55.6921,
+    "longitude": -38.2544,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.6921,
+        "lon": -38.2544,
+        "flag": 1
+      }
+    },
+    "step_index": 120,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.28,
+    "speed_km_day": 2.28,
+    "speed_knots": 0.051,
+    "speed_m_s": 0.0264,
+    "bearing_deg": 179.53,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992202,
+    "calendar_date": "1992-07-20",
+    "latitude": -55.7127,
+    "longitude": -38.2542,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7127,
+        "lon": -38.2542,
+        "flag": 1
+      }
+    },
+    "step_index": 121,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992203,
+    "calendar_date": "1992-07-21",
+    "latitude": -55.7332,
+    "longitude": -38.254,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7332,
+        "lon": -38.254,
+        "flag": 1
+      }
+    },
+    "step_index": 122,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.28,
+    "speed_km_day": 2.28,
+    "speed_knots": 0.051,
+    "speed_m_s": 0.0264,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992204,
+    "calendar_date": "1992-07-22",
+    "latitude": -55.7538,
+    "longitude": -38.2538,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7538,
+        "lon": -38.2538,
+        "flag": 1
+      }
+    },
+    "step_index": 123,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992205,
+    "calendar_date": "1992-07-23",
+    "latitude": -55.7744,
+    "longitude": -38.2535,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.7744,
+        "lon": -38.2535,
+        "flag": 1
+      }
+    },
+    "step_index": 124,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.53,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992206,
+    "calendar_date": "1992-07-24",
+    "latitude": -55.795,
+    "longitude": -38.2533,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.795,
+        "lon": -38.2533,
+        "flag": 1
+      }
+    },
+    "step_index": 125,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992207,
+    "calendar_date": "1992-07-25",
+    "latitude": -55.8155,
+    "longitude": -38.2531,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8155,
+        "lon": -38.2531,
+        "flag": 1
+      }
+    },
+    "step_index": 126,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.28,
+    "speed_km_day": 2.28,
+    "speed_knots": 0.051,
+    "speed_m_s": 0.0264,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992208,
+    "calendar_date": "1992-07-26",
+    "latitude": -55.8361,
+    "longitude": -38.2528,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8361,
+        "lon": -38.2528,
+        "flag": 1
+      }
+    },
+    "step_index": 127,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.53,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992209,
+    "calendar_date": "1992-07-27",
+    "latitude": -55.8567,
+    "longitude": -38.2526,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8567,
+        "lon": -38.2526,
+        "flag": 1
+      }
+    },
+    "step_index": 128,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992210,
+    "calendar_date": "1992-07-28",
+    "latitude": -55.8772,
+    "longitude": -38.2524,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8772,
+        "lon": -38.2524,
+        "flag": 1
+      }
+    },
+    "step_index": 129,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.28,
+    "speed_km_day": 2.28,
+    "speed_knots": 0.051,
+    "speed_m_s": 0.0264,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992211,
+    "calendar_date": "1992-07-29",
+    "latitude": -55.8978,
+    "longitude": -38.2522,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.8978,
+        "lon": -38.2522,
+        "flag": 1
+      }
+    },
+    "step_index": 130,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992212,
+    "calendar_date": "1992-07-30",
+    "latitude": -55.9183,
+    "longitude": -38.2519,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9183,
+        "lon": -38.2519,
+        "flag": 1
+      }
+    },
+    "step_index": 131,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.28,
+    "speed_km_day": 2.28,
+    "speed_knots": 0.051,
+    "speed_m_s": 0.0264,
+    "bearing_deg": 179.53,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992213,
+    "calendar_date": "1992-07-31",
+    "latitude": -55.9389,
+    "longitude": -38.2517,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9389,
+        "lon": -38.2517,
+        "flag": 1
+      }
+    },
+    "step_index": 132,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 2.291,
+    "speed_km_day": 2.291,
+    "speed_knots": 0.052,
+    "speed_m_s": 0.0265,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992214,
+    "calendar_date": "1992-08-01",
+    "latitude": -55.9492,
+    "longitude": -38.2516,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9492,
+        "lon": -38.2516,
+        "flag": 1
+      }
+    },
+    "step_index": 133,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 1.145,
+    "speed_km_day": 1.145,
+    "speed_knots": 0.026,
+    "speed_m_s": 0.0133,
+    "bearing_deg": 179.69,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992215,
+    "calendar_date": "1992-08-02",
+    "latitude": -55.9492,
+    "longitude": -38.2516,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9492,
+        "lon": -38.2516,
+        "flag": 1
+      }
+    },
+    "step_index": 134,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A29",
+    "original_date": 1992216,
+    "calendar_date": "1992-08-03",
+    "latitude": -55.9492,
+    "longitude": -38.2516,
+    "size_major_km": 37.04,
+    "size_minor_km": 18.52,
+    "area_sq_km": 685.98,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "ers"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "ers": {
+        "lat": -55.9492,
+        "lon": -38.2516,
+        "flag": 1
+      }
+    },
+    "step_index": 135,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  }
+]

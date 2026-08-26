@@ -1,0 +1,20 @@
+{
+  "source_product": "NOAA_Optimum_Interpolation_SST_v2.1",
+  "variables": [
+    "sst"
+  ],
+  "spatial_resolution_deg": 0.25,
+  "temporal_resolution": "daily",
+  "units": "degC",
+  "requested_bbox": {
+    "min_lat": -67.5894,
+    "max_lat": -65.4657,
+    "min_lon": 147.2685,
+    "max_lon": 150.0858
+  },
+  "requested_period": [
+    "2006-02-04",
+    "2006-06-03"
+  ],
+  "query_timestamp": "2026-08-26T15:12:48.616519"
+}

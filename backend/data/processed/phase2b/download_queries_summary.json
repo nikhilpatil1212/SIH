@@ -1,0 +1,738 @@
+[
+  {
+    "success": true,
+    "dataset_name": "GLORYS12V1",
+    "dataset_version": "GLOBAL_MULTIYEAR_PHY_001_030",
+    "retrieval_timestamp": "2026-08-26T15:12:47.978951",
+    "requested_bbox": {
+      "min_lat": -69.1451,
+      "max_lat": -66.4901,
+      "min_lon": -63.5051,
+      "max_lon": -59.3183
+    },
+    "requested_start_date": "2017-09-01",
+    "requested_end_date": "2017-12-29",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\glorys\\glorys_2017-09-01_2017-12-29_69S_66S.json",
+    "bytes_downloaded": 489,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GLOBAL_MULTIYEAR_PHY_001_030",
+      "variables": [
+        "uo",
+        "vo"
+      ],
+      "depth_level": "0.494 m (surface)",
+      "spatial_resolution_deg": 0.08333,
+      "temporal_resolution": "daily_mean",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -69.1451,
+        "max_lat": -66.4901,
+        "min_lon": -63.5051,
+        "max_lon": -59.3183
+      },
+      "requested_period": [
+        "2017-09-01",
+        "2017-12-29"
+      ],
+      "query_timestamp": "2026-08-26T15:12:47.977751"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "ERA5",
+    "dataset_version": "reanalysis-era5-single-levels",
+    "retrieval_timestamp": "2026-08-26T15:12:47.980019",
+    "requested_bbox": {
+      "min_lat": -69.1451,
+      "max_lat": -66.4901,
+      "min_lon": -63.5051,
+      "max_lon": -59.3183
+    },
+    "requested_start_date": "2017-09-01",
+    "requested_end_date": "2017-12-29",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\era5\\era5_wind_2017-09-01_2017-12-29.json",
+    "bytes_downloaded": 505,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "reanalysis-era5-single-levels",
+      "variables": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "hourly / daily_aggregated",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -69.1451,
+        "max_lat": -66.4901,
+        "min_lon": -63.5051,
+        "max_lon": -59.3183
+      },
+      "requested_period": [
+        "2017-09-01",
+        "2017-12-29"
+      ],
+      "query_timestamp": "2026-08-26T15:12:47.979276"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "OISSTv2.1",
+    "dataset_version": "NOAA_Optimum_Interpolation_SST_v2.1",
+    "retrieval_timestamp": "2026-08-26T15:12:47.981532",
+    "requested_bbox": {
+      "min_lat": -69.1451,
+      "max_lat": -66.4901,
+      "min_lon": -63.5051,
+      "max_lon": -59.3183
+    },
+    "requested_start_date": "2017-09-01",
+    "requested_end_date": "2017-12-29",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\oisst\\oisst_2017-09-01_2017-12-29.json",
+    "bytes_downloaded": 440,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "NOAA_Optimum_Interpolation_SST_v2.1",
+      "variables": [
+        "sst"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "daily",
+      "units": "degC",
+      "requested_bbox": {
+        "min_lat": -69.1451,
+        "max_lat": -66.4901,
+        "min_lon": -63.5051,
+        "max_lon": -59.3183
+      },
+      "requested_period": [
+        "2017-09-01",
+        "2017-12-29"
+      ],
+      "query_timestamp": "2026-08-26T15:12:47.980313"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "NSIDC_CDR_v4",
+    "dataset_version": "G02202_V4",
+    "retrieval_timestamp": "2026-08-26T15:12:47.982399",
+    "requested_bbox": {
+      "min_lat": -69.1451,
+      "max_lat": -66.4901,
+      "min_lon": -63.5051,
+      "max_lon": -59.3183
+    },
+    "requested_start_date": "2017-09-01",
+    "requested_end_date": "2017-12-29",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\sea_ice\\nsidc_sic_2017-09-01_2017-12-29.json",
+    "bytes_downloaded": 429,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "G02202_V4",
+      "variables": [
+        "cdr_seaice_conc"
+      ],
+      "spatial_resolution_km": 25.0,
+      "temporal_resolution": "daily",
+      "units": "fraction",
+      "requested_bbox": {
+        "min_lat": -69.1451,
+        "max_lat": -66.4901,
+        "min_lon": -63.5051,
+        "max_lon": -59.3183
+      },
+      "requested_period": [
+        "2017-09-01",
+        "2017-12-29"
+      ],
+      "query_timestamp": "2026-08-26T15:12:47.981854"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GEBCO_2024",
+    "dataset_version": "GEBCO_2024_Grid",
+    "retrieval_timestamp": "2026-08-26T15:12:47.983256",
+    "requested_bbox": {
+      "min_lat": -69.1451,
+      "max_lat": -66.4901,
+      "min_lon": -63.5051,
+      "max_lon": -59.3183
+    },
+    "requested_start_date": "2017-09-01",
+    "requested_end_date": "2017-12-29",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\gebco\\gebco_subgrid_69S_66S.json",
+    "bytes_downloaded": 364,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GEBCO_2024_Grid",
+      "variables": [
+        "elevation"
+      ],
+      "spatial_resolution_arcsec": 15.0,
+      "temporal_resolution": "static",
+      "units": "meters",
+      "requested_bbox": {
+        "min_lat": -69.1451,
+        "max_lat": -66.4901,
+        "min_lon": -63.5051,
+        "max_lon": -59.3183
+      },
+      "query_timestamp": "2026-08-26T15:12:47.982690"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GLORYS12V1",
+    "dataset_version": "GLOBAL_MULTIYEAR_PHY_001_030",
+    "retrieval_timestamp": "2026-08-26T15:12:48.087708",
+    "requested_bbox": {
+      "min_lat": -75.92,
+      "max_lat": -73.9,
+      "min_lon": -102.93,
+      "max_lon": -100.78
+    },
+    "requested_start_date": "2008-01-03",
+    "requested_end_date": "2008-05-01",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\glorys\\glorys_2008-01-03_2008-05-01_75S_73S.json",
+    "bytes_downloaded": 482,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GLOBAL_MULTIYEAR_PHY_001_030",
+      "variables": [
+        "uo",
+        "vo"
+      ],
+      "depth_level": "0.494 m (surface)",
+      "spatial_resolution_deg": 0.08333,
+      "temporal_resolution": "daily_mean",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -75.92,
+        "max_lat": -73.9,
+        "min_lon": -102.93,
+        "max_lon": -100.78
+      },
+      "requested_period": [
+        "2008-01-03",
+        "2008-05-01"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.086022"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "ERA5",
+    "dataset_version": "reanalysis-era5-single-levels",
+    "retrieval_timestamp": "2026-08-26T15:12:48.088973",
+    "requested_bbox": {
+      "min_lat": -75.92,
+      "max_lat": -73.9,
+      "min_lon": -102.93,
+      "max_lon": -100.78
+    },
+    "requested_start_date": "2008-01-03",
+    "requested_end_date": "2008-05-01",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\era5\\era5_wind_2008-01-03_2008-05-01.json",
+    "bytes_downloaded": 498,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "reanalysis-era5-single-levels",
+      "variables": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "hourly / daily_aggregated",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -75.92,
+        "max_lat": -73.9,
+        "min_lon": -102.93,
+        "max_lon": -100.78
+      },
+      "requested_period": [
+        "2008-01-03",
+        "2008-05-01"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.087983"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "OISSTv2.1",
+    "dataset_version": "NOAA_Optimum_Interpolation_SST_v2.1",
+    "retrieval_timestamp": "2026-08-26T15:12:48.089836",
+    "requested_bbox": {
+      "min_lat": -75.92,
+      "max_lat": -73.9,
+      "min_lon": -102.93,
+      "max_lon": -100.78
+    },
+    "requested_start_date": "2008-01-03",
+    "requested_end_date": "2008-05-01",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\oisst\\oisst_2008-01-03_2008-05-01.json",
+    "bytes_downloaded": 433,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "NOAA_Optimum_Interpolation_SST_v2.1",
+      "variables": [
+        "sst"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "daily",
+      "units": "degC",
+      "requested_bbox": {
+        "min_lat": -75.92,
+        "max_lat": -73.9,
+        "min_lon": -102.93,
+        "max_lon": -100.78
+      },
+      "requested_period": [
+        "2008-01-03",
+        "2008-05-01"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.089277"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "NSIDC_CDR_v4",
+    "dataset_version": "G02202_V4",
+    "retrieval_timestamp": "2026-08-26T15:12:48.090766",
+    "requested_bbox": {
+      "min_lat": -75.92,
+      "max_lat": -73.9,
+      "min_lon": -102.93,
+      "max_lon": -100.78
+    },
+    "requested_start_date": "2008-01-03",
+    "requested_end_date": "2008-05-01",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\sea_ice\\nsidc_sic_2008-01-03_2008-05-01.json",
+    "bytes_downloaded": 422,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "G02202_V4",
+      "variables": [
+        "cdr_seaice_conc"
+      ],
+      "spatial_resolution_km": 25.0,
+      "temporal_resolution": "daily",
+      "units": "fraction",
+      "requested_bbox": {
+        "min_lat": -75.92,
+        "max_lat": -73.9,
+        "min_lon": -102.93,
+        "max_lon": -100.78
+      },
+      "requested_period": [
+        "2008-01-03",
+        "2008-05-01"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.090131"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GEBCO_2024",
+    "dataset_version": "GEBCO_2024_Grid",
+    "retrieval_timestamp": "2026-08-26T15:12:48.091449",
+    "requested_bbox": {
+      "min_lat": -75.92,
+      "max_lat": -73.9,
+      "min_lon": -102.93,
+      "max_lon": -100.78
+    },
+    "requested_start_date": "2008-01-03",
+    "requested_end_date": "2008-05-01",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\gebco\\gebco_subgrid_75S_73S.json",
+    "bytes_downloaded": 357,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GEBCO_2024_Grid",
+      "variables": [
+        "elevation"
+      ],
+      "spatial_resolution_arcsec": 15.0,
+      "temporal_resolution": "static",
+      "units": "meters",
+      "requested_bbox": {
+        "min_lat": -75.92,
+        "max_lat": -73.9,
+        "min_lon": -102.93,
+        "max_lon": -100.78
+      },
+      "query_timestamp": "2026-08-26T15:12:48.090983"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GLORYS12V1",
+    "dataset_version": "GLOBAL_MULTIYEAR_PHY_001_030",
+    "retrieval_timestamp": "2026-08-26T15:12:48.548239",
+    "requested_bbox": {
+      "min_lat": -77.79,
+      "max_lat": -75.2,
+      "min_lon": -42.81,
+      "max_lon": -40.5
+    },
+    "requested_start_date": "1991-11-10",
+    "requested_end_date": "1992-04-06",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\glorys\\glorys_1991-11-10_1992-04-06_77S_75S.json",
+    "bytes_downloaded": 479,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GLOBAL_MULTIYEAR_PHY_001_030",
+      "variables": [
+        "uo",
+        "vo"
+      ],
+      "depth_level": "0.494 m (surface)",
+      "spatial_resolution_deg": 0.08333,
+      "temporal_resolution": "daily_mean",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -77.79,
+        "max_lat": -75.2,
+        "min_lon": -42.81,
+        "max_lon": -40.5
+      },
+      "requested_period": [
+        "1991-11-10",
+        "1992-04-06"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.542859"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "ERA5",
+    "dataset_version": "reanalysis-era5-single-levels",
+    "retrieval_timestamp": "2026-08-26T15:12:48.549513",
+    "requested_bbox": {
+      "min_lat": -77.79,
+      "max_lat": -75.2,
+      "min_lon": -42.81,
+      "max_lon": -40.5
+    },
+    "requested_start_date": "1991-11-10",
+    "requested_end_date": "1992-04-06",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\era5\\era5_wind_1991-11-10_1992-04-06.json",
+    "bytes_downloaded": 495,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "reanalysis-era5-single-levels",
+      "variables": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "hourly / daily_aggregated",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -77.79,
+        "max_lat": -75.2,
+        "min_lon": -42.81,
+        "max_lon": -40.5
+      },
+      "requested_period": [
+        "1991-11-10",
+        "1992-04-06"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.548620"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "OISSTv2.1",
+    "dataset_version": "NOAA_Optimum_Interpolation_SST_v2.1",
+    "retrieval_timestamp": "2026-08-26T15:12:48.550403",
+    "requested_bbox": {
+      "min_lat": -77.79,
+      "max_lat": -75.2,
+      "min_lon": -42.81,
+      "max_lon": -40.5
+    },
+    "requested_start_date": "1991-11-10",
+    "requested_end_date": "1992-04-06",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\oisst\\oisst_1991-11-10_1992-04-06.json",
+    "bytes_downloaded": 430,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "NOAA_Optimum_Interpolation_SST_v2.1",
+      "variables": [
+        "sst"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "daily",
+      "units": "degC",
+      "requested_bbox": {
+        "min_lat": -77.79,
+        "max_lat": -75.2,
+        "min_lon": -42.81,
+        "max_lon": -40.5
+      },
+      "requested_period": [
+        "1991-11-10",
+        "1992-04-06"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.549774"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "NSIDC_CDR_v4",
+    "dataset_version": "G02202_V4",
+    "retrieval_timestamp": "2026-08-26T15:12:48.551842",
+    "requested_bbox": {
+      "min_lat": -77.79,
+      "max_lat": -75.2,
+      "min_lon": -42.81,
+      "max_lon": -40.5
+    },
+    "requested_start_date": "1991-11-10",
+    "requested_end_date": "1992-04-06",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\sea_ice\\nsidc_sic_1991-11-10_1992-04-06.json",
+    "bytes_downloaded": 419,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "G02202_V4",
+      "variables": [
+        "cdr_seaice_conc"
+      ],
+      "spatial_resolution_km": 25.0,
+      "temporal_resolution": "daily",
+      "units": "fraction",
+      "requested_bbox": {
+        "min_lat": -77.79,
+        "max_lat": -75.2,
+        "min_lon": -42.81,
+        "max_lon": -40.5
+      },
+      "requested_period": [
+        "1991-11-10",
+        "1992-04-06"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.550731"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GEBCO_2024",
+    "dataset_version": "GEBCO_2024_Grid",
+    "retrieval_timestamp": "2026-08-26T15:12:48.553250",
+    "requested_bbox": {
+      "min_lat": -77.79,
+      "max_lat": -75.2,
+      "min_lon": -42.81,
+      "max_lon": -40.5
+    },
+    "requested_start_date": "1991-11-10",
+    "requested_end_date": "1992-04-06",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\gebco\\gebco_subgrid_77S_75S.json",
+    "bytes_downloaded": 354,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GEBCO_2024_Grid",
+      "variables": [
+        "elevation"
+      ],
+      "spatial_resolution_arcsec": 15.0,
+      "temporal_resolution": "static",
+      "units": "meters",
+      "requested_bbox": {
+        "min_lat": -77.79,
+        "max_lat": -75.2,
+        "min_lon": -42.81,
+        "max_lon": -40.5
+      },
+      "query_timestamp": "2026-08-26T15:12:48.552135"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GLORYS12V1",
+    "dataset_version": "GLOBAL_MULTIYEAR_PHY_001_030",
+    "retrieval_timestamp": "2026-08-26T15:12:48.615389",
+    "requested_bbox": {
+      "min_lat": -67.5894,
+      "max_lat": -65.4657,
+      "min_lon": 147.2685,
+      "max_lon": 150.0858
+    },
+    "requested_start_date": "2006-02-04",
+    "requested_end_date": "2006-06-03",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\glorys\\glorys_2006-02-04_2006-06-03_67S_65S.json",
+    "bytes_downloaded": 489,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GLOBAL_MULTIYEAR_PHY_001_030",
+      "variables": [
+        "uo",
+        "vo"
+      ],
+      "depth_level": "0.494 m (surface)",
+      "spatial_resolution_deg": 0.08333,
+      "temporal_resolution": "daily_mean",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -67.5894,
+        "max_lat": -65.4657,
+        "min_lon": 147.2685,
+        "max_lon": 150.0858
+      },
+      "requested_period": [
+        "2006-02-04",
+        "2006-06-03"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.614609"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "ERA5",
+    "dataset_version": "reanalysis-era5-single-levels",
+    "retrieval_timestamp": "2026-08-26T15:12:48.616305",
+    "requested_bbox": {
+      "min_lat": -67.5894,
+      "max_lat": -65.4657,
+      "min_lon": 147.2685,
+      "max_lon": 150.0858
+    },
+    "requested_start_date": "2006-02-04",
+    "requested_end_date": "2006-06-03",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\era5\\era5_wind_2006-02-04_2006-06-03.json",
+    "bytes_downloaded": 505,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "reanalysis-era5-single-levels",
+      "variables": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "hourly / daily_aggregated",
+      "units": "m/s",
+      "requested_bbox": {
+        "min_lat": -67.5894,
+        "max_lat": -65.4657,
+        "min_lon": 147.2685,
+        "max_lon": 150.0858
+      },
+      "requested_period": [
+        "2006-02-04",
+        "2006-06-03"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.615706"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "OISSTv2.1",
+    "dataset_version": "NOAA_Optimum_Interpolation_SST_v2.1",
+    "retrieval_timestamp": "2026-08-26T15:12:48.617593",
+    "requested_bbox": {
+      "min_lat": -67.5894,
+      "max_lat": -65.4657,
+      "min_lon": 147.2685,
+      "max_lon": 150.0858
+    },
+    "requested_start_date": "2006-02-04",
+    "requested_end_date": "2006-06-03",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\oisst\\oisst_2006-02-04_2006-06-03.json",
+    "bytes_downloaded": 440,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "NOAA_Optimum_Interpolation_SST_v2.1",
+      "variables": [
+        "sst"
+      ],
+      "spatial_resolution_deg": 0.25,
+      "temporal_resolution": "daily",
+      "units": "degC",
+      "requested_bbox": {
+        "min_lat": -67.5894,
+        "max_lat": -65.4657,
+        "min_lon": 147.2685,
+        "max_lon": 150.0858
+      },
+      "requested_period": [
+        "2006-02-04",
+        "2006-06-03"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.616519"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "NSIDC_CDR_v4",
+    "dataset_version": "G02202_V4",
+    "retrieval_timestamp": "2026-08-26T15:12:48.618406",
+    "requested_bbox": {
+      "min_lat": -67.5894,
+      "max_lat": -65.4657,
+      "min_lon": 147.2685,
+      "max_lon": 150.0858
+    },
+    "requested_start_date": "2006-02-04",
+    "requested_end_date": "2006-06-03",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\sea_ice\\nsidc_sic_2006-02-04_2006-06-03.json",
+    "bytes_downloaded": 429,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "G02202_V4",
+      "variables": [
+        "cdr_seaice_conc"
+      ],
+      "spatial_resolution_km": 25.0,
+      "temporal_resolution": "daily",
+      "units": "fraction",
+      "requested_bbox": {
+        "min_lat": -67.5894,
+        "max_lat": -65.4657,
+        "min_lon": 147.2685,
+        "max_lon": 150.0858
+      },
+      "requested_period": [
+        "2006-02-04",
+        "2006-06-03"
+      ],
+      "query_timestamp": "2026-08-26T15:12:48.617899"
+    }
+  },
+  {
+    "success": true,
+    "dataset_name": "GEBCO_2024",
+    "dataset_version": "GEBCO_2024_Grid",
+    "retrieval_timestamp": "2026-08-26T15:12:48.619079",
+    "requested_bbox": {
+      "min_lat": -67.5894,
+      "max_lat": -65.4657,
+      "min_lon": 147.2685,
+      "max_lon": 150.0858
+    },
+    "requested_start_date": "2006-02-04",
+    "requested_end_date": "2006-06-03",
+    "local_file_path": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\backend\\data\\environment\\gebco\\gebco_subgrid_67S_65S.json",
+    "bytes_downloaded": 364,
+    "error_message": null,
+    "provenance_metadata": {
+      "source_product": "GEBCO_2024_Grid",
+      "variables": [
+        "elevation"
+      ],
+      "spatial_resolution_arcsec": 15.0,
+      "temporal_resolution": "static",
+      "units": "meters",
+      "requested_bbox": {
+        "min_lat": -67.5894,
+        "max_lat": -65.4657,
+        "min_lon": 147.2685,
+        "max_lon": 150.0858
+      },
+      "query_timestamp": "2026-08-26T15:12:48.618611"
+    }
+  }
+]

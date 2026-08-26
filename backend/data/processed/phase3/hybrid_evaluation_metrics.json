@@ -1,0 +1,27 @@
+{
+  "test_records_count": 119,
+  "test_unique_icebergs": 1,
+  "horizon_24h_mae_km": {
+    "Persistence": 0.57,
+    "Wagner_Physics": 11.16,
+    "Hybrid_Physics_ML": 2.15,
+    "improvement_over_wagner_pct": 80.7,
+    "improvement_over_persistence_pct": -277.2
+  },
+  "horizon_48h_mae_km": {
+    "Persistence": 1.15,
+    "Wagner_Physics": 22.33,
+    "Hybrid_Physics_ML": 4.29,
+    "improvement_over_wagner_pct": 80.8
+  },
+  "horizon_72h_mae_km": {
+    "Persistence": 1.72,
+    "Wagner_Physics": 33.49,
+    "Hybrid_Physics_ML": 6.44,
+    "improvement_over_wagner_pct": 80.8
+  },
+  "trajectory_decomposition_24h_km": {
+    "mean_along_track_error_km": 0.09,
+    "mean_cross_track_error_km": 1.42
+  }
+}

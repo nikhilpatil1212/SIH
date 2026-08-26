@@ -1,0 +1,326 @@
+[
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992089,
+    "calendar_date": "1992-03-29",
+    "latitude": -50.0,
+    "longitude": -48.1,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -50.0,
+        "lon": -48.1,
+        "flag": 1
+      }
+    },
+    "step_index": 0,
+    "delta_time_days": 0.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": null,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992131,
+    "calendar_date": "1992-05-10",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 1
+      }
+    },
+    "step_index": 1,
+    "delta_time_days": 42.0,
+    "delta_distance_km": 467.137,
+    "speed_km_day": 11.122,
+    "speed_knots": 0.25,
+    "speed_m_s": 0.1287,
+    "bearing_deg": 277.14,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992132,
+    "calendar_date": "1992-05-11",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 2,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 1.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992133,
+    "calendar_date": "1992-05-12",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 3,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 2.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992134,
+    "calendar_date": "1992-05-13",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 4,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 3.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992135,
+    "calendar_date": "1992-05-14",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 5,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 4.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992136,
+    "calendar_date": "1992-05-15",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 6,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 5.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992137,
+    "calendar_date": "1992-05-16",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "forward_fill",
+    "size_is_imputed": true,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 0,
+    "is_interpolated": true,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 0
+      }
+    },
+    "step_index": 7,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 6.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A24B",
+    "original_date": 1992138,
+    "calendar_date": "1992-05-17",
+    "latitude": -49.3,
+    "longitude": -54.5,
+    "size_major_km": 44.45,
+    "size_minor_km": 9.26,
+    "area_sq_km": 411.61,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.3,
+        "lon": -54.5,
+        "flag": 1
+      }
+    },
+    "step_index": 8,
+    "delta_time_days": 1.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": 0.0,
+    "is_stationary": true,
+    "stationary_duration_days": 7.0,
+    "suspicious_speed": false
+  }
+]

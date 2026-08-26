@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .api import health, system_status
+from .api import health, system_status, icebergs, routes
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -23,6 +23,8 @@ app.add_middleware(
 # Core endpoints
 app.include_router(health.router, prefix=settings.API_V1_STR)
 app.include_router(system_status.router, prefix=settings.API_V1_STR)
+app.include_router(icebergs.router, prefix=settings.API_V1_STR)
+app.include_router(routes.router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn

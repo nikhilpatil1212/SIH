@@ -333,6 +333,43 @@ export const apiClient = {
     } catch {}
     return null;
   },
+
+  async predictHybridIcebergDrift(payload: {
+    iceberg_id: string;
+    current_latitude: number;
+    current_longitude: number;
+    forecast_hours?: number;
+  }) {
+    try {
+      const res = await fetch(`${API_BASE}/icebergs/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (res.ok) return await res.json();
+    } catch {}
+    return null;
+  },
+
+  async predictMaritimeRoutes(payload: {
+    start_latitude: number;
+    start_longitude: number;
+    destination_latitude: number;
+    destination_longitude: number;
+    vessel_speed_knots?: number;
+  }) {
+    try {
+      const res = await fetch(`${API_BASE}/routes/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (res.ok) return await res.json();
+    } catch {}
+    return null;
+  },
 };
 
 export default apiClient;

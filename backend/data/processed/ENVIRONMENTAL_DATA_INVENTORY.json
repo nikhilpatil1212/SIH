@@ -1,0 +1,261 @@
+{
+  "inventory_timestamp": "2026-08-26T20:47:30Z",
+  "audit_scope": "Full project repository audit (backend/data/environment/, backend/data/processed/phase2b/, and workspace root)",
+  "total_datasets_cataloged": 8,
+  "datasets": [
+    {
+      "dataset_id": "GLORYS12V1",
+      "dataset_name": "Copernicus Marine GLORYS12V1 Global Ocean Physics Reanalysis",
+      "provider": "Copernicus Marine Environment Monitoring Service (CMEMS) / Mercator Ocean International",
+      "category": "Ocean / Surface Currents",
+      "local_directory": "backend/data/environment/glorys/",
+      "manifest_files_count": 4,
+      "file_format": "NetCDF-4 (manifest JSON in local cache)",
+      "data_status": "Targeted subset query manifests with localized physical grid slices for A68A, B27, A23A, UK172",
+      "variables_contained": [
+        {"name": "uo", "standard_name": "eastward_sea_water_velocity", "units": "m/s", "depth_level": "0.494 m (surface)"},
+        {"name": "vo", "standard_name": "northward_sea_water_velocity", "units": "m/s", "depth_level": "0.494 m (surface)"},
+        {"name": "thetao", "standard_name": "sea_water_potential_temperature", "units": "degC", "depth_level": "0-200 m profile"},
+        {"name": "so", "standard_name": "sea_water_salinity", "units": "PSU", "depth_level": "0-200 m profile"},
+        {"name": "zos", "standard_name": "sea_surface_height_above_geoid", "units": "m", "depth_level": "surface"}
+      ],
+      "spatial_resolution": "0.08333 deg (~3-4 km at Antarctic latitudes)",
+      "spatial_coverage": "Global (80S to 90N)",
+      "temporal_resolution": "Daily mean (24-hour average)",
+      "temporal_coverage": {
+        "earliest": "1993-01-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z (extended by operational PHY-001-024)",
+        "overlap_with_iceberg_db_years": 33.3
+      },
+      "coordinate_convention": "Equirectangular, Latitude [-80.0, 90.0] ascending, Longitude [-180.0, 180.0]",
+      "longitude_convention": "[-180.0, 180.0]",
+      "missing_sentinel": "1e20 (land/shelf ice mask)",
+      "storage_size_approx": "~2.4 GB/year for Antarctic sector (50S-80S); local test manifests ~2.0 KB",
+      "usable_by_existing_provider": true,
+      "provider_class": "OceanCurrentProvider (backend/app/environment/providers/ocean.py)",
+      "scientific_classification": "A. Required directly by Wagner"
+    },
+    {
+      "dataset_id": "ECCO2",
+      "dataset_name": "NASA ECCO2 High-Resolution Global Ocean and Sea-Ice Reanalysis (Cube92)",
+      "provider": "NASA Jet Propulsion Laboratory (JPL) / MIT",
+      "category": "Ocean / Surface Currents (Pre-1993 Archive)",
+      "local_directory": "backend/data/environment/glorys/ (candidate secondary)",
+      "manifest_files_count": 0,
+      "file_format": "NetCDF / Binary Cube-Sphere",
+      "data_status": "Candidate provider for 1992-1993 early scatterometer epoch",
+      "variables_contained": [
+        {"name": "UVEL", "standard_name": "eastward_sea_water_velocity", "units": "m/s", "depth_level": "surface"},
+        {"name": "VVEL", "standard_name": "northward_sea_water_velocity", "units": "m/s", "depth_level": "surface"},
+        {"name": "THETA", "standard_name": "sea_water_potential_temperature", "units": "degC", "depth_level": "surface"}
+      ],
+      "spatial_resolution": "0.25 deg (~18-25 km)",
+      "spatial_coverage": "Global (90S to 90N)",
+      "temporal_resolution": "3-day / Daily average",
+      "temporal_coverage": {
+        "earliest": "1992-01-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z",
+        "overlap_with_iceberg_db_years": 34.3
+      },
+      "coordinate_convention": "Cube-Sphere / Regular Lat-Lon [-90.0, 90.0]",
+      "longitude_convention": "[0.0, 360.0]",
+      "missing_sentinel": "-9999.0 / NaN",
+      "storage_size_approx": "~1.5 GB/year",
+      "usable_by_existing_provider": true,
+      "provider_class": "OceanCurrentProvider (backend/app/environment/providers/ocean.py)",
+      "scientific_classification": "A. Required directly by Wagner"
+    },
+    {
+      "dataset_id": "ERA5_WIND",
+      "dataset_name": "ECMWF ERA5 10m Atmospheric Surface Wind Reanalysis",
+      "provider": "European Centre for Medium-Range Weather Forecasts (ECMWF) / Copernicus C3S",
+      "category": "Atmospheric / Wind",
+      "local_directory": "backend/data/environment/era5/",
+      "manifest_files_count": 4,
+      "file_format": "NetCDF-4 / GRIB-2 (manifest JSON in local cache)",
+      "data_status": "Targeted subset query manifests with localized physical grid slices for A68A, B27, A23A, UK172",
+      "variables_contained": [
+        {"name": "u10", "standard_name": "10m_u_component_of_wind", "units": "m/s", "description": "10m Eastward wind"},
+        {"name": "v10", "standard_name": "10m_v_component_of_wind", "units": "m/s", "description": "10m Northward wind"},
+        {"name": "si10", "standard_name": "10m_wind_speed", "units": "m/s", "description": "Scalar wind speed sqrt(u10^2 + v10^2)"}
+      ],
+      "spatial_resolution": "0.25 deg x 0.25 deg (~28-31 km)",
+      "spatial_coverage": "Global (90S to 90N)",
+      "temporal_resolution": "Hourly & Daily mean aggregations",
+      "temporal_coverage": {
+        "earliest": "1940-01-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z (extended daily near-real-time)",
+        "overlap_with_iceberg_db_years": 47.8
+      },
+      "coordinate_convention": "Regular grid, Latitude [90.0, -90.0] descending North-to-South",
+      "longitude_convention": "[0.0, 359.75] (normalized to [-180, 180] in pipeline)",
+      "missing_sentinel": "NaN",
+      "storage_size_approx": "~1.8 GB/year for Antarctic domain; local test manifests ~2.0 KB",
+      "usable_by_existing_provider": true,
+      "provider_class": "AtmosphericWindProvider (backend/app/environment/providers/wind.py)",
+      "scientific_classification": "A. Required directly by Wagner"
+    },
+    {
+      "dataset_id": "ERA5_WEATHER_SURFACE",
+      "dataset_name": "ECMWF ERA5 Comprehensive Surface Weather & Atmospheric Boundary Layer Reanalysis",
+      "provider": "European Centre for Medium-Range Weather Forecasts (ECMWF) / Copernicus C3S",
+      "category": "Atmospheric / Weather & Heat Fluxes",
+      "local_directory": "backend/data/environment/era5/ (extended surface variables)",
+      "manifest_files_count": 0,
+      "file_format": "NetCDF-4 / GRIB-2",
+      "data_status": "Specification compiled; variables available via same CDS API client as ERA5 wind",
+      "variables_contained": [
+        {"name": "t2m", "standard_name": "2m_temperature", "units": "K (convert to degC via K - 273.15)", "description": "2m Surface air temperature"},
+        {"name": "d2m", "standard_name": "2m_dewpoint_temperature", "units": "K", "description": "2m Dewpoint temperature / humidity"},
+        {"name": "msl", "standard_name": "mean_sea_level_pressure", "units": "Pa (convert to hPa via Pa / 100.0)", "description": "Synoptic pressure & cyclones"},
+        {"name": "sp", "standard_name": "surface_pressure", "units": "Pa", "description": "Local surface barometric pressure"},
+        {"name": "tp", "standard_name": "total_precipitation", "units": "m/day", "description": "Daily accumulated rainfall and snowfall"},
+        {"name": "sf", "standard_name": "snowfall", "units": "m/day water equivalent", "description": "Snowfall accumulation on iceberg freeboard"},
+        {"name": "tcc", "standard_name": "total_cloud_cover", "units": "fraction [0.0, 1.0]", "description": "Cloud cover modulating solar flux"},
+        {"name": "ssr", "standard_name": "surface_net_solar_radiation", "units": "J/m^2 (convert to W/m^2)", "description": "Shortwave radiation flux"},
+        {"name": "str", "standard_name": "surface_net_thermal_radiation", "units": "J/m^2 (convert to W/m^2)", "description": "Longwave thermal radiation flux"},
+        {"name": "sshf", "standard_name": "surface_sensible_heat_flux", "units": "J/m^2 (convert to W/m^2)", "description": "Turbulent air-ice sensible heat"},
+        {"name": "slhf", "standard_name": "surface_latent_heat_flux", "units": "J/m^2 (convert to W/m^2)", "description": "Evaporative / sublimation latent heat"}
+      ],
+      "spatial_resolution": "0.25 deg x 0.25 deg (~28-31 km)",
+      "spatial_coverage": "Global (90S to 90N)",
+      "temporal_resolution": "Hourly & Daily mean aggregations",
+      "temporal_coverage": {
+        "earliest": "1940-01-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z",
+        "overlap_with_iceberg_db_years": 47.8
+      },
+      "coordinate_convention": "Regular grid, Latitude [90.0, -90.0] descending",
+      "longitude_convention": "[0.0, 359.75]",
+      "missing_sentinel": "NaN",
+      "storage_size_approx": "~3.5 GB/year for complete atmospheric package",
+      "usable_by_existing_provider": true,
+      "provider_class": "AtmosphericWindProvider / Extended Weather Adapter",
+      "scientific_classification": "D. Candidate feature for future ML residual correction"
+    },
+    {
+      "dataset_id": "ERA5_WAVE",
+      "dataset_name": "ECMWF ERA5 Ocean Wave Reanalysis (ECWAM Model)",
+      "provider": "European Centre for Medium-Range Weather Forecasts (ECMWF) / Copernicus C3S",
+      "category": "Sea-Wave / Wave Dynamics",
+      "local_directory": "backend/data/environment/wave/",
+      "manifest_files_count": 0,
+      "file_format": "NetCDF-4 / GRIB-2",
+      "data_status": "Specification compiled; candidate primary wave dataset",
+      "variables_contained": [
+        {"name": "swh", "standard_name": "significant_height_of_combined_wind_waves_and_swell", "units": "m", "description": "Total significant wave height H_s"},
+        {"name": "mwp", "standard_name": "mean_wave_period", "units": "s", "description": "Mean wave period T_m"},
+        {"name": "pp1d", "standard_name": "peak_wave_period", "units": "s", "description": "Peak spectral wave period T_p"},
+        {"name": "mwd", "standard_name": "mean_wave_direction", "units": "degrees (0=North, 90=East)", "description": "Mean wave propagation azimuth"},
+        {"name": "shww", "standard_name": "significant_height_of_wind_waves", "units": "m", "description": "Locally generated wind sea height"},
+        {"name": "mpww", "standard_name": "mean_period_of_wind_waves", "units": "s", "description": "Wind-sea period"},
+        {"name": "shts", "standard_name": "significant_height_of_total_swell", "units": "m", "description": "Distant swell wave height"},
+        {"name": "mpts", "standard_name": "mean_period_of_total_swell", "units": "s", "description": "Swell period"},
+        {"name": "mdts", "standard_name": "mean_direction_of_total_swell", "units": "degrees", "description": "Swell direction"}
+      ],
+      "spatial_resolution": "0.5 deg x 0.5 deg (~55 km)",
+      "spatial_coverage": "Global Oceans (90S to 90N)",
+      "temporal_resolution": "Hourly & Daily mean aggregations",
+      "temporal_coverage": {
+        "earliest": "1940-01-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z",
+        "overlap_with_iceberg_db_years": 47.8
+      },
+      "coordinate_convention": "Regular grid, Latitude [90.0, -90.0] descending",
+      "longitude_convention": "[0.0, 359.5]",
+      "missing_sentinel": "NaN (land/pack ice mask)",
+      "storage_size_approx": "~1.2 GB/year for Southern Ocean domain",
+      "usable_by_existing_provider": true,
+      "provider_class": "SeaWaveProvider (adapter defined for Phase 2C)",
+      "scientific_classification": "B. Useful for Wagner thermodynamics"
+    },
+    {
+      "dataset_id": "OISST_v2_1",
+      "dataset_name": "NOAA Daily Optimum Interpolation Sea Surface Temperature v2.1 (AVHRR-only)",
+      "provider": "NOAA National Centers for Environmental Information (NCEI) / PSL",
+      "category": "Sea Surface Temperature (SST)",
+      "local_directory": "backend/data/environment/oisst/",
+      "manifest_files_count": 4,
+      "file_format": "NetCDF-4 (manifest JSON in local cache)",
+      "data_status": "Targeted subset query manifests with localized physical grid slices for A68A, B27, A23A, UK172",
+      "variables_contained": [
+        {"name": "sst", "standard_name": "sea_surface_temperature", "units": "degC", "description": "Daily SST (AVHRR infrared + in-situ buoys)"},
+        {"name": "anom", "standard_name": "sea_surface_temperature_anomaly", "units": "degC", "description": "Climatological SST anomaly"},
+        {"name": "ice", "standard_name": "sea_ice_area_fraction", "units": "% (convert to fraction via /100.0)", "description": "Co-located sea-ice fraction"}
+      ],
+      "spatial_resolution": "0.25 deg x 0.25 deg (~28 km)",
+      "spatial_coverage": "Global (90S to 90N)",
+      "temporal_resolution": "Daily mean",
+      "temporal_coverage": {
+        "earliest": "1981-09-01T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z",
+        "overlap_with_iceberg_db_years": 44.7
+      },
+      "coordinate_convention": "Regular grid, Latitude [-89.875, 89.875], Longitude [0.125, 359.875]",
+      "longitude_convention": "[0.125, 359.875] (normalized to [-180, 180])",
+      "missing_sentinel": "-999.0 (land mask)",
+      "storage_size_approx": "~1.5 GB/year for global daily slices; local test manifests ~1.8 KB",
+      "usable_by_existing_provider": true,
+      "provider_class": "SeaSurfaceTemperatureProvider (backend/app/environment/providers/sst.py)",
+      "scientific_classification": "B. Useful for Wagner thermodynamics"
+    },
+    {
+      "dataset_id": "NSIDC_CDR_v4",
+      "dataset_name": "NOAA/NSIDC Climate Data Record of Passive Microwave Sea Ice Concentration v4",
+      "provider": "NASA National Snow and Ice Data Center (NSIDC DAAC)",
+      "category": "Sea-Ice Concentration (SIC)",
+      "local_directory": "backend/data/environment/sea_ice/",
+      "manifest_files_count": 4,
+      "file_format": "NetCDF-4 (manifest JSON in local cache)",
+      "data_status": "Targeted subset query manifests with localized physical grid slices for A68A, B27, A23A, UK172",
+      "variables_contained": [
+        {"name": "cdr_seaice_conc", "standard_name": "sea_ice_area_fraction", "units": "fraction [0.0, 1.0]", "description": "Goddard NASA Team / Bootstrap merged SIC"},
+        {"name": "stdev_of_cdr_seaice_conc", "standard_name": "standard_deviation_of_sea_ice_concentration", "units": "fraction", "description": "Sensor uncertainty estimate"},
+        {"name": "melt_detected", "standard_name": "surface_snow_melt_flag", "units": "flag", "description": "Summer surface melt onset flag"}
+      ],
+      "spatial_resolution": "25.0 km x 25.0 km (enhanced to 12.5 km for AMSR2 2012-present)",
+      "spatial_coverage": "Southern Hemisphere Polar Ocean (EPSG:3412 / EPSG:3031)",
+      "temporal_resolution": "Daily",
+      "temporal_coverage": {
+        "earliest": "1978-10-25T00:00:00Z",
+        "latest": "2026-04-30T00:00:00Z",
+        "overlap_with_iceberg_db_years": 47.5
+      },
+      "coordinate_convention": "Southern Polar Stereographic projection (x, y meters with lat/lon lookup tables)",
+      "longitude_convention": "[-180.0, 180.0]",
+      "missing_sentinel": "2.54 (land), 2.55 (missing), 2.51 (pole hole)",
+      "storage_size_approx": "~450 MB/year for Southern Hemisphere grid; local test manifests ~1.7 KB",
+      "usable_by_existing_provider": true,
+      "provider_class": "SeaIceConcentrationProvider (backend/app/environment/providers/sea_ice.py)",
+      "scientific_classification": "C. Useful for state/regime classification"
+    },
+    {
+      "dataset_id": "GEBCO_2024",
+      "dataset_name": "General Bathymetric Chart of the Oceans (GEBCO 2024 Global Bathymetric Grid)",
+      "provider": "GEBCO / IHO / IOC UNESCO",
+      "category": "Bathymetry & Seafloor Topography",
+      "local_directory": "backend/data/environment/gebco/",
+      "manifest_files_count": 4,
+      "file_format": "GeoTIFF / NetCDF-4 (manifest JSON in local cache)",
+      "data_status": "Targeted subset query manifests with localized physical grid slices for A68A, B27, A23A, UK172",
+      "variables_contained": [
+        {"name": "elevation", "standard_name": "height_above_reference_ellipsoid", "units": "meters", "description": "Seafloor depth (negative) and land elevation (positive) relative to MSL"}
+      ],
+      "spatial_resolution": "15 arc-seconds (~450 m at equator, ~200-300 m at Antarctic latitudes)",
+      "spatial_coverage": "Global (90S to 90N)",
+      "temporal_resolution": "Static grid (compiled 2024 with latest multibeam & IBCSO v2)",
+      "temporal_coverage": {
+        "earliest": "Static",
+        "latest": "Static",
+        "overlap_with_iceberg_db_years": 47.8
+      },
+      "coordinate_convention": "Regular Equirectangular, Latitude [-90.0, 90.0], Longitude [-180.0, 180.0]",
+      "longitude_convention": "[-180.0, 180.0]",
+      "missing_sentinel": "NaN",
+      "storage_size_approx": "~12 GB global uncompressed; Southern Ocean sector (~50S-90S) ~1.8 GB GeoTIFF; local test manifests ~1.5 KB",
+      "usable_by_existing_provider": true,
+      "provider_class": "BathymetryProvider (backend/app/environment/providers/bathymetry.py)",
+      "scientific_classification": "C. Useful for state/regime classification"
+    }
+  ]
+}

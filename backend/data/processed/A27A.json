@@ -1,0 +1,38 @@
+[
+  {
+    "iceberg_id": "A27A",
+    "original_date": 2004228,
+    "calendar_date": "2004-08-15",
+    "latitude": -75.4,
+    "longitude": -42.5,
+    "size_major_km": 18.52,
+    "size_minor_km": 14.82,
+    "area_sq_km": 274.47,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -75.4,
+        "lon": -42.5,
+        "flag": 1
+      }
+    },
+    "step_index": 0,
+    "delta_time_days": 0.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": null,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "source_product": "GLOBAL_MULTIYEAR_PHY_001_030",
+  "variables": [
+    "uo",
+    "vo"
+  ],
+  "depth_level": "0.494 m (surface)",
+  "spatial_resolution_deg": 0.08333,
+  "temporal_resolution": "daily_mean",
+  "units": "m/s",
+  "requested_bbox": {
+    "min_lat": -75.92,
+    "max_lat": -73.9,
+    "min_lon": -102.93,
+    "max_lon": -100.78
+  },
+  "requested_period": [
+    "2008-01-03",
+    "2008-05-01"
+  ],
+  "query_timestamp": "2026-08-26T15:12:48.086022"
+}

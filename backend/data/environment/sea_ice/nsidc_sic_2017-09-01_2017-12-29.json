@@ -1,0 +1,20 @@
+{
+  "source_product": "G02202_V4",
+  "variables": [
+    "cdr_seaice_conc"
+  ],
+  "spatial_resolution_km": 25.0,
+  "temporal_resolution": "daily",
+  "units": "fraction",
+  "requested_bbox": {
+    "min_lat": -69.1451,
+    "max_lat": -66.4901,
+    "min_lon": -63.5051,
+    "max_lon": -59.3183
+  },
+  "requested_period": [
+    "2017-09-01",
+    "2017-12-29"
+  ],
+  "query_timestamp": "2026-08-26T15:12:47.981854"
+}

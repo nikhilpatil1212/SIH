@@ -1,0 +1,134 @@
+{
+  "A68A": {
+    "co_location_stats": {
+      "total_observations": 120,
+      "successfully_co_located": 120,
+      "co_location_success_rate_pct": 100.0,
+      "direct_observations_count": 67,
+      "interpolated_observations_count": 53,
+      "missing_ocean_current_count": 0,
+      "missing_wind_count": 0,
+      "missing_sst_count": 0
+    },
+    "hindcast_metrics": {
+      "total_hindcast_evaluations": 120,
+      "wagner_errors_overall": {
+        "mae_24h_km": 19.166,
+        "mae_48h_km": 34.596,
+        "mae_72h_km": 49.275,
+        "samples_24h": 119,
+        "samples_48h": 118,
+        "samples_72h": 117
+      },
+      "persistence_errors_overall": {
+        "mae_24h_km": 14.545,
+        "mae_48h_km": 24.62,
+        "mae_72h_km": 31.905
+      },
+      "direct_observations_comparison": {
+        "wagner_mae_24h_km": 20.709,
+        "persistence_mae_24h_km": 17.799,
+        "direct_samples": 66
+      }
+    }
+  },
+  "B27": {
+    "co_location_stats": {
+      "total_observations": 120,
+      "successfully_co_located": 120,
+      "co_location_success_rate_pct": 100.0,
+      "direct_observations_count": 18,
+      "interpolated_observations_count": 102,
+      "missing_ocean_current_count": 0,
+      "missing_wind_count": 0,
+      "missing_sst_count": 0
+    },
+    "hindcast_metrics": {
+      "total_hindcast_evaluations": 120,
+      "wagner_errors_overall": {
+        "mae_24h_km": 9.862,
+        "mae_48h_km": 19.707,
+        "mae_72h_km": 29.535,
+        "samples_24h": 119,
+        "samples_48h": 118,
+        "samples_72h": 117
+      },
+      "persistence_errors_overall": {
+        "mae_24h_km": 0.037,
+        "mae_48h_km": 0.088,
+        "mae_72h_km": 0.137
+      },
+      "direct_observations_comparison": {
+        "wagner_mae_24h_km": 9.944,
+        "persistence_mae_24h_km": 0.167,
+        "direct_samples": 18
+      }
+    }
+  },
+  "A23A": {
+    "co_location_stats": {
+      "total_observations": 120,
+      "successfully_co_located": 91,
+      "co_location_success_rate_pct": 75.8,
+      "direct_observations_count": 96,
+      "interpolated_observations_count": 24,
+      "missing_ocean_current_count": 29,
+      "missing_wind_count": 0,
+      "missing_sst_count": 0
+    },
+    "hindcast_metrics": {
+      "total_hindcast_evaluations": 91,
+      "wagner_errors_overall": {
+        "mae_24h_km": 9.69,
+        "mae_48h_km": 19.38,
+        "mae_72h_km": 29.069,
+        "samples_24h": 90,
+        "samples_48h": 89,
+        "samples_72h": 88
+      },
+      "persistence_errors_overall": {
+        "mae_24h_km": 0.024,
+        "mae_48h_km": 0.05,
+        "mae_72h_km": 0.075
+      },
+      "direct_observations_comparison": {
+        "wagner_mae_24h_km": 9.69,
+        "persistence_mae_24h_km": 0.024,
+        "direct_samples": 90
+      }
+    }
+  },
+  "UK172": {
+    "co_location_stats": {
+      "total_observations": 120,
+      "successfully_co_located": 120,
+      "co_location_success_rate_pct": 100.0,
+      "direct_observations_count": 117,
+      "interpolated_observations_count": 3,
+      "missing_ocean_current_count": 0,
+      "missing_wind_count": 0,
+      "missing_sst_count": 0
+    },
+    "hindcast_metrics": {
+      "total_hindcast_evaluations": 120,
+      "wagner_errors_overall": {
+        "mae_24h_km": 18.348,
+        "mae_48h_km": 36.114,
+        "mae_72h_km": 54.082,
+        "samples_24h": 119,
+        "samples_48h": 118,
+        "samples_72h": 117
+      },
+      "persistence_errors_overall": {
+        "mae_24h_km": 1.497,
+        "mae_48h_km": 2.518,
+        "mae_72h_km": 3.312
+      },
+      "direct_observations_comparison": {
+        "wagner_mae_24h_km": 18.354,
+        "persistence_mae_24h_km": 1.536,
+        "direct_samples": 116
+      }
+    }
+  }
+}

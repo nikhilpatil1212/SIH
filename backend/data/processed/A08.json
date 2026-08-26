@@ -1,0 +1,110 @@
+[
+  {
+    "iceberg_id": "A08",
+    "original_date": 1979357,
+    "calendar_date": "1979-12-23",
+    "latitude": -51.7,
+    "longitude": -36.5,
+    "size_major_km": 46.3,
+    "size_minor_km": 18.52,
+    "area_sq_km": 857.48,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -51.7,
+        "lon": -36.5,
+        "flag": 1
+      }
+    },
+    "step_index": 0,
+    "delta_time_days": 0.0,
+    "delta_distance_km": 0.0,
+    "speed_km_day": 0.0,
+    "speed_knots": 0.0,
+    "speed_m_s": 0.0,
+    "bearing_deg": null,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A08",
+    "original_date": 1980006,
+    "calendar_date": "1980-01-06",
+    "latitude": -50.8,
+    "longitude": -34.5,
+    "size_major_km": 46.3,
+    "size_minor_km": 18.52,
+    "area_sq_km": 857.48,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -50.8,
+        "lon": -34.5,
+        "flag": 1
+      }
+    },
+    "step_index": 1,
+    "delta_time_days": 14.0,
+    "delta_distance_km": 171.43,
+    "speed_km_day": 12.245,
+    "speed_knots": 0.275,
+    "speed_m_s": 0.1417,
+    "bearing_deg": 55.07,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  },
+  {
+    "iceberg_id": "A08",
+    "original_date": 1980034,
+    "calendar_date": "1980-02-03",
+    "latitude": -49.5,
+    "longitude": -29.0,
+    "size_major_km": 46.3,
+    "size_minor_km": 18.52,
+    "area_sq_km": 857.48,
+    "size_source": "nic_direct",
+    "size_is_imputed": false,
+    "contributing_sensors": [
+      "nic"
+    ],
+    "num_direct_sensors": 1,
+    "is_interpolated": false,
+    "multi_sensor_discrepancy_km": null,
+    "multi_sensor_ambiguity": false,
+    "raw_sensors": {
+      "nic": {
+        "lat": -49.5,
+        "lon": -29.0,
+        "flag": 1
+      }
+    },
+    "step_index": 2,
+    "delta_time_days": 28.0,
+    "delta_distance_km": 417.569,
+    "speed_km_day": 14.913,
+    "speed_knots": 0.336,
+    "speed_m_s": 0.1726,
+    "bearing_deg": 71.88,
+    "is_stationary": false,
+    "stationary_duration_days": 0.0,
+    "suspicious_speed": false
+  }
+]

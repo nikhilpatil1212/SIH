@@ -1,0 +1,197 @@
+{
+  "audit_timestamp": "2026-08-26T20:31:56.553027",
+  "source_dataset": "BYU/NIC Consolidated Antarctic Iceberg Database (Release v8.0)",
+  "source_directory": "c:\\Users\\Nikhil\\OneDrive\\Desktop\\Website creation\\47years-iceberg-dataset",
+  "read_only_verified": true,
+  "total_csv_files_discovered": 647,
+  "total_icebergs_cataloged": 647,
+  "total_observations_processed": 516439,
+  "direct_satellite_nic_fixes": 422099,
+  "interpolated_fixes": 94340,
+  "date_coverage": {
+    "start_year": 1976,
+    "end_year": 2026,
+    "total_calendar_years": 50.3,
+    "observations_per_year": {
+      "1976": 9,
+      "1977": 21,
+      "1978": 785,
+      "1979": 99,
+      "1980": 55,
+      "1981": 104,
+      "1982": 68,
+      "1983": 147,
+      "1984": 118,
+      "1985": 29,
+      "1986": 323,
+      "1987": 711,
+      "1988": 768,
+      "1989": 530,
+      "1990": 311,
+      "1991": 620,
+      "1992": 5001,
+      "1993": 3582,
+      "1994": 3629,
+      "1995": 4902,
+      "1996": 4856,
+      "1997": 6295,
+      "1998": 7054,
+      "1999": 8504,
+      "2000": 10099,
+      "2001": 15540,
+      "2002": 24233,
+      "2003": 25570,
+      "2004": 18785,
+      "2005": 19711,
+      "2006": 20848,
+      "2007": 21461,
+      "2008": 24766,
+      "2009": 17924,
+      "2010": 8975,
+      "2011": 12690,
+      "2012": 18100,
+      "2013": 16345,
+      "2014": 15638,
+      "2015": 15695,
+      "2016": 20864,
+      "2017": 20348,
+      "2018": 19151,
+      "2019": 17406,
+      "2020": 17028,
+      "2021": 18369,
+      "2022": 19822,
+      "2023": 14878,
+      "2024": 13781,
+      "2025": 15364,
+      "2026": 4527
+    }
+  },
+  "sensor_coverage_distribution": {
+    "sass": 766,
+    "nic": 131193,
+    "ers": 41243,
+    "nscat": 3844,
+    "qscat": 190092,
+    "seawinds": 11637,
+    "ascat": 206447,
+    "oscat": 35903
+  },
+  "dimension_provenance_distribution": {
+    "backward_fill": 9611,
+    "nic_direct": 47912,
+    "forward_fill": 359868,
+    "missing": 99048
+  },
+  "data_quality_metrics": {
+    "populated_dimension_records": 417391,
+    "missing_dimension_records": 99048,
+    "multi_sensor_ambiguity_records_gt_25km": 9287,
+    "stationary_observation_records": 286625,
+    "stationary_percentage_overall": 55.5,
+    "suspicious_speed_records_gt_60km_day": 2405
+  },
+  "longest_iceberg_tracks": [
+    {
+      "iceberg_id": "B09B",
+      "observations": 12452
+    },
+    {
+      "iceberg_id": "A23A",
+      "observations": 11864
+    },
+    {
+      "iceberg_id": "C15",
+      "observations": 9389
+    },
+    {
+      "iceberg_id": "B22A",
+      "observations": 8644
+    },
+    {
+      "iceberg_id": "C18B",
+      "observations": 7505
+    },
+    {
+      "iceberg_id": "C24",
+      "observations": 7266
+    },
+    {
+      "iceberg_id": "B16",
+      "observations": 6716
+    },
+    {
+      "iceberg_id": "C21B",
+      "observations": 6546
+    },
+    {
+      "iceberg_id": "B29",
+      "observations": 5824
+    },
+    {
+      "iceberg_id": "C10",
+      "observations": 5223
+    },
+    {
+      "iceberg_id": "B17A",
+      "observations": 5166
+    },
+    {
+      "iceberg_id": "B09G",
+      "observations": 5061
+    },
+    {
+      "iceberg_id": "A22A",
+      "observations": 5000
+    },
+    {
+      "iceberg_id": "A27",
+      "observations": 4980
+    },
+    {
+      "iceberg_id": "C08",
+      "observations": 4973
+    }
+  ],
+  "shortest_iceberg_tracks": [
+    {
+      "iceberg_id": "A04",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A07",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A09",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A10",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A27A",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A32B",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A38",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "A51",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "B20",
+      "observations": 1
+    },
+    {
+      "iceberg_id": "C04",
+      "observations": 1
+    }
+  ]
+}
