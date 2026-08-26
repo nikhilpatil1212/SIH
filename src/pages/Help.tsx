@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { AlertOctagon, Headphones, LifeBuoy, Mail, MessageSquare, Search } from "lucide-react";
 import { Card, cx } from "../components/ui/primitives";
 import { StateBlock } from "../components/ui/phase2";
@@ -50,7 +50,7 @@ export function Help({ onNavigate }: { onNavigate: (p: PageId) => void }) {
               <Search size={15} className="text-[#91aeb9] light:text-[#5a7686]" />
               <input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
                 placeholder="Search polar navigation documentation, ice class rules, or drift algorithms…"
                 className="w-full bg-transparent text-[13px] text-[#eaf6f8] light:text-[#0d2433] outline-none placeholder:text-[#5f7d89] light:placeholder:text-[#8ea5b3]"
               />
@@ -60,21 +60,24 @@ export function Help({ onNavigate }: { onNavigate: (p: PageId) => void }) {
 
         {/* Support contact options */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {SUPPORT_CARDS.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => openCard(c.id)}
-              className="group flex items-start gap-3 rounded-md border border-[#1d445c]/60 bg-[#132f40]/70 light:border-[#e2d8c7] light:bg-white p-4 text-left transition-all hover:border-[#55d6e8]/50 light:hover:border-[#0f768e]/50 shadow-sm"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#55d6e8]/40 bg-[#55d6e8]/10 light:border-[#0f768e]/40 light:bg-[#0f768e]/10">
-                <c.icon size={16} className="text-[#55d6e8] light:text-[#0f768e]" />
-              </div>
-              <div>
-                <div className="text-[13px] font-semibold text-[#eaf6f8] light:text-[#0d2433]">{c.title}</div>
-                <div className="mt-0.5 text-[11px] leading-snug text-[#91aeb9] light:text-[#4a6878]">{c.desc}</div>
-              </div>
-            </button>
-          ))}
+          {SUPPORT_CARDS.map((c) => {
+            const Icon = c.icon;
+            return (
+              <button
+                key={c.id}
+                onClick={() => openCard(c.id)}
+                className="group flex items-start gap-3 rounded-md border border-[#1d445c]/60 bg-[#132f40]/70 light:border-[#e2d8c7] light:bg-white p-4 text-left transition-all hover:border-[#55d6e8]/50 light:hover:border-[#0f768e]/50 shadow-sm"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#55d6e8]/40 bg-[#55d6e8]/10 light:border-[#0f768e]/40 light:bg-[#0f768e]/10">
+                  <Icon size={16} className="text-[#55d6e8] light:text-[#0f768e]" />
+                </div>
+                <div>
+                  <div className="text-[13px] font-semibold text-[#eaf6f8] light:text-[#0d2433]">{c.title}</div>
+                  <div className="mt-0.5 text-[11px] leading-snug text-[#91aeb9] light:text-[#4a6878]">{c.desc}</div>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* FAQ */}

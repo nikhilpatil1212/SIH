@@ -86,9 +86,8 @@ export default function MapView({
 
   return (
     <div
-      className={`relative h-full w-full overflow-hidden rounded-md border transition-colors ${
-        isDark ? "border-[#1d445c]/70 bg-[#071a26]" : "border-[#d8d0c2] bg-[#dbebf3]"
-      }`}
+      className={`relative h-full w-full overflow-hidden rounded-md border transition-colors ${isDark ? "border-[#1d445c]/70 bg-[#071a26]" : "border-[#d8d0c2] bg-[#dbebf3]"
+        }`}
     >
       <svg
         viewBox="0 0 1000 700"
@@ -317,7 +316,8 @@ export default function MapView({
             const f = horizonFraction ?? 1;
             const path = f < 1 ? slicePath(ib.predictedPath, f) : ib.predictedPath;
             const widths = ib.uncertainty.slice(0, path.length).map((u) => u * (0.4 + f * 0.6));
-            const endPt = path.at(-1)!;
+            const endPt = path[path.length - 1]!;
+            const lastPathPt = ib.predictedPath[ib.predictedPath.length - 1]!;
             return (
               <g key={ib.id}>
                 <path d={corridorPath(path, widths)} fill={color} opacity={isSel ? 0.18 : 0.1} />
@@ -330,7 +330,7 @@ export default function MapView({
                   opacity="0.85"
                 />
                 {f < 1 && <circle cx={endPt.x} cy={endPt.y} r="3.5" fill={color} stroke="#071a26" strokeWidth="1" />}
-                <circle cx={ib.predictedPath.at(-1)!.x} cy={ib.predictedPath.at(-1)!.y} r="3" fill="none" stroke={color} strokeWidth="1.2" opacity="0.7" />
+                <circle cx={lastPathPt.x} cy={lastPathPt.y} r="3" fill="none" stroke={color} strokeWidth="1.2" opacity="0.7" />
                 <g
                   style={{ cursor: "pointer" }}
                   onClick={() => onSelectIceberg?.(ib.id)}
@@ -375,11 +375,10 @@ export default function MapView({
 
       {hover && (
         <div
-          className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-sm border px-2 py-1 font-mono text-[10px] shadow-lg backdrop-blur ${
-            isDark
+          className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-sm border px-2 py-1 font-mono text-[10px] shadow-lg backdrop-blur ${isDark
               ? "border-[#55d6e8]/50 bg-[#071521]/95 text-[#eaf6f8]"
               : "border-[#0f768e]/50 bg-[#ffffff]/95 text-[#0d2433]"
-          }`}
+            }`}
           style={{ left: `${(hover.x / 1000) * 100}%`, top: `${(hover.y / 700) * 100}%` }}
         >
           {hover.label}
@@ -387,9 +386,8 @@ export default function MapView({
       )}
 
       {/* Corner coordinate readout */}
-      <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] font-semibold ${
-        isDark ? "text-[#91aeb9]/90" : "text-[#4a6878]/90"
-      }`}>
+      <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] font-semibold ${isDark ? "text-[#91aeb9]/90" : "text-[#4a6878]/90"
+        }`}>
         ANTARCTIC WEDDELL BASIN · 64°00'S–74°00'S · 60°00'W–00°00'
       </div>
     </div>

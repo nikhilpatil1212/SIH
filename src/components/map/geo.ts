@@ -1,8 +1,14 @@
-import type { GeoPoint } from "../../data/types";
+// 2D Geographic / Canvas Point definition supporting both raw canvas coordinates and lat/lon
+export interface Point2D {
+  x: number;
+  y: number;
+  lat?: number;
+  lon?: number;
+}
 
 // Build a smooth path (Catmull-Rom -> cubic Bezier) through the given points so
 // routes and trajectories curve naturally instead of drawing as straight lines.
-export function smoothPath(pts: GeoPoint[]): string {
+export function smoothPath(pts: Point2D[]): string {
   if (pts.length < 2) return "";
   const d: string[] = [`M ${pts[0].x} ${pts[0].y}`];
   for (let i = 0; i < pts.length - 1; i++) {
@@ -19,20 +25,20 @@ export function smoothPath(pts: GeoPoint[]): string {
   return d.join(" ");
 }
 
-export function polygonPath(pts: GeoPoint[]): string {
+export function polygonPath(pts: Point2D[]): string {
   return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z";
 }
 
 // Return the sub-polyline of `pts` covering fraction f (0..1) of its total
 // length, interpolating the final point. Used to grow an iceberg trajectory as
 // the prediction horizon is extended.
-export function slicePath(pts: GeoPoint[], f: number): GeoPoint[] {
+export function slicePath(pts: Point2D[], f: number): Point2D[] {
   if (pts.length < 2 || f >= 1) return pts;
   if (f <= 0) return [pts[0]];
   const segLens = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i].x, p.y - pts[i].y));
   const total = segLens.reduce((a, b) => a + b, 0);
   let target = total * f;
-  const out: GeoPoint[] = [pts[0]];
+  const out: Point2D[] = [pts[0]];
   for (let i = 0; i < segLens.length; i++) {
     if (target <= segLens[i]) {
       const t = segLens[i] === 0 ? 0 : target / segLens[i];
@@ -60,10 +66,10 @@ export function seaIceColor(concentration: number): string {
 
 // Uncertainty corridor: offset the predicted path on both sides by the per-point
 // half-widths, then close the shape into a widening ribbon.
-export function corridorPath(pts: GeoPoint[], widths: number[]): string {
+export function corridorPath(pts: Point2D[], widths: number[]): string {
   if (pts.length < 2) return "";
-  const left: GeoPoint[] = [];
-  const right: GeoPoint[] = [];
+  const left: Point2D[] = [];
+  const right: Point2D[] = [];
   for (let i = 0; i < pts.length; i++) {
     const prev = pts[Math.max(0, i - 1)];
     const next = pts[Math.min(pts.length - 1, i + 1)];

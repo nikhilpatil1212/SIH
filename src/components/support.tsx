@@ -1,4 +1,12 @@
-import { useState, type ReactNode } from "react";
+import {
+  useState,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 import { CheckCircle2, ChevronDown, X } from "lucide-react";
 import { Card, StatusDot, cx } from "./ui/primitives";
 import { DemoTag } from "./ui/phase2";
@@ -17,13 +25,13 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 const inputCls =
   "rounded-md border border-[#1d445c] bg-[#0d2433] light:border-[#dfd8cc] light:bg-white px-3 py-2 text-[12px] text-[#eaf6f8] light:text-[#0d2433] outline-none transition-colors placeholder:text-[#5f7d89] light:placeholder:text-[#9db6c1] focus:border-[#55d6e8]/60 light:focus:border-[#0f768e]";
 
-export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={inputCls} />;
 }
-export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea {...props} className={cx(inputCls, "min-h-[96px] resize-y")} />;
 }
-export function Select({ children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+export function Select({ children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select {...props} className={cx(inputCls, "appearance-none")}>
       {children}
@@ -31,7 +39,7 @@ export function Select({ children, ...props }: React.SelectHTMLAttributes<HTMLSe
   );
 }
 
-export function PrimaryButton({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export function PrimaryButton({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
@@ -80,7 +88,7 @@ export function SubmissionSuccess({
 }
 
 // ---- FAQ Item ----
-export function FAQItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: boolean }) {
+export function FAQItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: boolean; key?: any }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
     <div className="border-b border-[#1d445c]/40 light:border-[#e8e0d2] last:border-b-0">
@@ -142,7 +150,7 @@ export function Modal({
     >
       <div
         className="animate-fade-rise w-full max-w-lg overflow-hidden rounded-xl border border-[#1d445c] bg-[#0d2433] light:border-[#e2d8c7] light:bg-[#faf8f5] shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: MouseEvent) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-[#1d445c]/60 light:border-[#e2d8c7] px-5 py-3.5">
           <h3 className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#eaf6f8] light:text-[#0d2433]">{title}</h3>

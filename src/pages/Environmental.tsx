@@ -19,7 +19,7 @@ function Trend({ label, values, unit, color }: { label: string; values: number[]
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#91aeb9] light:text-[#5a7686]">{label}</span>
         <span className="font-mono text-[11px] text-[#c8dde3] light:text-[#0d2433] font-semibold">
-          {values[0]}–{values.at(-1)} {unit}
+          {values[0]}–{values[values.length - 1]} {unit}
         </span>
       </div>
       <svg viewBox="0 0 200 48" className="h-12 w-full">

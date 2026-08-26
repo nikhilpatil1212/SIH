@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -234,7 +234,7 @@ function Header({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   return (
     <div

@@ -2,7 +2,37 @@
 // MapLibre. Everything is keyed on real lon/lat so the basemap and tiles can be
 // swapped for a dedicated polar basemap without touching these shapes.
 
-import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
+export interface GeoJsonGeometry {
+  type: string;
+  coordinates: any;
+}
+
+export interface Feature<G extends GeoJsonGeometry = GeoJsonGeometry, P = Record<string, any>> {
+  type: "Feature";
+  geometry: G;
+  properties: P;
+}
+
+export interface FeatureCollection<G extends GeoJsonGeometry = GeoJsonGeometry, P = Record<string, any>> {
+  type: "FeatureCollection";
+  features: Feature<G, P>[];
+}
+
+export interface Point extends GeoJsonGeometry {
+  type: "Point";
+  coordinates: [number, number];
+}
+
+export interface LineString extends GeoJsonGeometry {
+  type: "LineString";
+  coordinates: [number, number][];
+}
+
+export interface Polygon extends GeoJsonGeometry {
+  type: "Polygon";
+  coordinates: [number, number][][];
+}
+
 import type { GeoPoint, Iceberg, Route } from "../../data/types";
 import { icebergPredictedPositions } from "../../data/phase2";
 import { RISK_COLORS } from "../ui/primitives";
@@ -61,81 +91,80 @@ function corridor(coords: LL[], widths: number[]): LL[] {
   return [...left, ...right.reverse(), left[0]];
 }
 
-export function circlePolygon(center: LL, radiusDeg: number, steps = 48): LL[] {
-  const ring: LL[] = [];
-  // Correct longitude radius for latitude compression.
-  const latAdj = Math.max(0.2, Math.cos((center[1] * Math.PI) / 180));
-  for (let i = 0; i <= steps; i++) {
-    const a = (i / steps) * Math.PI * 2;
-    ring.push([center[0] + (Math.cos(a) * radiusDeg) / latAdj, center[1] + Math.sin(a) * radiusDeg]);
+// Generate N-gon polygon for a circle in degree space.
+function circlePolygon(center: LL, radiusDeg: number, segments = 24): LL[] {
+  const pts: LL[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * Math.PI * 2;
+    pts.push([center[0] + Math.cos(angle) * radiusDeg, center[1] + Math.sin(angle) * (radiusDeg * 0.45)]);
   }
-  return ring;
+  return pts;
 }
-
-// ---- Feature collections ----
 
 export function routeLines(routes: Route[], selectedId: string): FeatureCollection<LineString> {
   return {
     type: "FeatureCollection",
     features: routes.map((r) => ({
       type: "Feature",
-      properties: { id: r.id, name: r.name, type: r.type, color: r.color, selected: r.id === selectedId },
-      geometry: { type: "LineString", coordinates: r.coordinates.map(ll) },
+      properties: {
+        id: r.id,
+        name: r.name,
+        color: r.color,
+        selected: r.id === selectedId,
+        risk: r.riskLevel,
+        score: r.riskScore,
+      },
+      geometry: {
+        type: "LineString",
+        coordinates: r.coordinates.map(ll),
+      },
+    })),
+  };
+}
+
+export function waypointPoints(routes: Route[], selectedId: string): FeatureCollection<Point> {
+  const selected = routes.find((r) => r.id === selectedId) ?? routes[0];
+  return {
+    type: "FeatureCollection",
+    features: selected.waypoints.map((w, i) => ({
+      type: "Feature",
+      properties: { name: `WP${i + 1}`, routeId: selected.id, color: selected.color },
+      geometry: { type: "Point", coordinates: ll(w) },
     })),
   };
 }
 
 export function predictedShipLine(route: Route): FeatureCollection<LineString> {
+  const coords = route.coordinates.slice(0, 3).map(ll);
   return {
     type: "FeatureCollection",
     features: [
       {
         type: "Feature",
-        properties: {},
-        geometry: { type: "LineString", coordinates: route.coordinates.slice(0, 3).map(ll) },
+        properties: { color: "#55d6e8" },
+        geometry: { type: "LineString", coordinates: coords },
       },
     ],
   };
 }
 
-export function waypointPoints(route: Route): FeatureCollection<Point> {
-  return {
-    type: "FeatureCollection",
-    features: route.coordinates.map((c, i) => ({
-      type: "Feature",
-      properties: {
-        index: i,
-        name: i === 0 ? "Origin" : i === route.coordinates.length - 1 ? "Destination" : `Waypoint ${i}`,
-        lat: c.lat,
-        lon: c.lon,
-        eta: i === 0 ? "Departure" : `+${i * 18}h`,
-        legNm: i === 0 ? 0 : Math.round(route.distanceNm / (route.coordinates.length - 1)),
-        risk: route.riskLevel,
-      },
-      geometry: { type: "Point", coordinates: ll(c) },
-    })),
-  };
-}
-
-// Iceberg current position (marker source handled separately) — trajectory +
-// corridor grown to the selected horizon fraction.
-export function icebergTrajectories(icebergs: Iceberg[], f: number): FeatureCollection {
-  const features: Feature[] = [];
+export function icebergTrajectories(icebergs: Iceberg[], f: number): FeatureCollection<LineString | Polygon> {
+  const features: Feature<LineString | Polygon>[] = [];
   for (const ib of icebergs) {
-    const coords = ib.predictedPath.map(ll);
-    const path = f <= 0 ? [coords[0], coords[0]] : slice(coords, f);
-    // widths: canvas units -> degrees (~ /12), scaled by how far along we are.
-    const widths = ib.uncertainty.slice(0, path.length).map((u) => (u / 12) * (0.35 + f * 0.65));
-    const color = RISK_COLORS[ib.riskLevel];
+    const full = ib.predictedPath.map(ll);
+    const sliced = slice(full, Math.max(0.0001, f));
+    const widthsDeg = ib.uncertainty.slice(0, sliced.length).map((u) => u * 0.04);
+
     features.push({
       type: "Feature",
-      properties: { kind: "corridor", color },
-      geometry: { type: "Polygon", coordinates: [corridor(path, widths)] } as Polygon,
+      properties: { id: ib.id, kind: "corridor", color: RISK_COLORS[ib.riskLevel] },
+      geometry: { type: "Polygon", coordinates: [corridor(sliced, widthsDeg)] },
     });
+
     features.push({
       type: "Feature",
-      properties: { kind: "path", color },
-      geometry: { type: "LineString", coordinates: path } as LineString,
+      properties: { id: ib.id, kind: "trajectory", color: RISK_COLORS[ib.riskLevel] },
+      geometry: { type: "LineString", coordinates: sliced },
     });
   }
   return { type: "FeatureCollection", features };
@@ -145,7 +174,7 @@ export function icebergTrajectories(icebergs: Iceberg[], f: number): FeatureColl
 export function icebergPositionsAt(icebergs: Iceberg[], f: number): { ib: Iceberg; lon: number; lat: number }[] {
   return icebergs.map((ib) => {
     const c = slice(ib.predictedPath.map(ll), Math.max(0.0001, f));
-    const end = c.at(-1)!;
+    const end = c[c.length - 1]!;
     return { ib, lon: end[0], lat: end[1] };
   });
 }

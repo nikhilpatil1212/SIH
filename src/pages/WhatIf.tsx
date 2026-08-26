@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { Card, Metric, RiskMeter, cx } from "../components/ui/primitives";
 
 type Scenario = "normal" | "heavy-ice" | "iceberg" | "poor-vis" | "high-wind";
@@ -64,7 +64,7 @@ export function WhatIf() {
               <input
                 type="datetime-local"
                 value={departure}
-                onChange={(e) => setDeparture(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setDeparture(e.target.value)}
                 className="rounded-md border border-[#1d445c] bg-[#0d2433] light:border-[#e2d8c7] light:bg-[#fdfbf7] px-3 py-2 font-mono text-[12px] text-[#eaf6f8] light:text-[#0d2433] outline-none focus:border-[#55d6e8]/60"
               />
             </label>
@@ -81,7 +81,7 @@ export function WhatIf() {
                 min={0}
                 max={100}
                 value={tolerance}
-                onChange={(e) => setTolerance(+e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setTolerance(+e.target.value)}
                 className="w-full accent-[#55d6e8] light:accent-[#0f768e]"
               />
             </div>
@@ -141,7 +141,7 @@ function Slider({
         min={min}
         max={max}
         value={value}
-        onChange={(e) => onChange(+e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(+e.target.value)}
         className="w-full accent-[#55d6e8] light:accent-[#0f768e]"
       />
     </div>

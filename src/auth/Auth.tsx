@@ -1,4 +1,11 @@
-import { useState } from "react";
+import {
+  useState,
+  type ButtonHTMLAttributes,
+  type ChangeEvent,
+  type FormEvent,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 import { ArrowLeft, CheckCircle2, Lock, Mail, Shield, User as UserIcon } from "lucide-react";
 import { mockSignIn, type User, type UserRole } from "../data/auth";
 import { ThemeToggle, useTheme } from "../theme";
@@ -6,7 +13,7 @@ import { ThemeToggle, useTheme } from "../theme";
 export type AuthView = "user-login" | "signup" | "admin-login" | "forgot";
 
 // ---- Shared theme-aware form primitives ----
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-[12px] font-semibold text-[#3a5563] light:text-[#4a6878]">{label}</span>
@@ -15,7 +22,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   return (
@@ -30,7 +37,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
-function PrimaryBtn({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function PrimaryBtn({ children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   return (
@@ -47,7 +54,7 @@ function PrimaryBtn({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButton
   );
 }
 
-function Shell({ children, onHome }: { children: React.ReactNode; onHome: () => void }) {
+function Shell({ children, onHome }: { children: ReactNode; onHome: () => void }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -157,7 +164,7 @@ function UserLogin({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: React.FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
     const u = mockSignIn(email);
     if (!u || u.role === "Admin") return setError("No matching user account found. Try researcher@example.org.");
@@ -173,7 +180,7 @@ function UserLogin({
 
       <form onSubmit={submit} className="mt-7 space-y-4">
         <Field label="Email address">
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@organisation.org" required />
+          <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="you@organisation.org" required />
         </Field>
         <Field label="Password">
           <Input type="password" defaultValue="demo" placeholder="••••••••" required />
@@ -217,9 +224,9 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: React.FormEvent) => {
+  const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const f = new FormData(e.currentTarget as HTMLFormElement);
+    const f = new FormData(e.currentTarget);
     if (f.get("password") !== f.get("confirm")) return setError("Passwords do not match.");
     setError("");
     setDone(true);
@@ -322,7 +329,7 @@ function AdminLogin({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: React.FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
     const u = mockSignIn(email);
     if (!u || u.role !== "Admin") return setError("Administrator credentials not recognised.");
@@ -352,7 +359,7 @@ function AdminLogin({
           <Input defaultValue="ADM-001" required />
         </Field>
         <Field label="Email address">
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required />
         </Field>
         <Field label="Password">
           <Input type="password" defaultValue="demo" placeholder="••••••••" required />
@@ -401,7 +408,7 @@ function Forgot({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
         </div>
       ) : (
         <form
-          onSubmit={(e) => {
+          onSubmit={(e: FormEvent) => {
             e.preventDefault();
             setSent(true);
           }}
@@ -426,7 +433,7 @@ function Forgot({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
   );
 }
 
-function DemoNote({ children }: { children: React.ReactNode }) {
+function DemoNote({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 

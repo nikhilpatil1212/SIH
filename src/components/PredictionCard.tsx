@@ -45,11 +45,11 @@ export function PredictionCard({ iceberg }: { iceberg: Iceberg }) {
             <path d={corridorPath(norm, widths)} fill={color} opacity="0.18" />
             <path d={smoothPath(norm)} fill="none" stroke={color} strokeWidth="1.8" strokeDasharray="5 4" />
             <circle cx={norm[0].x} cy={norm[0].y} r="3.5" fill={color} stroke="#071a26" strokeWidth="1" />
-            <circle cx={norm.at(-1)!.x} cy={norm.at(-1)!.y} r="3" fill="none" stroke={color} strokeWidth="1.4" />
+            <circle cx={norm[norm.length - 1]!.x} cy={norm[norm.length - 1]!.y} r="3" fill="none" stroke={color} strokeWidth="1.4" />
             <text x={norm[0].x + 6} y={norm[0].y - 4} fill="#eaf6f8" fontSize="8" fontFamily="JetBrains Mono" className="light:fill-[#0d2433]">
               now
             </text>
-            <text x={norm.at(-1)!.x - 4} y={norm.at(-1)!.y + 14} fill="#91aeb9" fontSize="8" fontFamily="JetBrains Mono" className="light:fill-[#4a6878]">
+            <text x={norm[norm.length - 1]!.x - 4} y={norm[norm.length - 1]!.y + 14} fill="#91aeb9" fontSize="8" fontFamily="JetBrains Mono" className="light:fill-[#4a6878]">
               +72h
             </text>
           </svg>

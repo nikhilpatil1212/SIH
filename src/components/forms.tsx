@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Paperclip, Send } from "lucide-react";
 import {
   Field,
@@ -9,7 +9,7 @@ import {
   TextInput,
 } from "./support";
 
-function FormGrid({ children }: { children: React.ReactNode }) {
+function FormGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-1 gap-3.5 p-4 sm:grid-cols-2">{children}</div>;
 }
 
@@ -43,7 +43,7 @@ export function SupportForm() {
   }
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={(e: FormEvent) => {
         e.preventDefault();
         setSubmitted(randomTicket("SUP"));
       }}
@@ -96,7 +96,7 @@ export function ContactForm() {
   }
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={(e: FormEvent) => {
         e.preventDefault();
         setSubmitted(true);
       }}
@@ -136,7 +136,7 @@ export function IssueReportForm() {
   }
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={(e: FormEvent) => {
         e.preventDefault();
         setSubmitted(`ISSUE-${1000 + Math.floor(Math.random() * 9000)}`);
       }}
@@ -180,7 +180,7 @@ function AttachmentInput({ label = "Attachment" }: { label?: string }) {
       <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-[#1d445c] bg-[#0d2433]/50 light:border-[#dfd8cc] light:bg-[#f6f0e4] px-3 py-2.5 text-[12px] text-[#8ccfe0] light:text-[#0f768e] transition-colors hover:border-[#55d6e8]/50">
         <Paperclip size={13} />
         {name ?? "Choose a file to attach…"}
-        <input type="file" className="hidden" onChange={(e) => setName(e.target.files?.[0]?.name ?? null)} />
+        <input type="file" className="hidden" onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.files?.[0]?.name ?? null)} />
       </label>
     </div>
   );

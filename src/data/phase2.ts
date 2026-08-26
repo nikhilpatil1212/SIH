@@ -26,7 +26,7 @@ export const HORIZON_TIME: Record<Horizon, string> = {
 // Predicted lat/lon per horizon, keyed by iceberg id.
 export const icebergPredictedPositions: Record<string, PredictedPosition[]> = Object.fromEntries(
   icebergs.map((ib) => {
-    const last = ib.predictedPath.at(-1)!;
+    const last = ib.predictedPath[ib.predictedPath.length - 1]!;
     const first = ib.predictedPath[0];
     const lerp = (t: number, key: "lat" | "lon") => +(first[key] + (last[key] - first[key]) * t).toFixed(2);
     const positions: PredictedPosition[] = [

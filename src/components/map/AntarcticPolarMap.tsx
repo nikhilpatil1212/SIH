@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
 import {
   Compass,
   Eye,
@@ -380,7 +380,7 @@ export function AntarcticPolarMap({
   });
 
   const toggleLayer = (key: keyof typeof layers) => {
-    setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
+    setLayers((prev: typeof layers) => ({ ...prev, [key]: !prev[key] }));
   };
 
   // Hovered item inspection state
@@ -453,7 +453,7 @@ export function AntarcticPolarMap({
   const handleMouseUp = () => setIsPanning(false);
 
   const handleZoom = (delta: number) => {
-    setZoom((z) => Math.max(0.75, Math.min(3.8, +(z + delta).toFixed(2))));
+    setZoom((z: number) => Math.max(0.75, Math.min(3.8, +(z + delta).toFixed(2))));
   };
 
   const handleReset = () => {
@@ -505,7 +505,7 @@ export function AntarcticPolarMap({
             <Search size={13} className="text-[#91aeb9] light:text-[#5a7686]" />
             <input
               value={stationQuery}
-              onChange={(e) => setStationQuery(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setStationQuery(e.target.value)}
               placeholder="Search station (e.g. Maitri, Bharati, McMurdo)..."
               className="w-56 bg-transparent font-sans text-[11px] outline-none text-[#eaf6f8] light:text-[#0d2433] placeholder:text-[#5f7d89] light:placeholder:text-[#8ea5b3]"
             />
@@ -518,37 +518,37 @@ export function AntarcticPolarMap({
         )}
 
         {/* Right: Layer Buttons & Fullscreen */}
-        <div className="flex items-center gap-1.5">
-          {/* Layer Quick Toggles */}
-          <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Layer toggles */}
+          <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#0d2433]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
             <button
               onClick={() => toggleLayer("stations")}
               className={cx(
-                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold transition-colors",
+                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
                 layers.stations
                   ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
               )}
               title="Toggle Research Bases"
             >
-              <MapPin size={11} /> Bases
+              <Radio size={11} /> Bases
             </button>
             <button
               onClick={() => toggleLayer("icebergs")}
               className={cx(
-                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold transition-colors",
+                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
                 layers.icebergs
-                  ? "bg-[#ff5c5c] text-white light:bg-[#dc2626]"
+                  ? "bg-[#ff5c5c] text-[#071521] light:bg-[#dc2626] light:text-white"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
               )}
-              title="Toggle Icebergs & Trajectories"
+              title="Toggle Icebergs & Predicted Horizons"
             >
               <Triangle size={11} /> Icebergs
             </button>
             <button
               onClick={() => toggleLayer("seaIce")}
               className={cx(
-                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold transition-colors",
+                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
                 layers.seaIce
                   ? "bg-[#38bdf8] text-[#071521] light:bg-[#0284c7] light:text-white"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
@@ -560,7 +560,7 @@ export function AntarcticPolarMap({
             <button
               onClick={() => toggleLayer("graticule")}
               className={cx(
-                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-bold transition-colors",
+                "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
                 layers.graticule
                   ? "bg-[#46d7a1] text-[#071521] light:bg-[#059669] light:text-white"
                   : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]",
@@ -573,7 +573,7 @@ export function AntarcticPolarMap({
 
           {/* Fullscreen Button */}
           <button
-            onClick={() => setFullscreen((f) => !f)}
+            onClick={() => setFullscreen((f: boolean) => !f)}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#55d6e8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686] transition-colors"
             title={fullscreen ? "Exit Fullscreen" : "Fullscreen Chart"}
           >
@@ -901,8 +901,8 @@ export function AntarcticPolarMap({
                   {/* Horizon endpoint marker */}
                   {slicedPath.length > 1 && (
                     <circle
-                      cx={slicedPath.at(-1)!.x}
-                      cy={slicedPath.at(-1)!.y}
+                      cx={slicedPath[slicedPath.length - 1]!.x}
+                      cy={slicedPath[slicedPath.length - 1]!.y}
                       r="3.5"
                       fill={color}
                       stroke={isDark ? "#071521" : "#ffffff"}
