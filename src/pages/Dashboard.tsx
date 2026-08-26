@@ -32,6 +32,7 @@ import { environment, riskFactorsByRoute, vessel } from "../data/mock";
 import { dashboardKpis } from "../data/phase2";
 import type { Horizon } from "../data/types";
 import { useNav } from "../state";
+import type { PageId } from "../components/Sidebar";
 
 const HORIZON_FRACTIONS: Record<Horizon, number> = {
   "0h": 0.001,
@@ -44,7 +45,7 @@ const HORIZON_FRACTIONS: Record<Horizon, number> = {
 
 const FORECAST_HORIZONS: Horizon[] = ["0h", "12h", "24h", "48h", "72h"];
 
-export function Dashboard() {
+export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
   const nav = useNav();
   const selectedRoute = nav.routes.find((r) => r.id === nav.selectedRouteId) || nav.routes[0];
   const recommendedRoute = nav.routes.find((r) => r.id === nav.recommendedRouteId) || nav.routes[1];

@@ -44,9 +44,9 @@ export function OperationalApp({ user, onSignOut }: { user: User | null; onSignO
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar title={meta.title} subtitle={meta.subtitle} user={user} onSignOut={onSignOut} />
           <main className="min-h-0 flex-1 overflow-hidden bg-[#071521] light:bg-[#faf8f5] transition-colors duration-300">
-            {page === "dashboard" && <Dashboard />}
+            {page === "dashboard" && <Dashboard onNavigate={setPage} />}
             {page === "map" && <MapPage onNavigate={setPage} />}
-            {page === "routes" && <Routes />}
+            {page === "routes" && <Routes onNavigate={setPage} />}
             {page === "iceberg" && <IcebergPrediction />}
             {page === "seaice" && <SeaIcePrediction />}
             {page === "environmental" && <Environmental />}
