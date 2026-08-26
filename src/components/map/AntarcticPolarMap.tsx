@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
-import { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
+import { type Map as MapLibreInstance, type Marker as MapLibreMarker, type GeoJSONSource } from "maplibre-gl";
 import {
   AlertTriangle,
   Anchor,
@@ -25,7 +25,7 @@ import type { Hazard, Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
 import { hazards as mockHazards } from "../../data/mock";
-import { useNav, type OperationalWaypoint } from "../../state";
+import { useOptionalNav, type OperationalWaypoint } from "../../state";
 
 // ---------------------------------------------------------------------------
 // Reliable Base Map Providers
@@ -193,6 +193,7 @@ export interface AntarcticPolarMapProps {
     speedKn: number;
     status: string;
   };
+  waypoints?: OperationalWaypoint[];
   showMaximize?: boolean;
   className?: string;
   compact?: boolean;
@@ -216,13 +217,15 @@ export function AntarcticPolarMap({
   onSelectIceberg,
   horizonFraction = 0.001,
   vessel,
+  waypoints: propWaypoints,
   showMaximize = false,
   className = "",
   compact = false,
 }: AntarcticPolarMapProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const nav = useNav();
+  const nav = useOptionalNav();
+  const activeWaypoints = propWaypoints ?? nav?.waypoints ?? [];
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreInstance | null>(null);
 
@@ -401,8 +404,8 @@ export function AntarcticPolarMap({
     }
 
     // B. Operational Waypoints / Rest Breaks along Route
-    if (layers.waypoints && nav.waypoints.length > 0) {
-      nav.waypoints.forEach((wp, idx) => {
+    if (layers.waypoints && activeWaypoints.length > 0) {
+      activeWaypoints.forEach((wp, idx) => {
         const el = document.createElement("div");
         el.className = "flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-2 py-0.5 rounded-full border border-[#38bdf8] bg-[#071521] text-[#38bdf8] shadow-[0_0_10px_#38bdf8] font-mono text-[9px] font-bold";
         el.innerHTML = `<span>⚓ WP${idx + 1}</span><span>${wp.breakDurationHours > 0 ? `(${wp.breakDurationHours}h)` : ""}</span>`;
@@ -492,7 +495,7 @@ export function AntarcticPolarMap({
         addMarker(lon, lat, el);
       });
     }
-  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, nav.waypoints]);
+  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, activeWaypoints]);
 
   // GeoJSON Line & Polygon Layers
   useEffect(() => {
@@ -512,7 +515,7 @@ export function AntarcticPolarMap({
         }));
 
         if (map.getSource("iceberg-trajectories-source")) {
-          (map.getSource("iceberg-trajectories-source") as maplibregl.GeoJSONSource).setData({
+          (map.getSource("iceberg-trajectories-source") as GeoJSONSource).setData({
             type: "FeatureCollection",
             features: trajectoryFeatures,
           });
@@ -548,7 +551,7 @@ export function AntarcticPolarMap({
         }));
 
         if (map.getSource("routes-source")) {
-          (map.getSource("routes-source") as maplibregl.GeoJSONSource).setData({
+          (map.getSource("routes-source") as GeoJSONSource).setData({
             type: "FeatureCollection",
             features: routeFeatures,
           });
@@ -666,7 +669,7 @@ export function AntarcticPolarMap({
             <LayerChip label="📈 Trajectories" active={layers.icebergPrediction} onClick={() => toggleLayer("icebergPrediction")} />
             <LayerChip label="📡 AIS Vessel" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
             <LayerChip label="⚠️ Hazards" active={layers.hazards} onClick={() => toggleLayer("hazards")} />
-            {nav.waypoints.length > 0 && (
+            {activeWaypoints.length > 0 && (
               <LayerChip label="⚓ Waypoints" active={layers.waypoints} onClick={() => toggleLayer("waypoints")} />
             )}
           </div>

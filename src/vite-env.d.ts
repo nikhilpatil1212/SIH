@@ -242,6 +242,10 @@ declare module "maplibre-gl" {
     point: { x: number; y: number };
     originalEvent: MouseEvent;
   }
+  export interface GeoJSONSource {
+    setData(data: any): this;
+    [key: string]: any;
+  }
   export class Map {
     constructor(options: any);
     on(type: string, listener: (e: any) => void): this;
@@ -261,6 +265,8 @@ declare module "maplibre-gl" {
     removeLayer(id: string): this;
     getZoom(): number;
     getCenter(): LngLat;
+    resize(): this;
+    fitBounds(bounds: any, options?: any): this;
   }
   export class Marker {
     constructor(options?: any);
@@ -282,6 +288,7 @@ declare module "maplibre-gl" {
     export type Map = Map;
     export type Marker = Marker;
     export type Popup = Popup;
+    export type GeoJSONSource = GeoJSONSource;
   }
   const maplibregl: {
     Map: typeof Map;

@@ -253,6 +253,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+export function useOptionalNav() {
+  return useContext(Ctx);
+}
+
 export function useNav() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useNav must be used within NavProvider");
