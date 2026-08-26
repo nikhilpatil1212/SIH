@@ -217,90 +217,91 @@ export function Dashboard() {
                   horizonFraction={HORIZON_FRACTIONS[horizon]}
                 />
               )}
+            </div>
 
-              {/* Floating Map HUD Layers Toolbar (for Tactical View) */}
-              {viewMode === "tactical" && (
-                <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5">
-                  <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#1d445c]/80 bg-[#071521]/90 light:border-[#d8d0c2] light:bg-[#ffffff]/90 p-1 backdrop-blur shadow-md">
-                    <button
-                      onClick={() => toggleLayer("icebergs")}
-                      className={cx(
-                        "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold transition-colors",
-                        layers.icebergs
-                          ? "bg-[#ff5c5c]/20 text-[#ff7070] light:bg-[#dc2626]/15 light:text-[#b91c1c]"
-                          : "text-[#627d8e] opacity-60",
-                      )}
-                      title="Toggle Icebergs & Trajectories"
-                    >
-                      <Triangle size={11} /> Icebergs
-                    </button>
-                    <button
-                      onClick={() => toggleLayer("seaice")}
-                      className={cx(
-                        "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold transition-colors",
-                        layers.seaice
-                          ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0284c7]/15 light:text-[#0369a1]"
-                          : "text-[#627d8e] opacity-60",
-                      )}
-                      title="Toggle Sea-Ice Polygons"
-                    >
-                      <Snowflake size={11} /> Sea Ice
-                    </button>
-                    <button
-                      onClick={() => toggleLayer("currents")}
-                      className={cx(
-                        "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold transition-colors",
-                        layers.currents
-                          ? "bg-[#38bdf8]/20 text-[#38bdf8] light:bg-[#0284c7]/15 light:text-[#0284c7]"
-                          : "text-[#627d8e] opacity-60",
-                      )}
-                      title="Toggle Ocean Currents"
-                    >
-                      <Waves size={11} /> Currents
-                    </button>
-                    <button
-                      onClick={() => toggleLayer("weather")}
-                      className={cx(
-                        "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold transition-colors",
-                        layers.weather
-                          ? "bg-[#f5b942]/20 text-[#f5b942] light:bg-[#d97706]/15 light:text-[#b45309]"
-                          : "text-[#627d8e] opacity-60",
-                      )}
-                      title="Toggle Wind & Weather Barbs"
-                    >
-                      <Wind size={11} /> Weather
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Floating Zoom Controls for Tactical View */}
-              {viewMode === "tactical" && (
-                <div className="absolute left-3 top-3 z-10 flex flex-col gap-1 rounded-md border border-[#1d445c]/80 bg-[#071521]/90 light:border-[#d8d0c2] light:bg-[#ffffff]/90 p-1 backdrop-blur shadow-md">
+            {/* Tactical View Horizontal Top Layers Toolbar */}
+            {viewMode === "tactical" && (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1d445c]/60 bg-[#0c2333]/90 light:border-[#e2d8c7] light:bg-[#f8f5ee] px-3 py-1.5 backdrop-blur z-20">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-mono text-[9px] font-bold uppercase text-[#55d6e8] light:text-[#0f768e] mr-1">
+                    TACTICAL LAYERS:
+                  </span>
                   <button
-                    onClick={() => handleZoom(0.2)}
-                    className="flex h-7 w-7 items-center justify-center rounded text-[#8ccfe0] hover:bg-[#132f40] hover:text-[#55d6e8] light:text-[#5a7686] light:hover:bg-[#f0ece1] light:hover:text-[#0d2433] transition-colors"
-                    title="Zoom In"
+                    onClick={() => toggleLayer("icebergs")}
+                    className={cx(
+                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
+                      layers.icebergs
+                        ? "bg-[#ff5c5c]/20 text-[#ff7070] light:bg-[#dc2626]/15 light:text-[#b91c1c]"
+                        : "text-[#627d8e] opacity-60",
+                    )}
+                    title="Toggle Icebergs & Trajectories"
                   >
-                    <Plus size={14} />
+                    <Triangle size={11} /> Icebergs
                   </button>
                   <button
-                    onClick={() => handleZoom(-0.2)}
-                    className="flex h-7 w-7 items-center justify-center rounded text-[#8ccfe0] hover:bg-[#132f40] hover:text-[#55d6e8] light:text-[#5a7686] light:hover:bg-[#f0ece1] light:hover:text-[#0d2433] transition-colors"
-                    title="Zoom Out"
+                    onClick={() => toggleLayer("seaice")}
+                    className={cx(
+                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
+                      layers.seaice
+                        ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0284c7]/15 light:text-[#0369a1]"
+                        : "text-[#627d8e] opacity-60",
+                    )}
+                    title="Toggle Sea-Ice Polygons"
                   >
-                    <Minus size={14} />
+                    <Snowflake size={11} /> Sea Ice
+                  </button>
+                  <button
+                    onClick={() => toggleLayer("currents")}
+                    className={cx(
+                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
+                      layers.currents
+                        ? "bg-[#38bdf8]/20 text-[#38bdf8] light:bg-[#0284c7]/15 light:text-[#0284c7]"
+                        : "text-[#627d8e] opacity-60",
+                    )}
+                    title="Toggle Ocean Currents"
+                  >
+                    <Waves size={11} /> Currents
+                  </button>
+                  <button
+                    onClick={() => toggleLayer("weather")}
+                    className={cx(
+                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
+                      layers.weather
+                        ? "bg-[#f5b942]/20 text-[#f5b942] light:bg-[#d97706]/15 light:text-[#b45309]"
+                        : "text-[#627d8e] opacity-60",
+                    )}
+                    title="Toggle Wind & Weather Barbs"
+                  >
+                    <Wind size={11} /> Weather
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
+                  <button
+                    onClick={() => handleZoom(0.2)}
+                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
+                    title="Zoom in"
+                  >
+                    <Plus size={12} />
+                  </button>
+                  <span className="px-1 font-mono text-[9.5px] font-bold text-[#8ccfe0] light:text-[#0f768e]">{Math.round(zoom * 100)}%</span>
+                  <button
+                    onClick={() => handleZoom(-0.2)}
+                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
+                    title="Zoom out"
+                  >
+                    <Minus size={12} />
                   </button>
                   <button
                     onClick={() => setZoom(1)}
-                    className="flex h-7 w-7 items-center justify-center rounded text-[#8ccfe0] hover:bg-[#132f40] hover:text-[#55d6e8] light:text-[#5a7686] light:hover:bg-[#f0ece1] light:hover:text-[#0d2433] transition-colors"
-                    title="Reset Zoom"
+                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
+                    title="Reset view"
                   >
-                    <RotateCcw size={12} />
+                    <RotateCcw size={11} />
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Bottom Telemetry Footer Strip */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1d445c]/60 light:border-[#e2d8c7] bg-[#0c2333]/90 light:bg-[#f8f5ee] px-3.5 py-1.5 font-mono text-[10px]">

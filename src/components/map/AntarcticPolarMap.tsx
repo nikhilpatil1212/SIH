@@ -24,6 +24,30 @@ import type { Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
 import { smoothPath, corridorPath, slicePath, seaIceColor } from "./geo";
 import { useTheme } from "../../theme";
+import antarcticSatelliteImg from "../../assets/antarctic_satellite_polar.jpg";
+
+export type SatelliteProviderId = "nasa-gibs" | "esri-polar" | "nasa-bluemarble";
+
+export const SATELLITE_PROVIDERS = [
+  {
+    id: "nasa-gibs" as const,
+    name: "NASA GIBS Live MODIS",
+    tag: "NASA EARTHDATA LIVE EPSG:3031 API",
+    url: "https://gibs.earthdata.nasa.gov/wms/epsg3031/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&FORMAT=image/jpeg&HEIGHT=1024&WIDTH=1024&CRS=EPSG:3031&BBOX=-4194304,-4194304,4194304,4194304&TIME=2024-01-15",
+  },
+  {
+    id: "esri-polar" as const,
+    name: "ESRI Antarctic High-Res",
+    tag: "ESRI ARCGIS POLAR API",
+    url: "https://services.arcgisonline.com/arcgis/rest/services/Polar/Antarctic_Imagery/MapServer/export?bbox=-4194304,-4194304,4194304,4194304&bboxSR=3031&imageSR=3031&size=1024,1024&format=jpg&f=image",
+  },
+  {
+    id: "nasa-bluemarble" as const,
+    name: "NASA Blue Marble Polar",
+    tag: "NASA GSFC BLUE MARBLE",
+    url: "https://gibs.earthdata.nasa.gov/wms/epsg3031/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&LAYERS=BlueMarble_NextGeneration&FORMAT=image/jpeg&HEIGHT=1024&WIDTH=1024&CRS=EPSG:3031&BBOX=-4194304,-4194304,4194304,4194304",
+  },
+];
 
 // Polar Projection Constants (Hemispheric Polar Stereographic)
 // Radius spans from 90°S at center (r=0) to 25°S on the perimeter (r=475px)
@@ -735,7 +759,9 @@ export function AntarcticPolarMap({
   const [viewPreset, setViewPreset] = useState<"global" | "polar" | "india">("global");
 
   // Layer visibility toggles
+  const [satelliteSource, setSatelliteSource] = useState<SatelliteProviderId>("nasa-gibs");
   const [layers, setLayers] = useState({
+    satellite: true, // Real Photorealistic NASA Satellite Imagery Basemap
     continents: true,
     graticule: true,
     labels: true,
@@ -1087,53 +1113,23 @@ export function AntarcticPolarMap({
             </button>
           </div>
 
-          {/* Collapsible Layers Dropdown Button */}
-          <div className="relative">
-            <button
-              onClick={() => setLayersOpen((o) => !o)}
-              className={cx(
-                "flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-bold transition-all",
-                layersOpen
-                  ? "border-[#55d6e8] bg-[#55d6e8]/20 text-[#55d6e8] light:border-[#0f768e] light:bg-[#0f768e]/15 light:text-[#0f768e]"
-                  : "border-[#1d445c]/60 bg-[#0d2433]/60 text-[#91aeb9] hover:text-[#eaf6f8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686]",
-              )}
-              title="Toggle Map Layers"
-            >
-              <Layers size={12} />
-              <span>Layers</span>
-              <span className="rounded bg-[#55d6e8]/20 light:bg-[#0f768e]/20 px-1 font-mono text-[9px]">
-                {Object.values(layers).filter(Boolean).length}
-              </span>
-            </button>
-
-            {layersOpen && (
-              <div
-                className={cx(
-                  "absolute right-0 top-full mt-1.5 z-40 flex w-60 flex-col gap-0.5 rounded-xl border p-2 shadow-2xl backdrop-blur-md",
-                  isDark ? "border-[#1d445c] bg-[#071927]/98 text-[#c8dde3]" : "border-[#dfd8cc] bg-[#faf8f5]/98 text-[#3a5563]",
-                )}
-              >
-                <div className="mb-1 flex items-center justify-between border-b border-[#1d445c]/40 light:border-[#e2d8c7] pb-1 px-1 text-[9px] font-bold uppercase tracking-wider text-[#55d6e8] light:text-[#0f768e]">
-                  <span className="flex items-center gap-1">
-                    <Layers size={11} /> Map Layers
-                  </span>
-                  <button onClick={() => setLayersOpen(false)} className="text-[#91aeb9] hover:text-[#eaf6f8]">
-                    <X size={11} />
-                  </button>
-                </div>
-
-                <LayerToggleBtn label="Continents & Borders" active={layers.continents} onClick={() => toggleLayer("continents")} />
-                <LayerToggleBtn label="Research Stations" active={layers.stations} onClick={() => toggleLayer("stations")} />
-                <LayerToggleBtn label="Gateway Ports" active={layers.gateways} onClick={() => toggleLayer("gateways")} />
-                <LayerToggleBtn label="Expedition Corridors" active={layers.corridors} onClick={() => toggleLayer("corridors")} />
-                <LayerToggleBtn label="Polar Graticule & Parallels" active={layers.graticule} onClick={() => toggleLayer("graticule")} />
-                <LayerToggleBtn label="Polar Front & ACC Current" active={layers.currents} onClick={() => toggleLayer("currents")} />
-                <LayerToggleBtn label="Sea-Ice Concentration" active={layers.seaIce} onClick={() => toggleLayer("seaIce")} />
-                <LayerToggleBtn label="Iceberg Drift Corridors" active={layers.icebergs} onClick={() => toggleLayer("icebergs")} />
-                <LayerToggleBtn label="Live Research Vessel (AIS)" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
-              </div>
+          {/* Layers Toggle Button */}
+          <button
+            onClick={() => setLayersOpen((o) => !o)}
+            className={cx(
+              "flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-bold transition-all",
+              layersOpen
+                ? "border-[#55d6e8] bg-[#55d6e8]/20 text-[#55d6e8] light:border-[#0f768e] light:bg-[#0f768e]/15 light:text-[#0f768e]"
+                : "border-[#1d445c]/60 bg-[#0d2433]/60 text-[#91aeb9] hover:text-[#eaf6f8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686]",
             )}
-          </div>
+            title="Toggle Top Map Layers Ribbon"
+          >
+            <Layers size={12} />
+            <span>Layers</span>
+            <span className="rounded bg-[#55d6e8]/20 light:bg-[#0f768e]/20 px-1 font-mono text-[9px]">
+              {Object.values(layers).filter(Boolean).length}
+            </span>
+          </button>
 
           {/* Fullscreen toggle */}
           <button
@@ -1146,6 +1142,67 @@ export function AntarcticPolarMap({
           </button>
         </div>
       </div>
+
+      {/* Top Horizontal Layer Ribbon (Positioned cleanly on TOP of map, not beside it!) */}
+      {layersOpen && (
+        <div
+          className={cx(
+            "flex flex-wrap items-center gap-1.5 border-b px-3 py-1.5 backdrop-blur-md transition-all animate-in slide-in-from-top-1 z-30",
+            isDark
+              ? "border-[#1d445c]/70 bg-[#071927]/98 text-[#c8dde3]"
+              : "border-[#dfd8cc] bg-[#faf8f5]/98 text-[#3a5563]",
+          )}
+        >
+          <div className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase text-[#55d6e8] light:text-[#0f768e] mr-1">
+            <Layers size={11} />
+            <span>MAP LAYERS:</span>
+          </div>
+
+          {/* Real Satellite API Source Selector */}
+          <div className="flex items-center gap-1 border-r border-[#1d445c]/50 light:border-[#d8d0c2] pr-2 mr-1">
+            <span className="font-mono text-[9px] font-bold uppercase text-[#55d6e8] light:text-[#0f768e]">
+              🛰️ SAT API:
+            </span>
+            {SATELLITE_PROVIDERS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => {
+                  setSatelliteSource(p.id);
+                  if (!layers.satellite) toggleLayer("satellite");
+                }}
+                className={cx(
+                  "rounded px-2 py-0.5 font-mono text-[9.5px] font-semibold transition-all",
+                  satelliteSource === p.id && layers.satellite
+                    ? "bg-[#55d6e8] text-[#071521] shadow-[0_0_8px_#55d6e8]/40 light:bg-[#0f768e] light:text-white"
+                    : "text-[#91aeb9] hover:bg-[#132f40] hover:text-[#eaf6f8] light:text-[#5a7686]",
+                )}
+                title={`Live Satellite Stream from ${p.tag}`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+
+          <LayerChip label="🛰️ Real Satellite Basemap" active={layers.satellite} onClick={() => toggleLayer("satellite")} />
+          <LayerChip label="🌍 Continents & Borders" active={layers.continents} onClick={() => toggleLayer("continents")} />
+          <LayerChip label="🏢 Research Stations" active={layers.stations} onClick={() => toggleLayer("stations")} />
+          <LayerChip label="⚓ Gateway Ports" active={layers.gateways} onClick={() => toggleLayer("gateways")} />
+          <LayerChip label="🚢 Corridors & Routes" active={layers.corridors} onClick={() => toggleLayer("corridors")} />
+          <LayerChip label="🌐 Polar Graticule" active={layers.graticule} onClick={() => toggleLayer("graticule")} />
+          <LayerChip label="🌊 ACC Current" active={layers.currents} onClick={() => toggleLayer("currents")} />
+          <LayerChip label="❄️ Sea-Ice Concentration" active={layers.seaIce} onClick={() => toggleLayer("seaIce")} />
+          <LayerChip label="🧊 Iceberg Drift" active={layers.icebergs} onClick={() => toggleLayer("icebergs")} />
+          <LayerChip label="📡 Live AIS Vessel" active={layers.vessel} onClick={() => toggleLayer("vessel")} />
+
+          <button
+            onClick={() => setLayersOpen(false)}
+            className="ml-auto flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]"
+            title="Close Layer Ribbon"
+          >
+            <X size={11} /> Close
+          </button>
+        </div>
+      )}
 
       {/* Main SVG Vector Canvas */}
       <div
@@ -1162,6 +1219,11 @@ export function AntarcticPolarMap({
           className="h-full w-full select-none"
         >
           <defs>
+            {/* Polar Circle Clip Path */}
+            <clipPath id="polarCircleClip">
+              <circle cx="500" cy="500" r="485" />
+            </clipPath>
+
             {/* Realistic Southern Ocean Deep Gradient */}
             <radialGradient id="oceanGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor={isDark ? "#061826" : "#cbe5ee"} />
@@ -1208,6 +1270,31 @@ export function AntarcticPolarMap({
           <g transform={`translate(500, 500) translate(${pan.x}, ${pan.y}) scale(${zoom}) translate(-500, -500)`}>
             {/* Background Ocean Disk */}
             <circle cx="500" cy="500" r="485" fill="url(#oceanGradient)" stroke={isDark ? "#1d445c" : "#b0d2de"} strokeWidth="2" />
+
+            {/* Real NASA / ESRI Satellite Polar Imagery API Basemap Layer */}
+            {layers.satellite && (
+              <g clipPath="url(#polarCircleClip)">
+                <image
+                  href={
+                    satelliteSource === "nasa-gibs"
+                      ? SATELLITE_PROVIDERS[0].url
+                      : satelliteSource === "esri-polar"
+                      ? SATELLITE_PROVIDERS[1].url
+                      : SATELLITE_PROVIDERS[2].url
+                  }
+                  x="15"
+                  y="15"
+                  width="970"
+                  height="970"
+                  preserveAspectRatio="xMidYMid slice"
+                  opacity="0.96"
+                  onError={(e: any) => {
+                    // Fallback to local asset if external network rate-limited or offline
+                    (e.target as SVGImageElement).setAttribute("href", antarcticSatelliteImg);
+                  }}
+                />
+              </g>
+            )}
 
           {/* Graticule Latitude Parallels */}
           {layers.graticule && (
@@ -1311,29 +1398,72 @@ export function AntarcticPolarMap({
 
           {/* 1. Surrounding Continents Layer */}
           {layers.continents && (
-            <g id="surrounding-continents" filter="url(#landShadow)">
+            <g id="surrounding-continents" filter={layers.satellite ? undefined : "url(#landShadow)"}>
               {/* South America (Patagonia & Tierra del Fuego) */}
               <g id="south-america">
-                <path d={southAmericaPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.5" />
-                <path d={falklandsPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.2" />
-                <path d={southGeorgiaPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.2" />
+                <path
+                  d={southAmericaPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
+                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                />
+                <path
+                  d={falklandsPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth="1.2"
+                />
+                <path
+                  d={southGeorgiaPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth="1.2"
+                />
               </g>
 
               {/* Southern Africa */}
               <g id="southern-africa">
-                <path d={southernAfricaPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.5" />
+                <path
+                  d={southernAfricaPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
+                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                />
               </g>
 
               {/* Australia & Tasmania */}
               <g id="australia-tasmania">
-                <path d={australiaPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.5" />
-                <path d={tasmaniaPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.2" />
+                <path
+                  d={australiaPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
+                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                />
+                <path
+                  d={tasmaniaPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth="1.2"
+                />
               </g>
 
               {/* New Zealand */}
               <g id="new-zealand">
-                <path d={nzSouthPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.2" />
-                <path d={nzNorthPath} fill="url(#continentTerrainGrad)" stroke={isDark ? "#487a58" : "#5d7c4a"} strokeWidth="1.2" />
+                <path
+                  d={nzSouthPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth="1.2"
+                />
+                <path
+                  d={nzNorthPath}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  strokeWidth="1.2"
+                />
               </g>
 
               {/* Sub-Antarctic Islands */}
@@ -1376,40 +1506,45 @@ export function AntarcticPolarMap({
           )}
 
           {/* 3. Ice Shelves Layer */}
-          <g id="ice-shelves" opacity="0.95">
-            <path d={rossShelfPath} fill="url(#iceShelfGrad)" stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={ronneShelfPath} fill="url(#iceShelfGrad)" stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={larsenShelfPath} fill="url(#iceShelfGrad)" stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={ameryShelfPath} fill="url(#iceShelfGrad)" stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
+          <g id="ice-shelves" opacity={layers.satellite ? 0.45 : 0.95}>
+            <path d={rossShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
+            <path d={ronneShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
+            <path d={larsenShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
+            <path d={ameryShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
           </g>
 
-          {/* 4. Antarctica Mainland Ice Sheet (Dominant Central Focus) */}
-          <g id="antarctica-mainland" filter="url(#landShadow)">
+          {/* 4. Antarctica Mainland Ice Sheet */}
+          <g id="antarctica-mainland" filter={layers.satellite ? undefined : "url(#landShadow)"}>
             <path
               d={mainlandPath}
-              fill="url(#antarcticIceGradient)"
-              stroke={isDark ? "#ffffff" : "#a8d6e6"}
-              strokeWidth="2.5"
+              fill={layers.satellite ? "transparent" : "url(#antarcticIceGradient)"}
+              stroke={layers.satellite ? "rgba(255, 255, 255, 0.55)" : (isDark ? "#ffffff" : "#a8d6e6")}
+              strokeWidth={layers.satellite ? "1.4" : "2.5"}
+              strokeDasharray={layers.satellite ? "4 2" : "none"}
               className="transition-all duration-300"
             />
 
-            {/* Elevation / Transantarctic Mountain Ridge Shading */}
-            <path
-              d="M 500 500 Q 560 520 620 480 T 680 430 Q 720 380 750 340"
-              fill="none"
-              stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
-              strokeWidth="2.5"
-              strokeDasharray="4 3"
-              opacity="0.7"
-            />
-            <path
-              d="M 500 500 Q 420 540 370 590 T 310 650"
-              fill="none"
-              stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
-              strokeWidth="2"
-              strokeDasharray="4 3"
-              opacity="0.7"
-            />
+            {/* Elevation / Mountain Shading (only when vector basemap active) */}
+            {!layers.satellite && (
+              <>
+                <path
+                  d="M 500 500 Q 560 520 620 480 T 680 430 Q 720 380 750 340"
+                  fill="none"
+                  stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
+                  strokeWidth="2.5"
+                  strokeDasharray="4 3"
+                  opacity="0.7"
+                />
+                <path
+                  d="M 500 500 Q 420 540 370 590 T 310 650"
+                  fill="none"
+                  stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
+                  strokeWidth="2"
+                  strokeDasharray="4 3"
+                  opacity="0.7"
+                />
+              </>
+            )}
           </g>
 
           {/* 5. Expedition Transit Corridors Layer */}
@@ -1838,19 +1973,19 @@ export function AntarcticPolarMap({
   );
 }
 
-function LayerToggleBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function LayerChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       className={cx(
-        "flex items-center justify-between gap-3 rounded px-2 py-1 text-left text-[11px] font-semibold transition-colors",
+        "flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-semibold transition-all shadow-sm",
         active
-          ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0f768e]/15 light:text-[#0f768e]"
-          : "text-[#91aeb9] hover:bg-[#132f40]/50 hover:text-[#eaf6f8] light:text-[#5a7686]",
+          ? "border-[#55d6e8] bg-[#55d6e8]/20 text-[#55d6e8] light:border-[#0f768e] light:bg-[#0f768e]/15 light:text-[#0f768e]"
+          : "border-[#1d445c]/50 bg-[#0d2433]/50 text-[#91aeb9] hover:border-[#55d6e8]/40 hover:text-[#eaf6f8] light:border-[#d8d0c2] light:bg-[#eee8dc]/70 light:text-[#5a7686]",
       )}
     >
+      <span className={cx("h-1.5 w-1.5 rounded-full transition-colors", active ? "bg-[#55d6e8] light:bg-[#0f768e] shadow-[0_0_6px_#55d6e8]" : "bg-[#5f7d89]")} />
       <span>{label}</span>
-      <span className={cx("h-2 w-2 rounded-full", active ? "bg-[#55d6e8] light:bg-[#0f768e]" : "bg-[#1d445c] light:bg-[#cfc6b6]")} />
     </button>
   );
 }

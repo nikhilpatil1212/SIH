@@ -14,6 +14,7 @@ import { RISK_COLORS, cx } from "../ui/primitives";
 import { corridorPath, polygonPath, seaIceColor, slicePath, smoothPath } from "./geo";
 import { useTheme } from "../../theme";
 import { geoBearingDeg, geoDistanceNm, getSectorName } from "./AntarcticPolarMap";
+import weddellSatelliteImg from "../../assets/weddell_satellite_tactical.jpg";
 
 export interface LayerState {
   icebergs: boolean;
@@ -178,11 +179,25 @@ export default function MapView({
 
         {/* Zoom & Pan Map Group */}
         <g transform={`translate(500, 350) translate(${internalPan.x}, ${internalPan.y}) scale(${zoom}) translate(-500, -350)`}>
-          {/* Ocean */}
-          <rect x="0" y="0" width="1000" height="700" fill="url(#ocean-grad)" />
+          {/* Real Satellite Weddell Sector Basemap (Live ESRI / NASA Polar API with local fallback) */}
+          <image
+            href="https://services.arcgisonline.com/arcgis/rest/services/Polar/Antarctic_Imagery/MapServer/export?bbox=-2800000,-1500000,-200000,1000000&bboxSR=3031&imageSR=3031&size=1024,768&format=jpg&f=image"
+            x="0"
+            y="0"
+            width="1000"
+            height="700"
+            preserveAspectRatio="xMidYMid slice"
+            opacity="0.94"
+            onError={(e: any) => {
+              (e.target as SVGImageElement).setAttribute("href", weddellSatelliteImg);
+            }}
+          />
+
+          {/* Ocean Base Gradient Fallback */}
+          <rect x="0" y="0" width="1000" height="700" fill="url(#ocean-grad)" opacity="0.15" />
 
         {/* Graticule grid with Lat / Lon lines */}
-        <g stroke={isDark ? "#123047" : "#a8cfe0"} strokeWidth="0.8" opacity="0.6">
+        <g stroke={isDark ? "#55d6e8" : "#0f768e"} strokeWidth="0.8" opacity="0.4">
           {LON_LINES.map((l) => (
             <line key={`v-${l.label}`} x1={l.x} y1="0" x2={l.x} y2="700" strokeDasharray="4 4" />
           ))}
@@ -192,7 +207,7 @@ export default function MapView({
         </g>
 
         {/* Graticule Coordinate Labels */}
-        <g fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="600" fill={isDark ? "#5d8aa0" : "#4a788e"}>
+        <g fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="700" fill={isDark ? "#8ccfe0" : "#0f768e"}>
           {LON_LINES.map((l) => (
             <text key={`txt-v-${l.label}`} x={l.x + 4} y="16">
               {l.label}
@@ -215,9 +230,9 @@ export default function MapView({
                 key={r.region}
                 d={polygonPath(r.polygon)}
                 fill={c}
-                opacity={0.3 + (r.concentration / 100) * 0.45}
+                opacity={0.35 + (r.concentration / 100) * 0.45}
                 stroke={c}
-                strokeOpacity={sel ? 1 : 0.5}
+                strokeOpacity={sel ? 1 : 0.6}
                 strokeWidth={sel ? 2.5 : 1}
                 style={{ cursor: onSelectRegion ? "pointer" : "default" }}
                 onClick={() => onSelectRegion?.(r.region)}
@@ -233,16 +248,16 @@ export default function MapView({
               key={r.id}
               d={polygonPath(r.polygon)}
               fill="#b8e8f0"
-              opacity={0.14 + (r.concentration / 100) * 0.22}
+              opacity={0.18 + (r.concentration / 100) * 0.25}
               stroke="#b8e8f0"
-              strokeOpacity="0.35"
+              strokeOpacity="0.4"
               strokeWidth="1"
             />
           ))}
 
-        {/* Land / ice shelf */}
-        <path d={polygonPath(coastline)} fill="url(#land-grad)" stroke="#9fbdc4" strokeWidth="1.5" />
-        <path d={polygonPath(iceShelf)} fill="#e7f2f4" stroke="#9fbdc4" strokeWidth="1" opacity="0.95" />
+        {/* Land / ice shelf subtle tactical outline */}
+        <path d={polygonPath(coastline)} fill="rgba(85,214,232,0.06)" stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="4 2" />
+        <path d={polygonPath(iceShelf)} fill="rgba(255,255,255,0.08)" stroke="#ffffff" strokeWidth="1" opacity="0.8" strokeDasharray="3 2" />
 
         {/* Continent & Sector Watermark Labels */}
         <g pointerEvents="none">
