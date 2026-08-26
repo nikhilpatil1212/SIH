@@ -761,7 +761,7 @@ export function AntarcticPolarMap({
   // Layer visibility toggles
   const [satelliteSource, setSatelliteSource] = useState<SatelliteProviderId>("nasa-gibs");
   const [layers, setLayers] = useState({
-    satellite: true, // Real Photorealistic NASA Satellite Imagery Basemap
+    satellite: false, // Default to ultra-sharp HD Nautical Vector Cartography (100% crisp)
     continents: true,
     graticule: true,
     labels: true,
@@ -1226,31 +1226,45 @@ export function AntarcticPolarMap({
 
             {/* Realistic Southern Ocean Deep Gradient */}
             <radialGradient id="oceanGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={isDark ? "#061826" : "#cbe5ee"} />
-              <stop offset="45%" stopColor={isDark ? "#082133" : "#bedce6"} />
-              <stop offset="70%" stopColor={isDark ? "#0c2b42" : "#b0d2de"} />
-              <stop offset="100%" stopColor={isDark ? "#0f3552" : "#a2c7d4"} />
+              <stop offset="0%" stopColor={isDark ? "#041421" : "#cbe5ee"} />
+              <stop offset="50%" stopColor={isDark ? "#061b2b" : "#b8d9e6"} />
+              <stop offset="80%" stopColor={isDark ? "#09253a" : "#a6ccdb"} />
+              <stop offset="100%" stopColor={isDark ? "#0d2e47" : "#95bed0"} />
             </radialGradient>
 
-            {/* Antarctic Ice Sheet Glacial Gradient */}
+            {/* Antarctic Ice Sheet Glacial Gradient (Crisp, High-Contrast) */}
             <radialGradient id="antarcticIceGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={isDark ? "#f0f8ff" : "#ffffff"} />
-              <stop offset="35%" stopColor={isDark ? "#e1f3fa" : "#f5fbfe"} />
-              <stop offset="70%" stopColor={isDark ? "#c8ebf7" : "#e8f5fb"} />
-              <stop offset="100%" stopColor={isDark ? "#9cdbf0" : "#d2edf7"} />
+              <stop offset="0%" stopColor={isDark ? "#ffffff" : "#ffffff"} />
+              <stop offset="40%" stopColor={isDark ? "#f0f8fd" : "#f5fbfe"} />
+              <stop offset="80%" stopColor={isDark ? "#d9f0fa" : "#e6f4fa"} />
+              <stop offset="100%" stopColor={isDark ? "#bfe3f5" : "#d0ebf7"} />
             </radialGradient>
 
             {/* Ice Shelf Pattern */}
             <linearGradient id="iceShelfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={isDark ? "#81d8ed" : "#bde9f5"} stopOpacity="0.85" />
-              <stop offset="100%" stopColor={isDark ? "#55c2dc" : "#9edef0"} stopOpacity="0.75" />
+              <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.3" />
             </linearGradient>
 
-            {/* Surrounding Continents Terrain Gradient */}
-            <linearGradient id="continentTerrainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={isDark ? "#2a4d38" : "#8ca879"} />
-              <stop offset="50%" stopColor={isDark ? "#385e45" : "#a0bc8d"} />
-              <stop offset="100%" stopColor={isDark ? "#23402e" : "#7b9868"} />
+            {/* Distinct Crisp Terrain Gradients for Each Continent */}
+            <linearGradient id="patagoniaTerrainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDark ? "#284d35" : "#6b9360"} />
+              <stop offset="100%" stopColor={isDark ? "#1d3d29" : "#577d4c"} />
+            </linearGradient>
+
+            <linearGradient id="africaTerrainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDark ? "#3f4d2c" : "#7e9652"} />
+              <stop offset="100%" stopColor={isDark ? "#2d381e" : "#688040"} />
+            </linearGradient>
+
+            <linearGradient id="australiaTerrainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDark ? "#4d422a" : "#9c8b5e"} />
+              <stop offset="100%" stopColor={isDark ? "#382f1b" : "#85754b"} />
+            </linearGradient>
+
+            <linearGradient id="nzTerrainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDark ? "#264a33" : "#628d57"} />
+              <stop offset="100%" stopColor={isDark ? "#1c3826" : "#4e7544"} />
             </linearGradient>
 
             {/* Radar Sweep Effect */}
@@ -1259,17 +1273,19 @@ export function AntarcticPolarMap({
               <stop offset="70%" stopColor="#55d6e8" stopOpacity="0.05" />
               <stop offset="100%" stopColor="#55d6e8" stopOpacity="0" />
             </radialGradient>
-
-            {/* Shadow for landmasses */}
-            <filter id="landShadow" x="-5%" y="-5%" width="110%" height="110%">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000000" floodOpacity="0.4" />
-            </filter>
           </defs>
 
           {/* Interactive Zoomable Map Canvas Group */}
           <g transform={`translate(500, 500) translate(${pan.x}, ${pan.y}) scale(${zoom}) translate(-500, -500)`}>
             {/* Background Ocean Disk */}
             <circle cx="500" cy="500" r="485" fill="url(#oceanGradient)" stroke={isDark ? "#1d445c" : "#b0d2de"} strokeWidth="2" />
+
+            {/* Crisp Bathymetric Ocean Depth Contour Rings */}
+            <g id="bathymetry-depth-rings" opacity={isDark ? "0.4" : "0.5"}>
+              <circle cx="500" cy="500" r="455" fill="none" stroke={isDark ? "#10324c" : "#89b1c4"} strokeWidth="1" />
+              <circle cx="500" cy="500" r="375" fill="none" stroke={isDark ? "#164466" : "#76a2b7"} strokeWidth="1" strokeDasharray="5 4" />
+              <circle cx="500" cy="500" r="295" fill="none" stroke={isDark ? "#1c5680" : "#6392a9"} strokeWidth="1.2" strokeDasharray="4 3" />
+            </g>
 
             {/* Real NASA / ESRI Satellite Polar Imagery API Basemap Layer */}
             {layers.satellite && (
@@ -1396,28 +1412,27 @@ export function AntarcticPolarMap({
             </g>
           )}
 
-          {/* 1. Surrounding Continents Layer */}
+          {/* 1. Surrounding Continents Layer (Ultra-Crisp Vector Cartography) */}
           {layers.continents && (
-            <g id="surrounding-continents" filter={layers.satellite ? undefined : "url(#landShadow)"}>
+            <g id="surrounding-continents">
               {/* South America (Patagonia & Tierra del Fuego) */}
               <g id="south-america">
                 <path
                   d={southAmericaPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
-                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
-                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#patagoniaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#4ade80" : "#3b8256")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.6"}
                 />
                 <path
                   d={falklandsPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#patagoniaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#4ade80" : "#3b8256")}
                   strokeWidth="1.2"
                 />
                 <path
                   d={southGeorgiaPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#patagoniaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#4ade80" : "#3b8256")}
                   strokeWidth="1.2"
                 />
               </g>
@@ -1426,10 +1441,9 @@ export function AntarcticPolarMap({
               <g id="southern-africa">
                 <path
                   d={southernAfricaPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
-                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
-                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#africaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#a3e635" : "#658c38")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.6"}
                 />
               </g>
 
@@ -1437,15 +1451,14 @@ export function AntarcticPolarMap({
               <g id="australia-tasmania">
                 <path
                   d={australiaPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
-                  strokeWidth={layers.satellite ? "1.2" : "1.5"}
-                  strokeDasharray={layers.satellite ? "3 1.5" : "none"}
+                  fill={layers.satellite ? "rgba(85,214,232,0.04)" : "url(#australiaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#facc15" : "#997f33")}
+                  strokeWidth={layers.satellite ? "1.2" : "1.6"}
                 />
                 <path
                   d={tasmaniaPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#australiaTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#facc15" : "#997f33")}
                   strokeWidth="1.2"
                 />
               </g>
@@ -1454,15 +1467,15 @@ export function AntarcticPolarMap({
               <g id="new-zealand">
                 <path
                   d={nzSouthPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
-                  strokeWidth="1.2"
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#nzTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#4ade80" : "#3b8256")}
+                  strokeWidth="1.4"
                 />
                 <path
                   d={nzNorthPath}
-                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#continentTerrainGrad)"}
-                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#487a58" : "#5d7c4a")}
-                  strokeWidth="1.2"
+                  fill={layers.satellite ? "rgba(85,214,232,0.08)" : "url(#nzTerrainGrad)"}
+                  stroke={layers.satellite ? (isDark ? "#55d6e8" : "#0f768e") : (isDark ? "#4ade80" : "#3b8256")}
+                  strokeWidth="1.4"
                 />
               </g>
 
@@ -1507,41 +1520,40 @@ export function AntarcticPolarMap({
 
           {/* 3. Ice Shelves Layer */}
           <g id="ice-shelves" opacity={layers.satellite ? 0.45 : 0.95}>
-            <path d={rossShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={ronneShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={larsenShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
-            <path d={ameryShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#55d6e8" strokeWidth="1.2" strokeDasharray="3 2" />
+            <path d={rossShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#38bdf8" strokeWidth="1.4" strokeDasharray="4 2" />
+            <path d={ronneShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#38bdf8" strokeWidth="1.4" strokeDasharray="4 2" />
+            <path d={larsenShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#38bdf8" strokeWidth="1.4" strokeDasharray="4 2" />
+            <path d={ameryShelfPath} fill={layers.satellite ? "rgba(85,214,232,0.15)" : "url(#iceShelfGrad)"} stroke="#38bdf8" strokeWidth="1.4" strokeDasharray="4 2" />
           </g>
 
-          {/* 4. Antarctica Mainland Ice Sheet */}
-          <g id="antarctica-mainland" filter={layers.satellite ? undefined : "url(#landShadow)"}>
+          {/* 4. Antarctica Mainland Ice Sheet (Razor Sharp Vector Cartography) */}
+          <g id="antarctica-mainland">
             <path
               d={mainlandPath}
               fill={layers.satellite ? "transparent" : "url(#antarcticIceGradient)"}
-              stroke={layers.satellite ? "rgba(255, 255, 255, 0.55)" : (isDark ? "#ffffff" : "#a8d6e6")}
-              strokeWidth={layers.satellite ? "1.4" : "2.5"}
-              strokeDasharray={layers.satellite ? "4 2" : "none"}
+              stroke={layers.satellite ? "rgba(255, 255, 255, 0.7)" : (isDark ? "#ffffff" : "#2e7b9e")}
+              strokeWidth={layers.satellite ? "1.4" : "2.2"}
               className="transition-all duration-300"
             />
 
-            {/* Elevation / Mountain Shading (only when vector basemap active) */}
+            {/* Elevation / Transantarctic Mountain Ridge Shading */}
             {!layers.satellite && (
               <>
                 <path
                   d="M 500 500 Q 560 520 620 480 T 680 430 Q 720 380 750 340"
                   fill="none"
-                  stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
+                  stroke={isDark ? "#64748b" : "#475569"}
                   strokeWidth="2.5"
-                  strokeDasharray="4 3"
-                  opacity="0.7"
+                  strokeDasharray="5 3"
+                  opacity="0.85"
                 />
                 <path
                   d="M 500 500 Q 420 540 370 590 T 310 650"
                   fill="none"
-                  stroke={isDark ? "#7ba5b8" : "#8ab5c6"}
-                  strokeWidth="2"
-                  strokeDasharray="4 3"
-                  opacity="0.7"
+                  stroke={isDark ? "#64748b" : "#475569"}
+                  strokeWidth="2.2"
+                  strokeDasharray="5 3"
+                  opacity="0.85"
                 />
               </>
             )}
