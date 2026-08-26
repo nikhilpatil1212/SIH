@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Globe, type SeaIceRegionShape } from "../components/globe/Globe";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { SeaIceLegend } from "../components/predictions";
 import { Card, Chip, Metric, cx } from "../components/ui/primitives";
 import { DemoTag, TimelineSelector } from "../components/ui/phase2";
@@ -20,7 +20,7 @@ export function SeaIcePrediction() {
   const [horizon, setHorizon] = useState<Horizon>("0h");
   const [region, setRegion] = useState<string>(seaIcePredictions[0].region);
 
-  const heat: SeaIceRegionShape[] = useMemo(
+  const heat = useMemo(
     () =>
       seaIcePredictions.map((p, i) => ({
         region: p.region,
@@ -32,9 +32,9 @@ export function SeaIcePrediction() {
 
   const basin = seaIceBasin.find((b) => b.horizon === horizon) ?? seaIceBasin[0];
   const regionIdx = seaIcePredictions.findIndex((p) => p.region === region);
-  const pred = seaIcePredictions[regionIdx];
+  const pred = seaIcePredictions[regionIdx] ?? seaIcePredictions[0];
   const regionCurrent = pred.currentConcentration;
-  const region24 = concentrationAt(regionIdx, "24h");
+  const region24 = concentrationAt(regionIdx >= 0 ? regionIdx : 0, "24h");
 
   return (
     <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-3 xl:grid-cols-[1fr_360px]">
@@ -55,11 +55,14 @@ export function SeaIcePrediction() {
         />
 
         <div className="relative min-h-[460px] flex-1 overflow-hidden rounded-xl bg-[#050d17] light:bg-[#ede6da] shadow-lg transition-colors">
-          <Globe
+          <AntarcticPolarMap
             icebergs={nav.icebergs}
             selectedIcebergId={nav.selectedIcebergId}
             onSelectIceberg={nav.setSelectedIceberg}
-            seaIce={heat}
+            seaIceHeat={heat}
+            selectedRegion={region}
+            onSelectRegion={setRegion}
+            className="h-full w-full"
           />
           <SeaIceLegend />
         </div>
@@ -127,3 +130,5 @@ export function SeaIcePrediction() {
     </div>
   );
 }
+
+export default SeaIcePrediction;

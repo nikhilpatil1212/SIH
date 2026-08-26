@@ -45,6 +45,25 @@ interface MapViewProps {
   onSelectRegion?: (region: string) => void;
 }
 
+const LAT_LINES = [
+  { y: 70, label: "64°00'S" },
+  { y: 195, label: "66°00'S" },
+  { y: 320, label: "68°00'S" },
+  { y: 445, label: "70°00'S" },
+  { y: 570, label: "72°00'S" },
+  { y: 660, label: "74°00'S" },
+];
+
+const LON_LINES = [
+  { x: 80, label: "60°00'W" },
+  { x: 230, label: "50°00'W" },
+  { x: 380, label: "40°00'W" },
+  { x: 530, label: "30°00'W" },
+  { x: 680, label: "20°00'W" },
+  { x: 830, label: "10°00'W" },
+  { x: 960, label: "00°00' (Prime)" },
+];
+
 export default function MapView({
   routes,
   icebergs,
@@ -97,13 +116,27 @@ export default function MapView({
         {/* Ocean */}
         <rect x="0" y="0" width="1000" height="700" fill="url(#ocean-grad)" />
 
-        {/* Graticule grid */}
-        <g stroke={isDark ? "#123047" : "#a8cfe0"} strokeWidth="0.6" opacity="0.5">
-          {Array.from({ length: 9 }, (_, i) => (
-            <line key={`v${i}`} x1={i * 125} y1="0" x2={i * 125} y2="700" />
+        {/* Graticule grid with Lat / Lon lines */}
+        <g stroke={isDark ? "#123047" : "#a8cfe0"} strokeWidth="0.8" opacity="0.6">
+          {LON_LINES.map((l) => (
+            <line key={`v-${l.label}`} x1={l.x} y1="0" x2={l.x} y2="700" strokeDasharray="4 4" />
           ))}
-          {Array.from({ length: 6 }, (_, i) => (
-            <line key={`h${i}`} x1="0" y1={i * 125} x2="1000" y2={i * 125} />
+          {LAT_LINES.map((l) => (
+            <line key={`h-${l.label}`} x1="0" y1={l.y} x2="1000" y2={l.y} strokeDasharray="4 4" />
+          ))}
+        </g>
+
+        {/* Graticule Coordinate Labels */}
+        <g fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="600" fill={isDark ? "#5d8aa0" : "#4a788e"}>
+          {LON_LINES.map((l) => (
+            <text key={`txt-v-${l.label}`} x={l.x + 4} y="16">
+              {l.label}
+            </text>
+          ))}
+          {LAT_LINES.map((l) => (
+            <text key={`txt-h-${l.label}`} x="8" y={l.y - 4}>
+              {l.label}
+            </text>
           ))}
         </g>
 
@@ -145,6 +178,55 @@ export default function MapView({
         {/* Land / ice shelf */}
         <path d={polygonPath(coastline)} fill="url(#land-grad)" stroke="#9fbdc4" strokeWidth="1.5" />
         <path d={polygonPath(iceShelf)} fill="#e7f2f4" stroke="#9fbdc4" strokeWidth="1" opacity="0.95" />
+
+        {/* Continent & Sector Watermark Labels */}
+        <g pointerEvents="none">
+          <text
+            x="500"
+            y="655"
+            fontSize="18"
+            fontFamily="Inter, sans-serif"
+            fontWeight="800"
+            letterSpacing="0.25em"
+            fill={isDark ? "#174358" : "#23556d"}
+            textAnchor="middle"
+          >
+            ANTARCTICA · WEDDELL SEA SECTOR
+          </text>
+          <text
+            x="200"
+            y="670"
+            fontSize="11"
+            fontFamily="Inter, sans-serif"
+            fontWeight="700"
+            letterSpacing="0.1em"
+            fill={isDark ? "#28566d" : "#3e7087"}
+          >
+            PALMER LAND COAST
+          </text>
+          <text
+            x="480"
+            y="680"
+            fontSize="11"
+            fontFamily="Inter, sans-serif"
+            fontWeight="700"
+            letterSpacing="0.1em"
+            fill={isDark ? "#28566d" : "#3e7087"}
+          >
+            RONNE ICE SHELF MARGIN
+          </text>
+          <text
+            x="820"
+            y="670"
+            fontSize="11"
+            fontFamily="Inter, sans-serif"
+            fontWeight="700"
+            letterSpacing="0.1em"
+            fill={isDark ? "#28566d" : "#3e7087"}
+          >
+            COATS LAND
+          </text>
+        </g>
 
         {/* Ocean currents */}
         {layers.currents &&
@@ -274,7 +356,7 @@ export default function MapView({
           <circle cx={destination.x} cy={destination.y} r="7" fill="none" stroke={isDark ? "#eaf6f8" : "#0d2433"} strokeWidth="1.5" />
           <circle cx={destination.x} cy={destination.y} r="2.5" fill={isDark ? "#eaf6f8" : "#0d2433"} />
           <text x={destination.x + 12} y={destination.y + 4} fill={isDark ? "#eaf6f8" : "#0d2433"} fontSize="11" fontFamily="Inter" fontWeight="600">
-            Halley Station
+            Halley VI Research Station (UK)
           </text>
         </g>
 
@@ -286,7 +368,7 @@ export default function MapView({
         >
           <circle cx={vessel.position.x} cy={vessel.position.y} r="9" fill={isDark ? "#55d6e8" : "#0f768e"} style={{ animation: "pulse-halo 2.6s ease-in-out infinite", transformOrigin: `${vessel.position.x}px ${vessel.position.y}px` }} />
           <g transform={`translate(${vessel.position.x} ${vessel.position.y}) rotate(${vessel.headingDeg - 90})`}>
-            <path d="M 9 0 L -6 5 L -3 0 L -6 -5 Z" fill={isDark ? "#55d6e8" : "#0f768e"} stroke={isDark ? "#071a26" : "#ffffff"} strokeWidth="1" />
+            <path d="M 9 0 L -6 5 L -3 0 L -6 -5 Z" fill={isDark ? "#55d6e8" : "#0f768e"} stroke={isDark ? "#071521" : "#ffffff"} strokeWidth="1" />
           </g>
         </g>
       </svg>
@@ -305,10 +387,10 @@ export default function MapView({
       )}
 
       {/* Corner coordinate readout */}
-      <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] ${
-        isDark ? "text-[#91aeb9]/80" : "text-[#5a7686]/80"
+      <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] font-semibold ${
+        isDark ? "text-[#91aeb9]/90" : "text-[#4a6878]/90"
       }`}>
-        WEDDELL SEA SECTOR · 64°S–74°S
+        ANTARCTIC WEDDELL BASIN · 64°00'S–74°00'S · 60°00'W–00°00'
       </div>
     </div>
   );

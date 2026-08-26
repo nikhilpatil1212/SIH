@@ -16,7 +16,7 @@ function FormGrid({ children }: { children: React.ReactNode }) {
 const ISSUE_CATEGORIES = [
   "Technical Issue",
   "Prediction & Trajectory Issue",
-  "3D Globe & Map Issue",
+  "Polar Map & Chart Issue",
   "Telemetry & Sensor Data",
   "Route Risk Scoring",
   "Account & Access",
@@ -119,7 +119,7 @@ export function ContactForm() {
   );
 }
 
-const REPORT_TYPES = ["Neural Trajectory", "3D Globe Display", "Route Calculation", "Sea-Ice Concentration", "Iceberg Detection", "Weather Sensor", "Other"];
+const REPORT_TYPES = ["Neural Trajectory", "Polar Map Display", "Route Calculation", "Sea-Ice Concentration", "Iceberg Detection", "Weather Sensor", "Other"];
 
 export function IssueReportForm() {
   const [submitted, setSubmitted] = useState<string | null>(null);

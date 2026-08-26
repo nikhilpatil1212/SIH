@@ -5,7 +5,7 @@ import { useNav } from "../state";
 
 export function Reports() {
   const nav = useNav();
-  const route = nav.routes.find((r) => r.id === nav.selectedRouteId)!;
+  const route = nav.routes.find((r) => r.id === nav.selectedRouteId) ?? nav.routes[0];
   const majorHazards = hazards.filter((h) => h.severity !== "low").slice(0, 4);
 
   return (

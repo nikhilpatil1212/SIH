@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Globe } from "../components/globe/Globe";
-import MapView from "../components/map/MapView";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { PredictionLegend, IcebergDetailPanel, IcebergRiskPanel } from "../components/predictions";
 import { Card, cx } from "../components/ui/primitives";
 import { DemoTag, TimelineSelector } from "../components/ui/phase2";
@@ -9,7 +8,6 @@ import { HORIZON_TIME, HORIZONS } from "../data/phase2";
 import { vessel } from "../data/mock";
 import type { Horizon } from "../data/types";
 import { useNav } from "../state";
-import { Globe2, Map as MapIcon } from "lucide-react";
 
 const HORIZON_FRACTION: Record<Horizon, number> = {
   "0h": 0.001,
@@ -23,13 +21,12 @@ const HORIZON_FRACTION: Record<Horizon, number> = {
 export function IcebergPrediction() {
   const nav = useNav();
   const [horizon, setHorizon] = useState<Horizon>("72h");
-  const [viewMode, setViewMode] = useState<"3d" | "2d">("3d");
   const selected = nav.icebergs.find((i) => i.id === nav.selectedIcebergId) ?? nav.icebergs[0];
 
   return (
     <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-3 xl:grid-cols-[1fr_380px]">
       <div className="flex min-h-0 flex-col gap-3">
-        {/* Header bar with Horizon timeline and 3D/2D switch */}
+        {/* Header bar with Horizon timeline */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#91aeb9] light:text-[#5a7686]">
@@ -42,34 +39,6 @@ export function IcebergPrediction() {
             <span className="font-mono text-[11px] text-[#55d6e8] light:text-[#0f768e] font-medium">
               {horizon === "0h" ? "Current State" : `+${horizon}`} · {HORIZON_TIME[horizon]}
             </span>
-
-            {/* 3D Earth / 2D Chart toggle */}
-            <div className="flex items-center rounded-md border border-[#1d445c]/60 bg-[#0d2433]/70 light:border-[#e2d8c7] light:bg-[#f2ebe0] p-0.5">
-              <button
-                onClick={() => setViewMode("3d")}
-                className={cx(
-                  "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider transition-colors",
-                  viewMode === "3d"
-                    ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0f768e] light:text-white"
-                    : "text-[#91aeb9] light:text-[#5a7686] hover:text-[#eaf6f8] light:hover:text-[#0d2433]",
-                )}
-                title="3D Earth Globe View"
-              >
-                <Globe2 size={12} /> 3D Globe
-              </button>
-              <button
-                onClick={() => setViewMode("2d")}
-                className={cx(
-                  "flex items-center gap-1 rounded px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider transition-colors",
-                  viewMode === "2d"
-                    ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0f768e] light:text-white"
-                    : "text-[#91aeb9] light:text-[#5a7686] hover:text-[#eaf6f8] light:hover:text-[#0d2433]",
-                )}
-                title="2D Polar Chart View"
-              >
-                <MapIcon size={12} /> 2D Chart
-              </button>
-            </div>
           </div>
         </div>
 
@@ -80,38 +49,30 @@ export function IcebergPrediction() {
           labelFor={(h) => (h === "0h" ? "NOW" : `+${h.toUpperCase()}`)}
         />
 
-        {/* 3D Earth Globe / 2D Map container */}
+        {/* 2D Antarctic Polar Map container */}
         <div className="relative min-h-[480px] flex-1 overflow-hidden rounded-xl bg-[#050d17] light:bg-[#ede6da] shadow-lg transition-colors">
-          {viewMode === "3d" ? (
-            <Globe
-              routes={nav.routes}
-              selectedRouteId={nav.selectedRouteId}
-              showRoutes
-              vessel={vessel}
-              icebergs={nav.icebergs}
-              showTrajectories
-              selectedIcebergId={selected?.id}
-              onSelectIceberg={nav.setSelectedIceberg}
-              horizonFraction={HORIZON_FRACTION[horizon]}
-            />
-          ) : (
-            <MapView
-              routes={nav.routes}
-              icebergs={nav.icebergs}
-              selectedRouteId={nav.selectedRouteId}
-              layers={{ icebergs: true, seaice: false, currents: false, weather: false }}
-              zoom={1}
-              selectedIcebergId={selected?.id}
-              onSelectIceberg={nav.setSelectedIceberg}
-              horizonFraction={HORIZON_FRACTION[horizon]}
-              hazardHighlight
-            />
-          )}
+          <AntarcticPolarMap
+            routes={nav.routes}
+            selectedRouteId={nav.selectedRouteId}
+            onSelectRoute={nav.setSelectedRoute}
+            vessel={{
+              name: vessel.name,
+              position: { lat: vessel.position.lat, lon: vessel.position.lon },
+              headingDeg: vessel.headingDeg,
+              speedKn: vessel.speedKn,
+              status: vessel.status,
+            }}
+            icebergs={nav.icebergs}
+            selectedIcebergId={selected?.id}
+            onSelectIceberg={nav.setSelectedIceberg}
+            horizonFraction={HORIZON_FRACTION[horizon]}
+            className="h-full w-full"
+          />
 
           <PredictionLegend />
 
           {/* Uncertainty banner */}
-          <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-[#f5b942]/40 bg-[#071521]/90 light:border-[#d97706]/40 light:bg-[#fdfbf7]/90 px-2.5 py-1.5 backdrop-blur shadow-sm">
+          <div className="pointer-events-none absolute left-3 top-14 z-10 rounded-md border border-[#f5b942]/40 bg-[#071521]/90 light:border-[#d97706]/40 light:bg-[#fdfbf7]/90 px-2.5 py-1.5 backdrop-blur shadow-sm">
             <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[#f5b942] light:text-[#d97706]">
               95% Spatial Dispersion Corridor · {horizon}
             </span>
@@ -161,3 +122,5 @@ export function IcebergPrediction() {
     </div>
   );
 }
+
+export default IcebergPrediction;

@@ -21,7 +21,7 @@ const META: Record<PageId, { title: string; subtitle: string }> = {
   dashboard: { title: "ध्रुव सारथी · Mission Console", subtitle: "AI-powered iceberg trajectories, sea-ice dynamics & route risk support" },
   map: { title: "Operational Polar Chart", subtitle: "Interactive Antarctic navigational chart — Weddell & Southern Ocean sectors" },
   routes: { title: "Passage & Route Planning", subtitle: "Multi-corridor comparative intelligence and structural risk scoring" },
-  iceberg: { title: "Iceberg Prediction Intelligence", subtitle: "3D Earth globe trajectory forecasting, 72h horizon & uncertainty corridors" },
+  iceberg: { title: "Iceberg Prediction Intelligence", subtitle: "2D Antarctic polar trajectory forecasting, 72h horizon & uncertainty corridors" },
   seaice: { title: "Sea-Ice Concentration Dynamics", subtitle: "Basin-scale concentration forecasting, pack-ice pressure & route impact" },
   environmental: { title: "Metocean Intelligence", subtitle: "Atmospheric and oceanic telemetry timelines across forecast windows" },
   hazards: { title: "Active & Predicted Hazards", subtitle: "Collision hazard matrix, severe weather fronts & drift intersections" },

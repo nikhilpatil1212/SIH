@@ -32,8 +32,8 @@ const stageRisk: Record<string, RiskLevel[][]> = {
 
 export function Routes() {
   const nav = useNav();
-  const route = nav.routes.find((r) => r.id === nav.selectedRouteId)!;
-  const risk = stageRisk[route.id];
+  const route = nav.routes.find((r) => r.id === nav.selectedRouteId) ?? nav.routes[0];
+  const risk = (route ? stageRisk[route.id] : null) ?? stageRisk["route-b"];
 
   return (
     <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-4 xl:grid-cols-[360px_1fr]">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Compass,
-  Globe2,
   Layers,
   Map as MapIcon,
   Maximize2,
@@ -19,8 +18,8 @@ import {
 } from "lucide-react";
 import { PredictionCard } from "../components/PredictionCard";
 import { Workflow } from "../components/Workflow";
-import { Globe } from "../components/globe/Globe";
 import MapView, { type LayerState } from "../components/map/MapView";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { AlertsPanel, EnvironmentalCard, RiskFactors, RouteComparison, VesselCard } from "../components/panels";
 import { Card, cx } from "../components/ui/primitives";
 import { environment, riskFactorsByRoute, vessel } from "../data/mock";
@@ -44,7 +43,7 @@ export function Dashboard() {
   const selectedRoute = nav.routes.find((r) => r.id === nav.selectedRouteId)!;
   const selectedIceberg = nav.icebergs.find((i) => i.id === nav.selectedIcebergId) ?? nav.icebergs[0];
 
-  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [viewMode, setViewMode] = useState<"polar" | "tactical">("polar");
   const [horizon, setHorizon] = useState<Horizon>("0h");
   const [zoom, setZoom] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
@@ -109,7 +108,7 @@ export function Dashboard() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
-                      Operational Polar Chart
+                      Operational 2D Polar Chart
                     </span>
                     <span className="flex items-center gap-1 rounded bg-[#46d7a1]/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#46d7a1] light:text-[#059669]">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#46d7a1] light:bg-[#059669]" />
@@ -117,12 +116,12 @@ export function Dashboard() {
                     </span>
                   </div>
                   <div className="font-mono text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-                    Weddell Sea Sector · 64°S–74°S · Selected: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span>
+                    Antarctica 60°S–90°S · Graticules & Research Stations · Active: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Controls: Timeline, 2D/3D Toggle, Fullscreen */}
+              {/* Right Controls: Timeline, Polar/Tactical Toggle, Fullscreen */}
               <div className="flex flex-wrap items-center gap-2">
                 {/* Forecast Timeline */}
                 <div className="hidden sm:flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
@@ -145,33 +144,33 @@ export function Dashboard() {
                   ))}
                 </div>
 
-                {/* 2D Tactical Chart / 3D Earth Globe Switcher */}
+                {/* 2D Polar Chart / 2D Tactical Sector Switcher */}
                 <div className="flex items-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <button
-                    onClick={() => setViewMode("2d")}
+                    onClick={() => setViewMode("polar")}
                     className={cx(
                       "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors",
-                      viewMode === "2d"
+                      viewMode === "polar"
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
                     )}
-                    title="2D Tactical Polar Chart (High Visibility)"
+                    title="2D Antarctic Polar Stereographic Chart (All Basins & Stations)"
                   >
-                    <MapIcon size={13} />
-                    2D Chart
+                    <Compass size={13} />
+                    Pan-Antarctic (2D)
                   </button>
                   <button
-                    onClick={() => setViewMode("3d")}
+                    onClick={() => setViewMode("tactical")}
                     className={cx(
                       "flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider transition-colors",
-                      viewMode === "3d"
+                      viewMode === "tactical"
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
                     )}
-                    title="3D Earth Globe (NASA High-Res)"
+                    title="2D Tactical Weddell Sector View"
                   >
-                    <Globe2 size={13} />
-                    3D Globe
+                    <MapIcon size={13} />
+                    Tactical Sector
                   </button>
                 </div>
 
@@ -187,9 +186,27 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* Map Canvas / Globe Area */}
+            {/* Map Canvas Area */}
             <div className="relative flex-1 min-h-0 overflow-hidden bg-[#050d17] light:bg-[#dbebf3]">
-              {viewMode === "2d" ? (
+              {viewMode === "polar" ? (
+                <AntarcticPolarMap
+                  routes={nav.routes}
+                  selectedRouteId={nav.selectedRouteId}
+                  onSelectRoute={nav.setSelectedRoute}
+                  icebergs={nav.icebergs}
+                  selectedIcebergId={nav.selectedIcebergId}
+                  onSelectIceberg={nav.setSelectedIceberg}
+                  horizonFraction={HORIZON_FRACTIONS[horizon]}
+                  vessel={{
+                    name: vessel.name,
+                    position: { lat: vessel.position.lat, lon: vessel.position.lon },
+                    headingDeg: vessel.headingDeg,
+                    speedKn: vessel.speedKn,
+                    status: vessel.status,
+                  }}
+                  className="h-full w-full border-none rounded-none"
+                />
+              ) : (
                 <MapView
                   routes={nav.routes}
                   icebergs={nav.icebergs}
@@ -201,22 +218,10 @@ export function Dashboard() {
                   zoom={zoom}
                   horizonFraction={HORIZON_FRACTIONS[horizon]}
                 />
-              ) : (
-                <Globe
-                  routes={nav.routes}
-                  selectedRouteId={nav.selectedRouteId}
-                  showRoutes
-                  vessel={vessel}
-                  icebergs={nav.icebergs}
-                  showTrajectories
-                  selectedIcebergId={nav.selectedIcebergId}
-                  onSelectIceberg={nav.setSelectedIceberg}
-                  horizonFraction={HORIZON_FRACTIONS[horizon]}
-                />
               )}
 
-              {/* Floating Map HUD Layers Toolbar (for 2D Map) */}
-              {viewMode === "2d" && (
+              {/* Floating Map HUD Layers Toolbar (for Tactical View) */}
+              {viewMode === "tactical" && (
                 <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-1 rounded-md border border-[#1d445c]/80 bg-[#071521]/90 light:border-[#d8d0c2] light:bg-[#ffffff]/90 p-1 backdrop-blur shadow-md">
                     <button
@@ -271,8 +276,8 @@ export function Dashboard() {
                 </div>
               )}
 
-              {/* Floating Zoom Controls for 2D View */}
-              {viewMode === "2d" && (
+              {/* Floating Zoom Controls for Tactical View */}
+              {viewMode === "tactical" && (
                 <div className="absolute left-3 top-3 z-10 flex flex-col gap-1 rounded-md border border-[#1d445c]/80 bg-[#071521]/90 light:border-[#d8d0c2] light:bg-[#ffffff]/90 p-1 backdrop-blur shadow-md">
                   <button
                     onClick={() => handleZoom(0.2)}
@@ -306,7 +311,7 @@ export function Dashboard() {
                   <Ship size={12} /> {vessel.name} ({vessel.status})
                 </span>
                 <span className="text-[#91aeb9] light:text-[#5a7686]">
-                  HDG {vessel.headingDeg}° · {vessel.speedKn} kn · POS {Math.abs(vessel.position.lat).toFixed(1)}°S {Math.abs(vessel.position.lon).toFixed(1)}°W
+                  HDG {vessel.headingDeg}° · {vessel.speedKn} kn · POS {Math.abs(vessel.position.lat).toFixed(2)}°S {Math.abs(vessel.position.lon).toFixed(2)}°W
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -340,3 +345,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;

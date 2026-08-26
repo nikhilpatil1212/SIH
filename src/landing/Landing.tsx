@@ -15,7 +15,7 @@ import {
   Snowflake,
   Waves,
 } from "lucide-react";
-import { Globe } from "../components/globe/Globe";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { icebergs, routes, vessel } from "../data/mock";
 import { ThemeToggle, useTheme } from "../theme";
 
@@ -279,7 +279,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
             >
               <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
               <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em]">
-                Antarctic Maritime Decision Support · 3D AI Telemetry
+                Antarctic Maritime Decision Support · 2D AI Polar Telemetry
               </span>
             </div>
 
@@ -321,7 +321,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
             </div>
           </div>
 
-          {/* Hero 3D Earth Globe Preview */}
+          {/* Hero 2D Antarctic Polar Map Preview */}
           <div className="relative">
             <div
               className={`overflow-hidden rounded-2xl border shadow-2xl transition-colors ${
@@ -344,18 +344,23 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
                   </span>
                 </div>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-[#10b981]">
-                  ● Live 3D Globe
+                  ● Live 2D Polar Chart
                 </span>
               </div>
-              <div className="h-[340px]">
-                <Globe
+              <div className="h-[380px]">
+                <AntarcticPolarMap
                   routes={routes}
                   icebergs={icebergs}
                   selectedRouteId="route-b"
-                  vessel={vessel}
-                  showRoutes
-                  showTrajectories
-                  autoRotate
+                  vessel={{
+                    name: vessel.name,
+                    position: { lat: vessel.position.lat, lon: vessel.position.lon },
+                    headingDeg: vessel.headingDeg,
+                    speedKn: vessel.speedKn,
+                    status: vessel.status,
+                  }}
+                  compact
+                  className="h-full w-full border-none rounded-none"
                 />
               </div>
             </div>
@@ -523,7 +528,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
           <div>
             <SectionLabel>About The Project</SectionLabel>
             <h2 className="text-[34px] font-bold leading-tight tracking-tight">
-              Advanced decision support for the world's most perilous ocean
+              {"Advanced decision support for the world's most perilous ocean"}
             </h2>
           </div>
           <div
@@ -535,7 +540,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
               <strong className={isDark ? "text-[#eaf6f8]" : "text-[#0d2433]"}>ध्रुव सारथी (Dhruva Sarathi)</strong> is
               a dedicated polar navigation decision-support platform. It unites tabular iceberg drift modeling,
               sea-ice concentration forecasting, environmental hazard fusion, and composite risk scoring into an
-              intuitive 3D Earth console.
+              intuitive 2D Polar Navigation console.
             </p>
             <p>
               The platform is architected so operational data streams (e.g. Synthetic Aperture Radar, numerical weather

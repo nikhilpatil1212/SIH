@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Navigation, Play, RotateCcw, Ship, Zap } from "lucide-react";
-import { Globe } from "../components/globe/Globe";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { RouteComparison, AlertsPanel } from "../components/panels";
 import { Card, RiskMeter, cx } from "../components/ui/primitives";
 import { vessel } from "../data/mock";
@@ -107,14 +107,20 @@ export function Rerouting() {
         </div>
 
         <div className="relative min-h-[440px] flex-1 overflow-hidden rounded-xl bg-[#050d17] light:bg-[#ede6da] shadow-lg transition-colors">
-          <Globe
+          <AntarcticPolarMap
             icebergs={nav.icebergs}
             selectedIcebergId={nav.selectedIcebergId}
             onSelectIceberg={nav.setSelectedIceberg}
-            vessel={vessel}
-            routes={tab === "new-route" ? nav.routes : undefined}
-            showRoutes={tab === "new-route"}
-            selectedRouteId={nav.recommendedRouteId}
+            vessel={{
+              name: vessel.name,
+              position: { lat: vessel.position.lat, lon: vessel.position.lon },
+              headingDeg: vessel.headingDeg,
+              speedKn: vessel.speedKn,
+              status: vessel.status,
+            }}
+            routes={nav.routes}
+            selectedRouteId={tab === "new-route" ? nav.recommendedRouteId : nav.selectedRouteId}
+            className="h-full w-full"
           />
         </div>
       </div>
@@ -191,3 +197,5 @@ export function Rerouting() {
     </div>
   );
 }
+
+export default Rerouting;

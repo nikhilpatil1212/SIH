@@ -196,7 +196,7 @@ function UserLogin({
       </form>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-        Don't have an account?{" "}
+        {"Don't have an account? "}
         <button
           onClick={() => onView("signup")}
           className={`font-bold hover:underline ${isDark ? "text-[#55d6e8]" : "text-[#0f768e]"}`}
