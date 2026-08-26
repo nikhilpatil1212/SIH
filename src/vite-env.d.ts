@@ -141,6 +141,7 @@ declare module "lucide-react" {
   export const CheckCircle2: LucideIcon;
   export const ChevronDown: LucideIcon;
   export const ChevronRight: LucideIcon;
+  export const ChevronUp: LucideIcon;
   export const CircleDot: LucideIcon;
   export const Clock: LucideIcon;
   export const Cloud: LucideIcon;
@@ -193,6 +194,7 @@ declare module "lucide-react" {
   export const Ship: LucideIcon;
   export const SlidersHorizontal: LucideIcon;
   export const Snowflake: LucideIcon;
+  export const Sparkles: LucideIcon;
   export const Sun: LucideIcon;
   export const Thermometer: LucideIcon;
   export const Triangle: LucideIcon;

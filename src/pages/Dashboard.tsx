@@ -19,7 +19,14 @@ import {
 import { PredictionCard } from "../components/PredictionCard";
 import MapView, { type LayerState } from "../components/map/MapView";
 import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
-import { AlertsPanel, EnvironmentalCard, RiskFactors, RouteComparison, VesselCard } from "../components/panels";
+import {
+  AIRouteRecommendationCard,
+  AlertsPanel,
+  EnvironmentalCard,
+  RiskFactors,
+  RouteComparison,
+  VesselCard,
+} from "../components/panels";
 import { Card, cx } from "../components/ui/primitives";
 import { environment, riskFactorsByRoute, vessel } from "../data/mock";
 import { dashboardKpis } from "../data/phase2";
@@ -39,13 +46,16 @@ const FORECAST_HORIZONS: Horizon[] = ["0h", "12h", "24h", "48h", "72h"];
 
 export function Dashboard() {
   const nav = useNav();
-  const selectedRoute = nav.routes.find((r) => r.id === nav.selectedRouteId)!;
+  const selectedRoute = nav.routes.find((r) => r.id === nav.selectedRouteId) || nav.routes[0];
+  const recommendedRoute = nav.routes.find((r) => r.id === nav.recommendedRouteId) || nav.routes[1];
   const selectedIceberg = nav.icebergs.find((i) => i.id === nav.selectedIcebergId) ?? nav.icebergs[0];
 
   const [viewMode, setViewMode] = useState<"polar" | "tactical">("polar");
   const [horizon, setHorizon] = useState<Horizon>("0h");
   const [zoom, setZoom] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
+  const [activeKpiFilter, setActiveKpiFilter] = useState<string | null>(null);
+
   const [layers, setLayers] = useState<LayerState>({
     icebergs: true,
     seaice: true,
@@ -61,34 +71,55 @@ export function Dashboard() {
     setZoom((z) => Math.max(0.8, Math.min(2.5, +(z + delta).toFixed(2))));
   };
 
+  const handleKpiClick = (label: string) => {
+    setActiveKpiFilter(label === activeKpiFilter ? null : label);
+    if (label.includes("Iceberg")) {
+      nav.setSelectedIceberg("IBG-1247");
+    } else if (label.includes("Hazard") || label.includes("Collision")) {
+      nav.setSelectedRoute("route-a");
+    } else if (label.includes("Risk Index")) {
+      nav.setSelectedRoute("route-b");
+    }
+  };
+
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-3">
-      {/* KPI overview */}
+      {/* 1. Actionable Top KPI Overview Cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-        {dashboardKpis.map((k) => (
-          <div
-            key={k.label}
-            className="rounded-md border border-[#1d445c]/60 bg-[#132f40]/70 light:border-[#e2d8c7] light:bg-white px-3.5 py-2.5 shadow-sm transition-colors"
-          >
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#91aeb9] light:text-[#5a7686]">
-                {k.label}
-              </span>
-              <span className="rounded-sm bg-[#f5b942]/15 px-1 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-wider text-[#f5b942] light:text-[#d97706]">
-                {k.tag}
-              </span>
-            </div>
-            <div className="font-mono text-[20px] font-semibold tnum text-[#eaf6f8] light:text-[#0d2433]" style={{ color: k.accent }}>
-              {k.value}
-            </div>
-          </div>
-        ))}
+        {dashboardKpis.map((k) => {
+          const isActive = activeKpiFilter === k.label;
+          return (
+            <button
+              key={k.label}
+              onClick={() => handleKpiClick(k.label)}
+              className={cx(
+                "rounded-md border p-3 text-left shadow-sm transition-all cursor-pointer",
+                isActive
+                  ? "border-[#55d6e8] bg-[#0d2433] shadow-[0_0_12px_#55d6e8]/20 scale-[1.02]"
+                  : "border-[#1d445c]/60 bg-[#132f40]/70 hover:border-[#55d6e8]/40 light:border-[#e2d8c7] light:bg-white",
+              )}
+            >
+              <div className="mb-1 flex items-center justify-between gap-1">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#91aeb9] light:text-[#5a7686]">
+                  {k.label}
+                </span>
+                <span className="rounded-sm bg-[#f5b942]/15 px-1 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-wider text-[#f5b942] light:text-[#d97706]">
+                  {k.tag}
+                </span>
+              </div>
+              <div className="font-mono text-[20px] font-semibold tnum text-[#eaf6f8] light:text-[#0d2433]" style={{ color: k.accent }}>
+                {k.value}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
+      {/* 2. Main Content Grid */}
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_360px]">
-        {/* Map hero + bottom cards */}
+        {/* Left Column: Interactive Polar/Tactical Map & Environmental Intelligence */}
         <div className="flex flex-col gap-3">
-          {/* Main Interactive Map Card */}
+          {/* Main Map Card */}
           <div
             className={cx(
               "flex flex-col overflow-hidden rounded-xl border border-[#1d445c]/80 bg-[#071521] light:border-[#e2d8c7] light:bg-white shadow-lg transition-colors",
@@ -97,7 +128,6 @@ export function Dashboard() {
           >
             {/* Map Header Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1d445c]/60 light:border-[#e2d8c7] bg-[#0c2333]/90 light:bg-[#f8f5ee] px-3 py-2">
-              {/* Left Title & Status */}
               <div className="flex items-center gap-2">
                 <div className="flex h-6.5 w-6.5 items-center justify-center rounded-md bg-[#55d6e8]/15 text-[#55d6e8] light:bg-[#0f768e]/15 light:text-[#0f768e]">
                   <Compass size={15} />
@@ -113,17 +143,16 @@ export function Dashboard() {
                     </span>
                   </div>
                   <div className="font-mono text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-                    Active Corridor: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span>
+                    Active Corridor: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span> (Recommended: {recommendedRoute.name})
                   </div>
                 </div>
               </div>
 
-              {/* Right Controls: Timeline, Polar/Tactical Toggle, Fullscreen */}
+              {/* Controls: Horizon Selector & Mode Toggles */}
               <div className="flex flex-wrap items-center gap-2">
-                {/* Forecast Timeline */}
                 <div className="hidden sm:flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <span className="px-1.5 font-mono text-[9px] font-semibold uppercase text-[#91aeb9] light:text-[#5a7686]">
-                    Horizon:
+                    HORIZON:
                   </span>
                   {FORECAST_HORIZONS.map((h) => (
                     <button
@@ -132,16 +161,15 @@ export function Dashboard() {
                       className={cx(
                         "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
                         horizon === h
-                          ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white"
+                          ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                           : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
                       )}
                     >
-                      {h === "0h" ? "Now" : `+${h}`}
+                      {h === "0h" ? "NOW" : `+${h}`}
                     </button>
                   ))}
                 </div>
 
-                {/* 2D Polar Chart / 2D Tactical Sector Switcher */}
                 <div className="flex items-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <button
                     onClick={() => setViewMode("polar")}
@@ -151,7 +179,6 @@ export function Dashboard() {
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
                     )}
-                    title="2D Antarctic Polar Stereographic Chart (All Basins & Stations)"
                   >
                     <Compass size={13} />
                     Pan-Antarctic
@@ -164,19 +191,15 @@ export function Dashboard() {
                         ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
                         : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
                     )}
-                    title="2D Tactical Weddell Sector View"
                   >
                     <MapIcon size={13} />
                     Tactical Sector
                   </button>
                 </div>
 
-                {/* Fullscreen Button */}
                 <button
                   onClick={() => setFullscreen((f) => !f)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#55d6e8] light:border-[#d8d0c2] light:bg-[#eee8dc] light:text-[#5a7686] light:hover:text-[#0d2433] transition-colors"
-                  title={fullscreen ? "Exit Fullscreen" : "Fullscreen View"}
-                  aria-label="Toggle Fullscreen"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] text-[#91aeb9] hover:text-[#eaf6f8]"
                 >
                   {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
                 </button>
@@ -184,7 +207,7 @@ export function Dashboard() {
             </div>
 
             {/* Map Canvas Area */}
-            <div className="relative flex-1 min-h-0 overflow-hidden bg-[#050d17] light:bg-[#dbebf3]">
+            <div className="relative flex-1 min-h-0 overflow-hidden bg-[#050d17]">
               {viewMode === "polar" ? (
                 <AntarcticPolarMap
                   routes={nav.routes}
@@ -219,90 +242,6 @@ export function Dashboard() {
               )}
             </div>
 
-            {/* Tactical View Horizontal Top Layers Toolbar */}
-            {viewMode === "tactical" && (
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1d445c]/60 bg-[#0c2333]/90 light:border-[#e2d8c7] light:bg-[#f8f5ee] px-3 py-1.5 backdrop-blur z-20">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="font-mono text-[9px] font-bold uppercase text-[#55d6e8] light:text-[#0f768e] mr-1">
-                    TACTICAL LAYERS:
-                  </span>
-                  <button
-                    onClick={() => toggleLayer("icebergs")}
-                    className={cx(
-                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
-                      layers.icebergs
-                        ? "bg-[#ff5c5c]/20 text-[#ff7070] light:bg-[#dc2626]/15 light:text-[#b91c1c]"
-                        : "text-[#627d8e] opacity-60",
-                    )}
-                    title="Toggle Icebergs & Trajectories"
-                  >
-                    <Triangle size={11} /> Icebergs
-                  </button>
-                  <button
-                    onClick={() => toggleLayer("seaice")}
-                    className={cx(
-                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
-                      layers.seaice
-                        ? "bg-[#55d6e8]/20 text-[#55d6e8] light:bg-[#0284c7]/15 light:text-[#0369a1]"
-                        : "text-[#627d8e] opacity-60",
-                    )}
-                    title="Toggle Sea-Ice Polygons"
-                  >
-                    <Snowflake size={11} /> Sea Ice
-                  </button>
-                  <button
-                    onClick={() => toggleLayer("currents")}
-                    className={cx(
-                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
-                      layers.currents
-                        ? "bg-[#38bdf8]/20 text-[#38bdf8] light:bg-[#0284c7]/15 light:text-[#0284c7]"
-                        : "text-[#627d8e] opacity-60",
-                    )}
-                    title="Toggle Ocean Currents"
-                  >
-                    <Waves size={11} /> Currents
-                  </button>
-                  <button
-                    onClick={() => toggleLayer("weather")}
-                    className={cx(
-                      "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] font-semibold transition-colors",
-                      layers.weather
-                        ? "bg-[#f5b942]/20 text-[#f5b942] light:bg-[#d97706]/15 light:text-[#b45309]"
-                        : "text-[#627d8e] opacity-60",
-                    )}
-                    title="Toggle Wind & Weather Barbs"
-                  >
-                    <Wind size={11} /> Weather
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
-                  <button
-                    onClick={() => handleZoom(0.2)}
-                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
-                    title="Zoom in"
-                  >
-                    <Plus size={12} />
-                  </button>
-                  <span className="px-1 font-mono text-[9.5px] font-bold text-[#8ccfe0] light:text-[#0f768e]">{Math.round(zoom * 100)}%</span>
-                  <button
-                    onClick={() => handleZoom(-0.2)}
-                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
-                    title="Zoom out"
-                  >
-                    <Minus size={12} />
-                  </button>
-                  <button
-                    onClick={() => setZoom(1)}
-                    className="p-1 text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686]"
-                    title="Reset view"
-                  >
-                    <RotateCcw size={11} />
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Bottom Telemetry Footer Strip */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1d445c]/60 light:border-[#e2d8c7] bg-[#0c2333]/90 light:bg-[#f8f5ee] px-3.5 py-1.5 font-mono text-[10px]">
               <div className="flex items-center gap-3">
@@ -328,15 +267,16 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Right information column */}
+        {/* Right Column: AI Decision Support & Operational Panels */}
         <div className="flex min-w-0 flex-col gap-3">
-          <VesselCard vessel={vessel} />
+          <AIRouteRecommendationCard recommendedRoute={recommendedRoute} />
           <RouteComparison
             routes={nav.routes}
             selectedId={nav.selectedRouteId}
             recommendedId={nav.recommendedRouteId}
             onSelect={nav.setSelectedRoute}
           />
+          <VesselCard vessel={vessel} />
           <RiskFactors factors={riskFactorsByRoute[nav.selectedRouteId]} routeName={selectedRoute.name} />
           <AlertsPanel alerts={nav.alerts} />
         </div>

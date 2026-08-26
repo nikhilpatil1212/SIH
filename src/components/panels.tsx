@@ -1,4 +1,5 @@
-import { Anchor, Compass, Droplet, Eye, Snowflake, Wind } from "lucide-react";
+import { useState } from "react";
+import { Anchor, CheckCircle2, ChevronDown, ChevronUp, Compass, Droplet, Eye, ShieldAlert, Snowflake, Sparkles, Wind } from "lucide-react";
 import type { AlertItem, Environment, RiskFactor, Route, Vessel } from "../data/types";
 import { Card, Chip, Metric, RiskMeter, SEVERITY_COLORS, StatusDot, cx } from "./ui/primitives";
 
@@ -26,41 +27,150 @@ export function RouteComparison({
           const active = r.id === selectedId;
           const recommended = r.id === recommendedId;
           return (
-            <button
+            <div
               key={r.id}
-              onClick={() => onSelect(r.id)}
               className={cx(
-                "group rounded-md border px-3 py-2.5 text-left transition-colors",
+                "group rounded-md border p-3 text-left transition-all",
                 active
                   ? "border-[#55d6e8]/70 bg-[#0d2433] light:border-[#0f768e] light:bg-[#f3ece0]"
                   : "border-[#1d445c]/60 bg-[#0d2433]/40 hover:border-[#55d6e8]/40 light:border-[#e2d8c7] light:bg-[#faf6ee] light:hover:border-[#0f768e]/40",
               )}
             >
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: r.color }} />
-                  <span className="text-[13px] font-semibold text-[#eaf6f8] light:text-[#0d2433]">{r.name}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#91aeb9] light:text-[#5a7686]">
-                    {ROUTE_TAG[r.type]}
-                  </span>
+              <button
+                onClick={() => onSelect(r.id)}
+                className="w-full text-left cursor-pointer"
+              >
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: r.color }} />
+                    <span className="text-[13px] font-semibold text-[#eaf6f8] light:text-[#0d2433]">{r.name}</span>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-[#91aeb9] light:text-[#5a7686]">
+                      {ROUTE_TAG[r.type]}
+                    </span>
+                  </div>
+                  {recommended && (
+                    <span className="rounded-sm bg-[#10b981]/20 border border-[#10b981]/50 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[#10b981]">
+                      ★ RECOMMENDED
+                    </span>
+                  )}
                 </div>
-                {recommended && (
-                  <span className="rounded-sm bg-[#10b981]/15 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-[#10b981] light:text-[#059669]">
-                    Recommended
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Metric label="Distance" value={r.distanceNm.toLocaleString()} unit="nm" />
-                <Metric label="ETA" value={r.eta} />
-                <Metric label="Fuel" value={r.fuelT} unit="t" />
-              </div>
-              <div className="mt-2.5">
-                <RiskMeter score={r.riskScore} />
-              </div>
-            </button>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <Metric label="Distance" value={r.distanceNm.toLocaleString()} unit="nm" />
+                  <Metric label="ETA" value={r.eta} />
+                  <Metric label="Fuel" value={r.fuelT} unit="t" />
+                </div>
+
+                <div className="mt-2.5">
+                  <RiskMeter score={r.riskScore} />
+                </div>
+              </button>
+
+              {/* Requirement 6: "WHY?" Section beneath recommended route */}
+              {recommended && (
+                <div className="mt-3 rounded border border-[#10b981]/30 bg-[#10b981]/10 p-2.5 text-left font-mono">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#10b981]">
+                    <CheckCircle2 size={12} />
+                    <span>WHY RECOMMENDED?</span>
+                  </div>
+                  <ul className="mt-1.5 space-y-1 text-[10px] text-[#cbe5ee] light:text-[#2d4a57]">
+                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                      <span>✓</span> <span>Lower iceberg encounter probability (↓ 41%)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                      <span>✓</span> <span>Lower sea-ice concentration (28% vs 64%)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                      <span>✓</span> <span>Avoids IBG-1247 interception corridor</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
           );
         })}
+      </div>
+    </Card>
+  );
+}
+
+// Requirement 7 & 8: AI Route Recommendation Card with Expandable Route Analysis
+export function AIRouteRecommendationCard({
+  recommendedRoute,
+}: {
+  recommendedRoute: Route;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <Card title="AI Route Recommendation">
+      <div className="p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#10b981]/20 text-[#10b981] font-bold text-[11px] border border-[#10b981]/40">
+              <Sparkles size={14} />
+            </span>
+            <div>
+              <div className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
+                {recommendedRoute.name}
+              </div>
+              <div className="font-mono text-[9.5px] uppercase font-semibold text-[#10b981]">
+                ● SYSTEM RECOMMENDED
+              </div>
+            </div>
+          </div>
+          <span className="rounded bg-[#10b981]/15 border border-[#10b981]/40 px-2 py-0.5 font-mono text-[10px] font-bold text-[#10b981]">
+            91% CONFIDENCE
+          </span>
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-2 border-y border-[#1d445c]/50 light:border-[#e2d8c7] py-2 font-mono text-[10.5px]">
+          <div>
+            <div className="text-[8.5px] uppercase text-[#91aeb9]">Collision Risk</div>
+            <div className="font-bold text-[#10b981]">↓ 41%</div>
+          </div>
+          <div>
+            <div className="text-[8.5px] uppercase text-[#91aeb9]">Sea-Ice Risk</div>
+            <div className="font-bold text-[#10b981]">↓ 28%</div>
+          </div>
+          <div>
+            <div className="text-[8.5px] uppercase text-[#91aeb9]">ETA</div>
+            <div className="font-bold text-[#eaf6f8] light:text-[#0d2433]">{recommendedRoute.eta}</div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-2.5 flex w-full items-center justify-center gap-1 rounded bg-[#55d6e8]/10 hover:bg-[#55d6e8]/20 border border-[#55d6e8]/40 py-1.5 font-mono text-[10px] font-bold text-[#55d6e8] transition-colors"
+        >
+          <span>{expanded ? "HIDE ANALYSIS" : "VIEW ANALYSIS"}</span>
+          {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
+
+        {expanded && (
+          <div className="mt-2.5 flex flex-col gap-1.5 border-t border-[#1d445c]/40 pt-2 font-mono text-[10px] animate-in fade-in">
+            <div className="flex justify-between">
+              <span className="text-[#91aeb9]">Iceberg Encounter Prob.:</span>
+              <span className="font-bold text-[#10b981]">Low (12%)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#91aeb9]">Pack-Ice Concentration:</span>
+              <span className="font-bold text-[#10b981]">28% (Marginal)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#91aeb9]">Collision Risk Index:</span>
+              <span className="font-bold text-[#10b981]">32 / 100</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#91aeb9]">Estimated Fuel Burn:</span>
+              <span className="font-bold text-[#eaf6f8] light:text-[#0d2433]">{recommendedRoute.fuelT} tonnes</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#91aeb9]">Neural Model Confidence:</span>
+              <span className="font-bold text-[#55d6e8]">91.4% (Ensemble)</span>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );
@@ -133,7 +243,7 @@ export function AlertsPanel({ alerts }: { alerts: AlertItem[] }) {
 
 export function VesselCard({ vessel }: { vessel: Vessel }) {
   return (
-    <Card title="Vessel">
+    <Card title="Vessel Telemetry">
       <div className="p-3.5">
         <div className="mb-3 flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#55d6e8]/40 bg-[#55d6e8]/10 light:border-[#0f768e]/40 light:bg-[#0f768e]/10">
@@ -160,3 +270,5 @@ export function VesselCard({ vessel }: { vessel: Vessel }) {
     </Card>
   );
 }
+
+export default RouteComparison;
