@@ -27,6 +27,7 @@ declare namespace React {
   export type FormEvent<T = any> = { preventDefault(): void; stopPropagation(): void; target: T; currentTarget: T; [key: string]: any };
   export type ChangeEvent<T = any> = { target: { value: string; checked?: boolean; files?: FileList | null }; currentTarget: T; [key: string]: any };
   export type MouseEvent<T = Element> = any;
+  export type WheelEvent<T = Element> = { preventDefault(): void; deltaY: number; deltaX?: number; [key: string]: any };
   export type KeyboardEvent<T = Element> = any;
   export type HTMLAttributes<T> = Record<string, any>;
   export type ButtonHTMLAttributes<T> = Record<string, any>;
@@ -54,6 +55,7 @@ declare module "react" {
   export type FormEvent<T = Element> = React.FormEvent<T>;
   export type ChangeEvent<T = Element> = React.ChangeEvent<T>;
   export type MouseEvent<T = Element> = React.MouseEvent<T>;
+  export type WheelEvent<T = Element> = React.WheelEvent<T>;
   export type KeyboardEvent<T = Element> = React.KeyboardEvent<T>;
   export type HTMLAttributes<T> = React.HTMLAttributes<T>;
   export type ButtonHTMLAttributes<T> = React.ButtonHTMLAttributes<T>;
