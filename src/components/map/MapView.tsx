@@ -1,20 +1,11 @@
-import { useRef, useState, type MouseEvent, type WheelEvent } from "react";
-import { Crosshair, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import maplibregl, { type Map as MapLibreInstance, type Marker as MapLibreMarker } from "maplibre-gl";
+import { Crosshair, Layers, Maximize2, Minimize2, Ship, X } from "lucide-react";
 import type { Iceberg, Route } from "../../data/types";
-import {
-  coastline,
-  currents,
-  destination,
-  icebergCluster,
-  iceShelf,
-  seaIceRegions,
-  vessel,
-} from "../../data/mock";
 import { RISK_COLORS, cx } from "../ui/primitives";
-import { corridorPath, polygonPath, seaIceColor, slicePath, smoothPath } from "./geo";
 import { useTheme } from "../../theme";
-import { geoBearingDeg, geoDistanceNm, getSectorName } from "./AntarcticPolarMap";
-import weddellSatelliteImg from "../../assets/weddell_satellite_tactical.jpg";
+import { MAP_PROVIDERS, type MapTileProviderId, geoBearingDeg, geoDistanceNm, getSectorName, RESEARCH_STATIONS } from "./AntarcticPolarMap";
+import { vessel } from "../../data/mock";
 
 export interface LayerState {
   icebergs: boolean;
@@ -38,522 +29,317 @@ interface MapViewProps {
   onSelectRoute?: (id: string) => void;
   selectedIcebergId?: string | null;
   onSelectIceberg?: (id: string) => void;
-  /** highlight a hazard-intersection glow (rerouting demo) */
   hazardHighlight?: boolean;
-  /** grow iceberg trajectories to a fraction of their 72h horizon (0..1) */
   horizonFraction?: number;
-  /** sea-ice heatmap mode: render these regions colored by concentration */
   seaIceHeat?: SeaIceHeat[];
   selectedRegion?: string | null;
   onSelectRegion?: (region: string) => void;
 }
 
-const LAT_LINES = [
-  { y: 70, label: "64°00'S" },
-  { y: 195, label: "66°00'S" },
-  { y: 320, label: "68°00'S" },
-  { y: 445, label: "70°00'S" },
-  { y: 570, label: "72°00'S" },
-  { y: 660, label: "74°00'S" },
-];
-
-const LON_LINES = [
-  { x: 80, label: "60°00'W" },
-  { x: 230, label: "50°00'W" },
-  { x: 380, label: "40°00'W" },
-  { x: 530, label: "30°00'W" },
-  { x: 680, label: "20°00'W" },
-  { x: 830, label: "10°00'W" },
-  { x: 960, label: "00°00' (Prime)" },
-];
-
-function tacticalXYToLatLon(x: number, y: number): { lat: number; lon: number } {
-  // y: 70 -> -64°S, 660 -> -74°S
-  const lat = -(64 + ((y - 70) / (660 - 70)) * 10);
-  // x: 80 -> -60°W, 960 -> 0°W
-  const lon = -(60 - ((x - 80) / (960 - 80)) * 60);
-  return { lat: +lat.toFixed(2), lon: +lon.toFixed(2) };
-}
-
-export default function MapView({
-  routes,
-  icebergs,
+export function MapView({
+  routes = [],
+  icebergs = [],
   selectedRouteId,
   layers,
-  zoom,
+  zoom: externalZoom,
   onSelectRoute,
   selectedIcebergId,
   onSelectIceberg,
-  hazardHighlight,
-  horizonFraction,
   seaIceHeat,
   selectedRegion,
   onSelectRegion,
 }: MapViewProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [hover, setHover] = useState<{ x: number; y: number; label: string } | null>(null);
-  const [internalPan, setInternalPan] = useState({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const panStartRef = useRef({ clientX: 0, clientY: 0, initPanX: 0, initPanY: 0, hasMoved: false });
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const [clickedPin, setClickedPin] = useState<{ lat: number; lon: number; mapX: number; mapY: number } | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<MapLibreInstance | null>(null);
+
+  // Active Real Tile Provider State (Defaults to ESRI Satellite)
+  const [providerId, setProviderId] = useState<MapTileProviderId>("esri-satellite");
+  const [cursorPos, setCursorPos] = useState<{ lat: number; lon: number; sector: string } | null>(null);
+  const [clickedPin, setClickedPin] = useState<{ lat: number; lon: number; sector: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const selected = routes.find((r) => r.id === selectedRouteId) ?? routes[0];
+  const activeProvider = useMemo(() => {
+    return MAP_PROVIDERS.find((p) => p.id === providerId) || MAP_PROVIDERS[0];
+  }, [providerId]);
 
-  const handleMouseDown = (e: MouseEvent) => {
-    if (e.button !== 0) return;
-    setIsPanning(true);
-    panStartRef.current = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      initPanX: internalPan.x,
-      initPanY: internalPan.y,
-      hasMoved: false,
+  const mapStyle = useMemo(() => {
+    return {
+      version: 8 as const,
+      sources: {
+        "raster-tiles": {
+          type: "raster" as const,
+          tiles: [activeProvider.tileUrl],
+          tileSize: activeProvider.tileSize,
+          attribution: activeProvider.attribution,
+          maxzoom: activeProvider.maxZoom,
+        },
+      },
+      layers: [
+        {
+          id: "raster-layer",
+          type: "raster" as const,
+          source: "raster-tiles",
+          minzoom: 0,
+          maxzoom: 22,
+        },
+      ],
     };
-  };
+  }, [activeProvider]);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    if (isPanning) {
-      const dx = ((e.clientX - panStartRef.current.clientX) / rect.width) * 1000;
-      const dy = ((e.clientY - panStartRef.current.clientY) / rect.height) * 700;
-      if (Math.hypot(e.clientX - panStartRef.current.clientX, e.clientY - panStartRef.current.clientY) > 4) {
-        panStartRef.current.hasMoved = true;
-      }
-      setInternalPan({ x: panStartRef.current.initPanX + dx, y: panStartRef.current.initPanY + dy });
-    }
-  };
+  // 1. Initialize MapLibre GL instance for Tactical Weddell Sector Focus
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
 
-  const handleMouseUp = (e: MouseEvent) => {
-    if (isPanning && !panStartRef.current.hasMoved && svgRef.current) {
-      const rect = svgRef.current.getBoundingClientRect();
-      const clientX = e.clientX - rect.left;
-      const clientY = e.clientY - rect.top;
-      const svgX = (clientX / rect.width) * 1000;
-      const svgY = (clientY / rect.height) * 700;
-      const mapX = 500 + (svgX - 500 - internalPan.x) / zoom;
-      const mapY = 350 + (svgY - 350 - internalPan.y) / zoom;
-      const geo = tacticalXYToLatLon(mapX, mapY);
-      setClickedPin({ lat: geo.lat, lon: geo.lon, mapX, mapY });
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: mapStyle,
+      center: [-48, -68.5], // Focused on Weddell Sea Sector & Antarctic Peninsula
+      zoom: 3.8,
+      minZoom: 2,
+      maxZoom: 18,
+      attributionControl: false,
+    });
+
+    mapRef.current = map;
+
+    map.on("mousemove", (e: any) => {
+      const lat = +e.lngLat.lat.toFixed(4);
+      const lon = +e.lngLat.lng.toFixed(4);
+      setCursorPos({ lat, lon, sector: getSectorName(lat, lon) });
+    });
+
+    map.on("click", (e: any) => {
+      const lat = +e.lngLat.lat.toFixed(4);
+      const lon = +e.lngLat.lng.toFixed(4);
+      setClickedPin({ lat, lon, sector: getSectorName(lat, lon) });
       setCopied(false);
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Update Style on Provider Change
+  useEffect(() => {
+    if (!mapRef.current) return;
+    mapRef.current.setStyle(mapStyle);
+  }, [mapStyle]);
+
+  // Markers management
+  const markersRef = useRef<MapLibreMarker[]>([]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    const addMarker = (lng: number, lat: number, el: HTMLElement, popupHtml?: string) => {
+      const m = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]);
+      if (popupHtml) {
+        m.setPopup(new maplibregl.Popup({ offset: 15, className: "anm-popup" }).setHTML(popupHtml));
+      }
+      m.addTo(map);
+      markersRef.current.push(m);
+    };
+
+    // A. Weddell / Peninsula Research Stations
+    RESEARCH_STATIONS.filter((st) => st.lon >= -75 && st.lon <= -20).forEach((st) => {
+      const el = document.createElement("div");
+      el.className = "flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-1.5 py-0.5 rounded-full border border-[#ffb703] bg-[#071521]/90 text-[#ffb703] shadow-md font-mono text-[9px] font-bold";
+      el.innerHTML = `<span>${st.flag}</span><span>${st.name}</span>`;
+
+      const popupHtml = `
+        <div style="font-family: Inter, sans-serif; padding: 4px;">
+          <div style="font-weight:bold; font-size: 12px; color: #ffb703;">${st.flag} ${st.name}</div>
+          <div style="font-size: 11px; margin-top: 3px; color: #91aeb9;">${st.country} · ${st.type} Base</div>
+          <div style="font-size: 11px; margin-top: 2px;"><b>Coordinates:</b> ${Math.abs(st.lat)}°S, ${Math.abs(st.lon)}°W</div>
+          <div style="font-size: 10px; margin-top: 4px; color: #cbe5ee;">${st.desc}</div>
+        </div>
+      `;
+      addMarker(st.lon, st.lat, el, popupHtml);
+    });
+
+    // B. Live Vessel Marker
+    if (vessel) {
+      const el = document.createElement("div");
+      el.className = "relative flex items-center justify-center cursor-pointer";
+      el.innerHTML = `
+        <div class="absolute h-8 w-8 rounded-full bg-[#55d6e8]/30 animate-ping"></div>
+        <div class="h-6 w-6 rounded-full bg-[#071521] border-2 border-[#55d6e8] flex items-center justify-center text-[#55d6e8] shadow-[0_0_12px_#55d6e8]" style="transform: rotate(${vessel.headingDeg}deg);">
+          ▲
+        </div>
+      `;
+
+      const popupHtml = `
+        <div style="font-family: Inter, sans-serif; padding: 4px;">
+          <div style="font-weight:bold; font-size: 13px; color: #55d6e8;">🚢 ${vessel.name}</div>
+          <div style="font-size: 11px; margin-top: 3px; color: #10b981;">● Status: ${vessel.status}</div>
+          <div style="font-size: 11px; margin-top: 2px;"><b>Heading:</b> ${vessel.headingDeg}° · <b>Speed:</b> ${vessel.speedKn} kn</div>
+          <div style="font-size: 11px; margin-top: 2px;"><b>POS:</b> ${Math.abs(vessel.position.lat).toFixed(2)}°S, ${Math.abs(vessel.position.lon).toFixed(2)}°W</div>
+        </div>
+      `;
+      addMarker(vessel.position.lon, vessel.position.lat, el, popupHtml);
     }
-    setIsPanning(false);
+
+    // C. Icebergs in Sector
+    if (layers.icebergs) {
+      icebergs.forEach((ibg) => {
+        const el = document.createElement("div");
+        const isHigh = ibg.riskLevel === "high";
+        el.className = `flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-1.5 py-0.5 rounded border font-mono text-[9px] font-bold shadow-md ${
+          isHigh
+            ? "bg-[#ff5c5c]/20 border-[#ff5c5c] text-[#ff7070] shadow-[0_0_8px_#ff5c5c]"
+            : "bg-[#f5b942]/20 border-[#f5b942] text-[#f5b942]"
+        }`;
+        el.innerHTML = `<span>▲</span><span>${ibg.id}</span>`;
+        el.onclick = (e) => {
+          e.stopPropagation();
+          onSelectIceberg?.(ibg.id);
+        };
+
+        const popupHtml = `
+          <div style="font-family: Inter, sans-serif; padding: 4px;">
+            <div style="font-weight:bold; font-size: 12px; color: ${isHigh ? "#ff7070" : "#f5b942"};">
+              ▲ ${ibg.id} (${ibg.riskLevel.toUpperCase()} RISK)
+            </div>
+            <div style="font-size: 11px; margin-top: 3px;"><b>Size:</b> ${ibg.sizeKm} km · <b>Drift:</b> ${(ibg.speedMs * 1.94384).toFixed(1)} kn @ ${ibg.headingDeg}°</div>
+            <div style="font-size: 11px; margin-top: 2px;"><b>POS:</b> ${Math.abs(ibg.position.lat).toFixed(2)}°S, ${Math.abs(ibg.position.lon).toFixed(2)}°W</div>
+          </div>
+        `;
+        addMarker(ibg.position.lon, ibg.position.lat, el, popupHtml);
+      });
+    }
+
+    // D. Clicked Pin
+    if (clickedPin) {
+      const el = document.createElement("div");
+      el.className = "h-5 w-5 rounded-full border-2 border-[#55d6e8] bg-[#55d6e8]/40 animate-bounce flex items-center justify-center text-[#071521] text-[10px] font-bold shadow-[0_0_12px_#55d6e8]";
+      el.innerHTML = "📍";
+      addMarker(clickedPin.lon, clickedPin.lat, el);
+    }
+  }, [layers, vessel, icebergs, clickedPin, providerId]);
+
+  // GeoJSON Routes and Sea Ice Layers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const setupLayers = () => {
+      // Routes Layer
+      if (routes.length > 0 && !map.getSource("routes-source")) {
+        const routeFeatures = routes.map((r) => ({
+          type: "Feature" as const,
+          properties: { id: r.id, name: r.name, selected: r.id === selectedRouteId },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: r.waypoints.map((w) => [w.lon, w.lat]),
+          },
+        }));
+
+        map.addSource("routes-source", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: routeFeatures },
+        });
+
+        map.addLayer({
+          id: "routes-line",
+          type: "line",
+          source: "routes-source",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#55d6e8",
+            "line-width": 3.5,
+            "line-opacity": 0.95,
+          },
+        });
+      }
+    };
+
+    if (map.isStyleLoaded()) {
+      setupLayers();
+    } else {
+      map.once("style.load", setupLayers);
+    }
+  }, [routes, selectedRouteId, providerId]);
+
+  const copyCoordinates = () => {
+    if (!clickedPin) return;
+    const txt = `${Math.abs(clickedPin.lat).toFixed(4)}°S, ${Math.abs(clickedPin.lon).toFixed(4)}°${clickedPin.lon >= 0 ? "E" : "W"}`;
+    navigator.clipboard.writeText(txt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div
-      className={cx(
-        "relative h-full w-full overflow-hidden rounded-md border cursor-crosshair transition-colors select-none",
-        isDark ? "border-[#1d445c]/70 bg-[#071a26]" : "border-[#d8d0c2] bg-[#dbebf3]",
-      )}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={() => setIsPanning(false)}
-    >
-      <svg
-        ref={svgRef}
-        viewBox="0 0 1000 700"
-        preserveAspectRatio="xMidYMid slice"
-        className="h-full w-full"
-      >
-        <defs>
-          <radialGradient id="ocean-grad" cx="35%" cy="30%" r="90%">
-            <stop offset="0%" stopColor={isDark ? "#0a2333" : "#d8edf7"} />
-            <stop offset="100%" stopColor={isDark ? "#061420" : "#bce0f0"} />
-          </radialGradient>
-          <linearGradient id="land-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={isDark ? "#dcecef" : "#ffffff"} />
-            <stop offset="100%" stopColor={isDark ? "#b9d2d8" : "#deecf2"} />
-          </linearGradient>
-          <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" />
-          </filter>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill={isDark ? "#55d6e8" : "#0f768e"} />
-          </marker>
-        </defs>
-
-        {/* Zoom & Pan Map Group */}
-        <g transform={`translate(500, 350) translate(${internalPan.x}, ${internalPan.y}) scale(${zoom}) translate(-500, -350)`}>
-          {/* Deep Ocean Base */}
-          <rect x="0" y="0" width="1000" height="700" fill="url(#ocean-grad)" />
-
-          {/* Bathymetry Contours */}
-          <g opacity="0.25" stroke={isDark ? "#55d6e8" : "#0f768e"}>
-            <ellipse cx="500" cy="350" rx="450" ry="300" fill="none" strokeWidth="0.8" strokeDasharray="6 4" />
-            <ellipse cx="480" cy="380" rx="350" ry="220" fill="none" strokeWidth="0.8" strokeDasharray="4 4" />
-          </g>
-
-          {/* Graticule grid with Lat / Lon lines */}
-          <g stroke={isDark ? "#55d6e8" : "#0f768e"} strokeWidth="0.8" opacity="0.35">
-            {LON_LINES.map((l) => (
-              <line key={`v-${l.label}`} x1={l.x} y1="0" x2={l.x} y2="700" strokeDasharray="4 4" />
-            ))}
-            {LAT_LINES.map((l) => (
-              <line key={`h-${l.label}`} x1="0" y1={l.y} x2="1000" y2={l.y} strokeDasharray="4 4" />
-            ))}
-          </g>
-
-          {/* Graticule Coordinate Labels */}
-          <g fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="700" fill={isDark ? "#8ccfe0" : "#0f768e"}>
-            {LON_LINES.map((l) => (
-              <text key={`txt-v-${l.label}`} x={l.x + 4} y="16">
-                {l.label}
-              </text>
-            ))}
-            {LAT_LINES.map((l) => (
-              <text key={`txt-h-${l.label}`} x="8" y={l.y - 4}>
-                {l.label}
-              </text>
-            ))}
-          </g>
-
-          {/* Sea-ice heatmap (prediction mode) */}
-          {seaIceHeat &&
-            seaIceHeat.map((r) => {
-              const c = seaIceColor(r.concentration);
-              const sel = r.region === selectedRegion;
-              return (
-                <path
-                  key={r.region}
-                  d={polygonPath(r.polygon)}
-                  fill={c}
-                  opacity={0.35 + (r.concentration / 100) * 0.45}
-                  stroke={c}
-                  strokeOpacity={sel ? 1 : 0.6}
-                  strokeWidth={sel ? 2.5 : 1}
-                  style={{ cursor: onSelectRegion ? "pointer" : "default" }}
-                  onClick={() => onSelectRegion?.(r.region)}
-                />
-              );
-            })}
-
-          {/* Sea-ice regions (nav mode) */}
-          {!seaIceHeat &&
-            layers.seaice &&
-            seaIceRegions.map((r) => (
-              <path
-                key={r.id}
-                d={polygonPath(r.polygon)}
-                fill="#b8e8f0"
-                opacity={0.18 + (r.concentration / 100) * 0.25}
-                stroke="#b8e8f0"
-                strokeOpacity="0.4"
-                strokeWidth="1"
-              />
-            ))}
-
-          {/* Crisp Antarctic Coastline & Ice Shelf Landmass */}
-          <path d={polygonPath(coastline)} fill={isDark ? "#102535" : "#e6f2f7"} stroke={isDark ? "#7dd3fc" : "#0284c7"} strokeWidth="1.8" />
-          <path d={polygonPath(iceShelf)} fill={isDark ? "#173449" : "#d0eaf5"} stroke="#38bdf8" strokeWidth="1.4" opacity="0.9" strokeDasharray="4 2" />
-
-        {/* Continent & Sector Watermark Labels */}
-        <g pointerEvents="none">
-          <text
-            x="500"
-            y="655"
-            fontSize="18"
-            fontFamily="Inter, sans-serif"
-            fontWeight="800"
-            letterSpacing="0.25em"
-            fill={isDark ? "#174358" : "#23556d"}
-            textAnchor="middle"
-          >
-            ANTARCTICA · WEDDELL SEA SECTOR
-          </text>
-          <text
-            x="200"
-            y="670"
-            fontSize="11"
-            fontFamily="Inter, sans-serif"
-            fontWeight="700"
-            letterSpacing="0.1em"
-            fill={isDark ? "#28566d" : "#3e7087"}
-          >
-            PALMER LAND COAST
-          </text>
-          <text
-            x="480"
-            y="680"
-            fontSize="11"
-            fontFamily="Inter, sans-serif"
-            fontWeight="700"
-            letterSpacing="0.1em"
-            fill={isDark ? "#28566d" : "#3e7087"}
-          >
-            RONNE ICE SHELF MARGIN
-          </text>
-          <text
-            x="820"
-            y="670"
-            fontSize="11"
-            fontFamily="Inter, sans-serif"
-            fontWeight="700"
-            letterSpacing="0.1em"
-            fill={isDark ? "#28566d" : "#3e7087"}
-          >
-            COATS LAND
-          </text>
-        </g>
-
-        {/* Ocean currents */}
-        {layers.currents &&
-          currents.map((c, i) => {
-            const len = 34 + c.strength * 22;
-            const rad = (c.angleDeg * Math.PI) / 180;
-            const x2 = c.from.x + Math.cos(rad) * len;
-            const y2 = c.from.y + Math.sin(rad) * len;
-            return (
-              <line
-                key={i}
-                x1={c.from.x}
-                y1={c.from.y}
-                x2={x2}
-                y2={y2}
-                stroke="#55d6e8"
-                strokeWidth="1.4"
-                opacity="0.5"
-                markerEnd="url(#arrow)"
-              />
-            );
-          })}
-
-        {/* Weather / wind barbs */}
-        {layers.weather &&
-          currents.map((c, i) => (
-            <g key={`w${i}`} opacity="0.4" transform={`translate(${c.from.x + 30} ${c.from.y - 26})`}>
-              <path d="M0 0 L14 -6 M4 2 L14 -2 M8 4 L14 2" stroke="#8ccfe0" strokeWidth="1.2" fill="none" />
-            </g>
-          ))}
-
-        {/* Hazard zone overlay around the high-risk route corridor */}
-        {hazardHighlight && (
-          <path
-            d={corridorPath(icebergs[0].predictedPath, icebergs[0].uncertainty.map((u) => u + 20))}
-            fill="#ff5c5c"
-            opacity="0.12"
-            stroke="#ff5c5c"
-            strokeOpacity="0.3"
-            strokeDasharray="6 5"
-          />
-        )}
-
-        {/* Routes — non-selected dimmed */}
-        {routes.map((r) => {
-          const isSel = r.id === selected.id;
-          return (
-            <g key={r.id} style={{ cursor: "pointer" }} onClick={() => onSelectRoute?.(r.id)}>
-              <path
-                d={smoothPath(r.coordinates)}
-                fill="none"
-                stroke={r.color}
-                strokeWidth={isSel ? 3.5 : 2}
-                strokeLinecap="round"
-                opacity={isSel ? 1 : 0.28}
-                style={{ filter: isSel ? `drop-shadow(0 0 5px ${r.color}aa)` : "none" }}
-              />
-              {isSel &&
-                r.waypoints.map((w, i) => (
-                  <circle key={i} cx={w.x} cy={w.y} r="4" fill="#071a26" stroke={r.color} strokeWidth="2" />
-                ))}
-            </g>
-          );
-        })}
-
-        {/* Predicted vessel route (dashed cyan) from vessel forward along selected route */}
-        <path
-          d={smoothPath(selected.coordinates.slice(0, 3))}
-          fill="none"
-          stroke="#55d6e8"
-          strokeWidth="1.6"
-          strokeDasharray="7 6"
-          opacity="0.5"
-          style={{ animation: "dash-flow 1.2s linear infinite" }}
-        />
-
-        {/* Low-risk iceberg observation cluster */}
-        {layers.icebergs &&
-          icebergCluster.map((c, i) => (
-            <circle key={i} cx={c.x} cy={c.y} r="2.4" fill="#8ccfe0" opacity="0.7" />
-          ))}
-
-        {/* Icebergs: corridor + predicted path + marker */}
-        {layers.icebergs &&
-          icebergs.map((ib) => {
-            const color = RISK_COLORS[ib.riskLevel];
-            const isSel = ib.id === selectedIcebergId;
-            const f = horizonFraction ?? 1;
-            const path = f < 1 ? slicePath(ib.predictedPath, f) : ib.predictedPath;
-            const widths = ib.uncertainty.slice(0, path.length).map((u) => u * (0.4 + f * 0.6));
-            const endPt = path[path.length - 1]!;
-            const lastPathPt = ib.predictedPath[ib.predictedPath.length - 1]!;
-            return (
-              <g key={ib.id}>
-                <path d={corridorPath(path, widths)} fill={color} opacity={isSel ? 0.18 : 0.1} />
-                <path
-                  d={smoothPath(path)}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="1.6"
-                  strokeDasharray="5 5"
-                  opacity="0.85"
-                />
-                {f < 1 && <circle cx={endPt.x} cy={endPt.y} r="3.5" fill={color} stroke="#071a26" strokeWidth="1" />}
-                <circle cx={lastPathPt.x} cy={lastPathPt.y} r="3" fill="none" stroke={color} strokeWidth="1.2" opacity="0.7" />
-                <g
-                  style={{ cursor: "pointer" }}
-                  onClick={() => onSelectIceberg?.(ib.id)}
-                  onMouseEnter={() =>
-                    setHover({ x: ib.position.x, y: ib.position.y, label: `${ib.id} · ${ib.riskLevel.toUpperCase()} · ${ib.speedMs} m/s` })
-                  }
-                  onMouseLeave={() => setHover(null)}
-                >
-                  {isSel && <circle cx={ib.position.x} cy={ib.position.y} r="10" fill={color} opacity="0.25" />}
-                  <path
-                    d={`M ${ib.position.x} ${ib.position.y - 6} L ${ib.position.x + 5.5} ${ib.position.y + 4} L ${ib.position.x - 5.5} ${ib.position.y + 4} Z`}
-                    fill={color}
-                    stroke="#071a26"
-                    strokeWidth="1"
-                  />
-                </g>
-              </g>
-            );
-          })}
-
-        {/* Destination */}
-        <g>
-          <circle cx={destination.x} cy={destination.y} r="7" fill="none" stroke={isDark ? "#eaf6f8" : "#0d2433"} strokeWidth="1.5" />
-          <circle cx={destination.x} cy={destination.y} r="2.5" fill={isDark ? "#eaf6f8" : "#0d2433"} />
-          <text x={destination.x + 12} y={destination.y + 4} fill={isDark ? "#eaf6f8" : "#0d2433"} fontSize="11" fontFamily="Inter" fontWeight="600">
-            Halley VI Research Station (UK)
-          </text>
-        </g>
-
-        {/* Vessel — brightest element, cyan halo */}
-        <g
-          onMouseEnter={() => setHover({ x: vessel.position.x, y: vessel.position.y, label: `${vessel.name} · ${vessel.speedKn} kn · HDG ${vessel.headingDeg}°` })}
-          onMouseLeave={() => setHover(null)}
-          style={{ cursor: "pointer" }}
-        >
-          <circle cx={vessel.position.x} cy={vessel.position.y} r="9" fill={isDark ? "#55d6e8" : "#0f768e"} style={{ animation: "pulse-halo 2.6s ease-in-out infinite", transformOrigin: `${vessel.position.x}px ${vessel.position.y}px` }} />
-          <g transform={`translate(${vessel.position.x} ${vessel.position.y}) rotate(${vessel.headingDeg - 90})`}>
-            <path d="M 9 0 L -6 5 L -3 0 L -6 -5 Z" fill={isDark ? "#55d6e8" : "#0f768e"} stroke={isDark ? "#071521" : "#ffffff"} strokeWidth="1" />
-          </g>
-        </g>
-
-        {/* Clicked Point Coordinate Pin */}
-        {clickedPin && (
-          <g transform={`translate(${clickedPin.mapX}, ${clickedPin.mapY})`} className="pointer-events-none">
-            <circle cx="0" cy="0" r="16" fill="#55d6e8" opacity="0.35" className="animate-ping" />
-            <circle cx="0" cy="0" r="6" fill="#55d6e8" stroke="#ffffff" strokeWidth="2" />
-            <path d="M 0 0 L -5 -14 A 6 6 0 1 1 5 -14 Z" fill="#55d6e8" stroke="#071521" strokeWidth="1.2" transform="translate(0, -2)" />
-            <circle cx="0" cy="-16" r="2.5" fill="#ffffff" />
-          </g>
-        )}
-      </g>
-      </svg>
-
-      {hover && !clickedPin && (
-        <div
-          className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-sm border px-2 py-1 font-mono text-[10px] shadow-lg backdrop-blur ${isDark
-              ? "border-[#55d6e8]/50 bg-[#071521]/95 text-[#eaf6f8]"
-              : "border-[#0f768e]/50 bg-[#ffffff]/95 text-[#0d2433]"
-            }`}
-          style={{ left: `${(hover.x / 1000) * 100}%`, top: `${(hover.y / 700) * 100}%` }}
-        >
-          {hover.label}
-        </div>
-      )}
-
-      {/* Interactive Clicked Point Coordinate Inspector Card */}
-      {clickedPin && (
-        <div
-          className={cx(
-            "absolute bottom-3 left-3 z-30 flex flex-col gap-2 rounded-xl border p-3 shadow-2xl backdrop-blur-md max-w-xs transition-all animate-in fade-in slide-in-from-bottom-2",
-            isDark
-              ? "border-[#55d6e8]/40 bg-[#071927]/95 text-[#eaf6f8]"
-              : "border-[#0f768e]/40 bg-[#fdfbf7]/98 text-[#0d2433]",
-          )}
-        >
-          <div className="flex items-center justify-between gap-3 border-b border-[#1d445c]/40 light:border-[#e2d8c7] pb-1.5">
-            <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-[#55d6e8] light:text-[#0f768e]">
-              <Crosshair size={13} />
-              <span>TACTICAL POINT INSPECTOR</span>
-            </div>
+    <div className="relative h-full w-full flex flex-col overflow-hidden select-none bg-[#050d17]">
+      {/* Top API Provider Selector Ribbon */}
+      <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-[#1d445c]/60 bg-[#071927]/98 px-3 py-1.5 backdrop-blur z-20">
+        <div className="flex items-center gap-1">
+          <span className="font-mono text-[9px] font-bold uppercase text-[#55d6e8] mr-1">
+            🛰️ TACTICAL API:
+          </span>
+          {MAP_PROVIDERS.map((p) => (
             <button
-              onClick={() => setClickedPin(null)}
-              className="text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#7a94a2] light:hover:text-[#0d2433]"
-              title="Close Inspector"
+              key={p.id}
+              onClick={() => setProviderId(p.id)}
+              className={cx(
+                "rounded px-2 py-0.5 font-mono text-[9px] font-bold transition-all",
+                providerId === p.id
+                  ? "bg-[#55d6e8] text-[#071521] shadow-[0_0_8px_#55d6e8]/40"
+                  : "text-[#91aeb9] hover:bg-[#132f40] hover:text-[#eaf6f8]",
+              )}
             >
-              <X size={13} />
+              {p.shortName}
             </button>
-          </div>
-
-          <div>
-            <div className="font-mono text-[14px] font-bold tracking-tight text-[#55d6e8] light:text-[#0f768e]">
-              {Math.abs(clickedPin.lat).toFixed(3)}°S, {clickedPin.lon >= 0 ? `${clickedPin.lon.toFixed(3)}°E` : `${Math.abs(clickedPin.lon).toFixed(3)}°W`}
-            </div>
-            <div className="text-[10.5px] text-[#91aeb9] light:text-[#5a7686] leading-snug">
-              Weddell Sea Sector · Antarctic Tactical Navigation Area
-            </div>
-          </div>
-
-          {vessel && (
-            <div className="rounded-md border border-[#1d445c]/40 light:border-[#e2d8c7] bg-[#0d2433]/60 light:bg-[#f4eee3] p-1.5 text-[10px] font-mono">
-              <div className="text-[#91aeb9] light:text-[#6b8594]">From {vessel.name}:</div>
-              <div className="font-bold text-[#eaf6f8] light:text-[#0d2433]">
-                {geoDistanceNm(vessel.position.lat, vessel.position.lon, clickedPin.lat, clickedPin.lon)} nm · Bearing {geoBearingDeg(vessel.position.lat, vessel.position.lon, clickedPin.lat, clickedPin.lon)}°
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={() => {
-              const text = `${Math.abs(clickedPin.lat).toFixed(3)}°S, ${clickedPin.lon >= 0 ? `${clickedPin.lon.toFixed(3)}°E` : `${Math.abs(clickedPin.lon).toFixed(3)}°W`}`;
-              navigator.clipboard.writeText(text);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className={cx(
-              "flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-[10.5px] font-bold transition-all",
-              copied
-                ? "bg-[#10b981] text-white shadow-sm"
-                : "bg-[#55d6e8] text-[#071521] hover:bg-[#7be3f2] light:bg-[#0f768e] light:text-white",
-            )}
-          >
-            {copied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
-            <span>{copied ? "Copied Coordinates!" : "Copy Coordinates"}</span>
-          </button>
+          ))}
         </div>
-      )}
 
-      {/* Corner coordinate readout */}
-      {!clickedPin && (
-        <div className={`pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] font-semibold ${isDark ? "text-[#91aeb9]/90" : "text-[#4a6878]/90"}`}>
-          ANTARCTIC WEDDELL BASIN · 64°00'S–74°00'S · 60°00'W–00°00'
+        <div className="font-mono text-[9px] text-[#91aeb9]">
+          Weddell Sea Sector · 64°S–74°S
         </div>
-      )}
+      </div>
+
+      {/* WebGL Map Container */}
+      <div className="relative flex-1 min-h-[300px] overflow-hidden">
+        <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
+
+        {/* Clicked Pin Inspector */}
+        {clickedPin && (
+          <div className="absolute left-3 top-3 z-30 flex w-64 flex-col gap-1 rounded-lg border border-[#55d6e8] bg-[#071927]/95 p-2.5 shadow-2xl backdrop-blur-md animate-in slide-in-from-left-2 font-mono">
+            <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1 text-[10px] font-bold text-[#55d6e8]">
+              <span>INSPECTED POS</span>
+              <button onClick={() => setClickedPin(null)} className="text-[#91aeb9] hover:text-white">
+                <X size={11} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-white mt-0.5">
+              <span>{Math.abs(clickedPin.lat).toFixed(4)}°S, {Math.abs(clickedPin.lon).toFixed(4)}°W</span>
+              <button onClick={copyCoordinates} className="rounded bg-[#55d6e8]/20 px-1.5 py-0.5 text-[9px] text-[#55d6e8]">
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer HUD Coordinates */}
+      <div className="flex items-center justify-between border-t border-[#1d445c]/60 bg-[#071927]/95 px-3 py-1 font-mono text-[9.5px] z-20">
+        <div className="flex items-center gap-2">
+          <span className="text-[#55d6e8] font-bold">POS:</span>
+          <span className="text-white font-semibold">
+            {cursorPos ? `${Math.abs(cursorPos.lat)}°S, ${Math.abs(cursorPos.lon)}°${cursorPos.lon >= 0 ? "E" : "W"}` : "Hover map for coordinates"}
+          </span>
+        </div>
+        <span className="text-[#91aeb9]">Real WebGL Tile Stream</span>
+      </div>
     </div>
   );
 }
 
-function CopyIcon({ size = 12 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-    </svg>
-  );
-}
-
-function CheckIcon({ size = 12 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
+export default MapView;

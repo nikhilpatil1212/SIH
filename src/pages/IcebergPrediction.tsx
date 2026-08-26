@@ -71,8 +71,6 @@ export function IcebergPrediction() {
             horizonFraction={HORIZON_FRACTION[horizon]}
             className="h-full w-full"
           />
-
-          <PredictionLegend />
         </div>
       </div>
 

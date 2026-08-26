@@ -229,3 +229,63 @@ declare module "*.webp" {
   const src: string;
   export default src;
 }
+
+declare module "maplibre-gl" {
+  export interface LngLat {
+    lng: number;
+    lat: number;
+  }
+  export interface MapMouseEvent {
+    lngLat: LngLat;
+    point: { x: number; y: number };
+    originalEvent: MouseEvent;
+  }
+  export class Map {
+    constructor(options: any);
+    on(type: string, listener: (e: any) => void): this;
+    once(type: string, listener: (e: any) => void): this;
+    off(type: string, listener: (e: any) => void): this;
+    remove(): void;
+    flyTo(options: any): this;
+    jumpTo(options: any): this;
+    easeTo(options: any): this;
+    setStyle(style: any): this;
+    isStyleLoaded(): boolean;
+    addSource(id: string, source: any): this;
+    getSource(id: string): any;
+    removeSource(id: string): this;
+    addLayer(layer: any, before?: string): this;
+    getLayer(id: string): any;
+    removeLayer(id: string): this;
+    getZoom(): number;
+    getCenter(): LngLat;
+  }
+  export class Marker {
+    constructor(options?: any);
+    setLngLat(lngLat: [number, number] | LngLat): this;
+    setPopup(popup: Popup): this;
+    addTo(map: Map): this;
+    remove(): this;
+    getElement(): HTMLElement;
+  }
+  export class Popup {
+    constructor(options?: any);
+    setLngLat(lngLat: [number, number] | LngLat): this;
+    setHTML(html: string): this;
+    setText(text: string): this;
+    addTo(map: Map): this;
+    remove(): this;
+  }
+  export namespace maplibregl {
+    export type Map = Map;
+    export type Marker = Marker;
+    export type Popup = Popup;
+  }
+  const maplibregl: {
+    Map: typeof Map;
+    Marker: typeof Marker;
+    Popup: typeof Popup;
+  };
+  export default maplibregl;
+}
+
