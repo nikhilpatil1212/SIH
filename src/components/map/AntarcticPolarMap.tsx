@@ -246,6 +246,7 @@ export function AntarcticPolarMap({
   const [fullscreen, setFullscreen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
   const [currentZoom, setCurrentZoom] = useState(2.5);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   // Operational Layer Visibility
   const [layers, setLayers] = useState({
@@ -312,6 +313,16 @@ export function AntarcticPolarMap({
 
     mapRef.current = map;
 
+    map.on("load", () => {
+      setIsMapLoaded(true);
+    });
+
+    map.on("styledata", () => {
+      if (map.isStyleLoaded()) {
+        setIsMapLoaded(true);
+      }
+    });
+
     map.on("zoom", () => {
       setCurrentZoom(map.getZoom());
     });
@@ -323,6 +334,7 @@ export function AntarcticPolarMap({
     });
 
     return () => {
+      setIsMapLoaded(false);
       map.remove();
       mapRef.current = null;
     };
@@ -351,36 +363,33 @@ export function AntarcticPolarMap({
   // 2. Auto-Fit Viewport to Selected Route Coordinates
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !isMapLoaded) return;
 
-    const fitRoute = () => {
-      const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
-      if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length < 2) return;
+    const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
+    if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length < 2) return;
 
-      const lats = selectedRoute.coordinates.map((c) => c.lat);
-      const lons = selectedRoute.coordinates.map((c) => c.lon);
-      const minLat = Math.min(...lats);
-      const maxLat = Math.max(...lats);
-      const minLon = Math.min(...lons);
-      const maxLon = Math.max(...lons);
+    const validCoords = selectedRoute.coordinates.filter(
+      (c) => typeof c.lat === "number" && typeof c.lon === "number" && !isNaN(c.lat) && !isNaN(c.lon)
+    );
+    if (validCoords.length < 2) return;
 
-      try {
-        map.fitBounds(
-          [
-            [minLon - 2.5, minLat - 2.5],
-            [maxLon + 2.5, maxLat + 2.5],
-          ],
-          { padding: 70, duration: 1000 }
-        );
-      } catch {}
-    };
+    const lats = validCoords.map((c) => c.lat);
+    const lons = validCoords.map((c) => c.lon);
+    const minLat = Math.max(-84, Math.min(...lats) - 2.5);
+    const maxLat = Math.min(84, Math.max(...lats) + 2.5);
+    const minLon = Math.min(...lons) - 3.0;
+    const maxLon = Math.max(...lons) + 3.0;
 
-    if (map.isStyleLoaded()) {
-      fitRoute();
-    } else {
-      map.once("load", fitRoute);
-    }
-  }, [selectedRouteId, routes]);
+    try {
+      map.fitBounds(
+        [
+          [minLon, minLat],
+          [maxLon, maxLat],
+        ],
+        { padding: 70, duration: 900 }
+      );
+    } catch {}
+  }, [selectedRouteId, routes, isMapLoaded]);
 
   // Markers management
   const markersRef = useRef<MapLibreMarker[]>([]);
@@ -665,6 +674,33 @@ export function AntarcticPolarMap({
           },
         }));
 
+        const validRoutes = routes
+          .filter((r) => r.coordinates && r.coordinates.length >= 2)
+          .map((r) => {
+            const validCoords = r.coordinates.filter(
+              (w) => typeof w.lon === "number" && typeof w.lat === "number" && !isNaN(w.lon) && !isNaN(w.lat)
+            );
+            return {
+              ...r,
+              coordinates: validCoords,
+            };
+          })
+          .filter((r) => r.coordinates.length >= 2);
+
+        const routeFeatures = validRoutes.map((r) => ({
+          type: "Feature" as const,
+          properties: {
+            id: r.id,
+            name: r.name,
+            color: r.color,
+            selected: r.id === selectedRouteId,
+          },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
+          },
+        }));
+
         const existingRouteSource = map.getSource("routes-source") as GeoJSONSource | undefined;
         if (existingRouteSource) {
           existingRouteSource.setData({
@@ -676,21 +712,25 @@ export function AntarcticPolarMap({
             type: "geojson",
             data: { type: "FeatureCollection", features: routeFeatures },
           });
+        }
 
-          // Glow Underlay for high visibility over all base maps
+        // Ensure Glow Underlay layer is added
+        if (!map.getLayer("routes-line-glow")) {
           map.addLayer({
             id: "routes-line-glow",
             type: "line",
             source: "routes-source",
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 10.0, 3.5],
+              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 12.0, 3.5],
               "line-blur": 2.5,
-              "line-opacity": ["case", ["get", "selected"], 0.75, 0.25],
+              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 0.85, 0.25],
             },
           });
+        }
 
-          // Sharp Center Polyline
+        // Ensure Sharp Center Polyline is added
+        if (!map.getLayer("routes-line")) {
           map.addLayer({
             id: "routes-line",
             type: "line",
@@ -701,8 +741,8 @@ export function AntarcticPolarMap({
             },
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 4.5, 2.2],
-              "line-opacity": ["case", ["get", "selected"], 1.0, 0.6],
+              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 5.0, 2.2],
+              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 1.0, 0.6],
             },
           });
 
@@ -735,12 +775,10 @@ export function AntarcticPolarMap({
       }
     };
 
-    if (map.isStyleLoaded()) {
+    if (isMapLoaded && map.isStyleLoaded()) {
       setupLayers();
-    } else {
-      map.once("style.load", setupLayers);
     }
-  }, [routes, selectedRouteId, providerId, layers, icebergs, seaIceHeat, selectedRegion]);
+  }, [isMapLoaded, routes, selectedRouteId, providerId, layers, icebergs, seaIceHeat, selectedRegion]);
 
   return (
     <div

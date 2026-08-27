@@ -92,6 +92,8 @@ export function MapView({
   }, [activeProvider]);
 
   // Initialize MapLibre GL instance for Tactical Weddell Sector Focus
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -107,6 +109,16 @@ export function MapView({
 
     mapRef.current = map;
 
+    map.on("load", () => {
+      setIsMapLoaded(true);
+    });
+
+    map.on("styledata", () => {
+      if (map.isStyleLoaded()) {
+        setIsMapLoaded(true);
+      }
+    });
+
     map.on("mousemove", (e: any) => {
       const lat = +e.lngLat.lat.toFixed(4);
       const lon = +e.lngLat.lng.toFixed(4);
@@ -121,6 +133,7 @@ export function MapView({
     });
 
     return () => {
+      setIsMapLoaded(false);
       map.remove();
       mapRef.current = null;
     };
@@ -314,19 +327,28 @@ export function MapView({
       }
 
       // Routes Layer
-      if (routes.length > 0) {
-        const routeFeatures = routes.map((r) => ({
+      const validRoutes = routes
+          .filter((r) => r.coordinates && r.coordinates.length >= 2)
+          .map((r) => ({
+            ...r,
+            coordinates: r.coordinates.filter(
+              (w) => typeof w.lon === "number" && typeof w.lat === "number" && !isNaN(w.lon) && !isNaN(w.lat)
+            ),
+          }))
+          .filter((r) => r.coordinates.length >= 2);
+
+        const routeFeatures = validRoutes.map((r) => ({
           type: "Feature" as const,
-          properties: { id: r.id, name: r.name, selected: r.id === selectedRouteId, color: r.color },
+          properties: { id: r.id, name: r.name, color: r.color, selected: r.id === selectedRouteId },
           geometry: {
             type: "LineString" as const,
             coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
           },
         }));
 
-        const existingSource = map.getSource("routes-source") as maplibregl.GeoJSONSource | undefined;
-        if (existingSource) {
-          existingSource.setData({
+        const existingRouteSource = map.getSource("routes-source") as maplibregl.GeoJSONSource | undefined;
+        if (existingRouteSource) {
+          existingRouteSource.setData({
             type: "FeatureCollection",
             features: routeFeatures,
           });
@@ -335,39 +357,40 @@ export function MapView({
             type: "geojson",
             data: { type: "FeatureCollection", features: routeFeatures },
           });
+        }
 
+        if (!map.getLayer("routes-line-glow")) {
           map.addLayer({
             id: "routes-line-glow",
             type: "line",
             source: "routes-source",
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 7, 3],
+              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 8, 3],
               "line-blur": 2,
-              "line-opacity": ["case", ["get", "selected"], 0.65, 0.25],
+              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 0.75, 0.25],
             },
           });
+        }
 
+        if (!map.getLayer("routes-line")) {
           map.addLayer({
             id: "routes-line",
             type: "line",
             source: "routes-source",
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 4, 2],
-              "line-opacity": ["case", ["get", "selected"], 1.0, 0.6],
+              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 4.5, 2],
+              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 1.0, 0.6],
             },
           });
         }
-      }
     };
 
-    if (map.isStyleLoaded()) {
+    if (isMapLoaded && map.isStyleLoaded()) {
       setupLayers();
-    } else {
-      map.once("style.load", setupLayers);
     }
-  }, [routes, selectedRouteId, providerId, icebergs]);
+  }, [isMapLoaded, routes, selectedRouteId, providerId, icebergs]);
 
   const copyCoordinates = () => {
     if (!clickedPin) return;

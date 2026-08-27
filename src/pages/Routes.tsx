@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { RouteComparison, RiskFactors } from "../components/panels";
+import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
 import { Card, Metric, RiskMeter, RISK_COLORS, cx } from "../components/ui/primitives";
 import { riskFactorsByRoute, vessel } from "../data/mock";
 import type { RiskLevel } from "../data/types";
@@ -456,6 +457,28 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             </div>
           )}
         </Card>
+
+        {/* Live Route Corridor Visualization Map */}
+        <div className="relative h-[340px] min-h-[300px] overflow-hidden rounded-xl bg-[#050d17] light:bg-[#ede6da] shadow-lg border border-[#1d445c]/80 light:border-[#e2d8c7]">
+          <AntarcticPolarMap
+            routes={nav.routes}
+            selectedRouteId={nav.selectedRouteId}
+            onSelectRoute={nav.setSelectedRoute}
+            icebergs={nav.icebergs}
+            selectedIcebergId={nav.selectedIcebergId}
+            onSelectIceberg={nav.setSelectedIceberg}
+            vessel={{
+              name: vessel.name,
+              position: { lat: vessel.position.lat, lon: vessel.position.lon },
+              headingDeg: vessel.headingDeg,
+              speedKn: vessel.speedKn,
+              status: vessel.status,
+            }}
+            showMaximize={false}
+            compact={true}
+            className="h-full w-full border-none rounded-none"
+          />
+        </div>
 
         {/* Why Recommended / Decision Support Reasoning */}
         <Card title="Autonomous Decision Support Intelligence" action={<span className="font-mono text-[10px] text-[#10b981] font-bold">SYSTEM RECOMMENDED</span>}>
