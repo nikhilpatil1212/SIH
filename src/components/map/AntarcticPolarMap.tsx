@@ -178,6 +178,12 @@ export const GATEWAY_PORTS = [
   { id: "hobart", name: "Port of Hobart", country: "Australia", flag: "🇦🇺", lat: -42.88, lon: 147.32, desc: "Home port of RSV Nuyina and gateway for Australian and East Antarctic research." },
 ];
 
+export interface SeaIceHeatFeature {
+  region: string;
+  polygon: { lat: number; lon: number }[];
+  concentration: number;
+}
+
 export interface AntarcticPolarMapProps {
   routes?: Route[];
   icebergs?: Iceberg[];
@@ -197,6 +203,9 @@ export interface AntarcticPolarMapProps {
   showMaximize?: boolean;
   className?: string;
   compact?: boolean;
+  seaIceHeat?: SeaIceHeatFeature[];
+  selectedRegion?: string | null;
+  onSelectRegion?: (region: string) => void;
 }
 
 export type HoveredEntity =
@@ -221,6 +230,9 @@ export function AntarcticPolarMap({
   showMaximize = false,
   className = "",
   compact = false,
+  seaIceHeat,
+  selectedRegion,
+  onSelectRegion,
 }: AntarcticPolarMapProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -573,6 +585,76 @@ export function AntarcticPolarMap({
           });
         }
       }
+
+      // 3. Sea Ice Heat / Concentration Polygons
+      if (seaIceHeat && seaIceHeat.length > 0) {
+        const seaIceFeatures = seaIceHeat.map((s) => {
+          const coords = s.polygon.map((p) => [p.lon, p.lat]);
+          if (
+            coords.length > 0 &&
+            (coords[0][0] !== coords[coords.length - 1][0] || coords[0][1] !== coords[coords.length - 1][1])
+          ) {
+            coords.push([...coords[0]]);
+          }
+          return {
+            type: "Feature" as const,
+            properties: {
+              region: s.region,
+              concentration: s.concentration,
+              selected: s.region === selectedRegion,
+            },
+            geometry: {
+              type: "Polygon" as const,
+              coordinates: [coords],
+            },
+          };
+        });
+
+        if (map.getSource("sea-ice-source")) {
+          (map.getSource("sea-ice-source") as GeoJSONSource).setData({
+            type: "FeatureCollection",
+            features: seaIceFeatures,
+          });
+        } else {
+          map.addSource("sea-ice-source", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: seaIceFeatures },
+          });
+
+          map.addLayer({
+            id: "sea-ice-fill",
+            type: "fill",
+            source: "sea-ice-source",
+            paint: {
+              "fill-color": [
+                "interpolate",
+                ["linear"],
+                ["get", "concentration"],
+                0,
+                "#a9dfe9",
+                30,
+                "#55d6e8",
+                60,
+                "#3b82f6",
+                90,
+                "#1e3a8a",
+              ],
+              "fill-opacity": ["case", ["get", "selected"], 0.45, 0.22],
+            },
+          });
+
+          map.addLayer({
+            id: "sea-ice-outline",
+            type: "line",
+            source: "sea-ice-source",
+            paint: {
+              "line-color": "#55d6e8",
+              "line-width": ["case", ["get", "selected"], 2.5, 1],
+              "line-opacity": 0.8,
+            },
+          });
+        }
+      }
     };
 
     if (map.isStyleLoaded()) {
@@ -580,7 +662,7 @@ export function AntarcticPolarMap({
     } else {
       map.once("style.load", setupLayers);
     }
-  }, [routes, selectedRouteId, providerId, layers, icebergs]);
+  }, [routes, selectedRouteId, providerId, layers, icebergs, seaIceHeat, selectedRegion]);
 
   return (
     <div

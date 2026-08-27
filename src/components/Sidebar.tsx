@@ -62,6 +62,7 @@ function NavButton({
   item: NavItem;
   active: boolean;
   onNavigate: (p: PageId) => void;
+  key?: React.Key;
 }) {
   return (
     <button

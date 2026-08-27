@@ -170,7 +170,7 @@ function RiskCell({
   );
 }
 
-export function HazardCard({ hazard }: { hazard: Hazard }) {
+export function HazardCard({ hazard }: { hazard: Hazard; key?: any }) {
   const color = RISK_COLORS[hazard.severity];
   return (
     <div

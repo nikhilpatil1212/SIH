@@ -5,7 +5,7 @@ import { Crosshair, Layers, Maximize2, Minimize2, ShieldAlert, Ship, X } from "l
 import type { Hazard, Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
-import { MAP_PROVIDERS, type MapTileProviderId, geoBearingDeg, geoDistanceNm, getSectorName, RESEARCH_STATIONS } from "./AntarcticPolarMap";
+import { MAP_PROVIDERS, type MapTileProviderId, getSectorName, RESEARCH_STATIONS } from "./AntarcticPolarMap";
 import { hazards as mockHazards, vessel } from "../../data/mock";
 
 export interface LayerState {

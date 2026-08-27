@@ -1,14 +1,10 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import {
   AlertTriangle,
   Anchor,
   ArrowRight,
-  Calculator,
   Clock,
   Compass,
-  CornerDownRight,
-  ExternalLink,
-  Fuel,
   Gauge,
   Layers,
   MapPin,
@@ -18,7 +14,6 @@ import {
   Shield,
   Ship,
   Sparkles,
-  Trash2,
 } from "lucide-react";
 import { RouteComparison, RiskFactors } from "../components/panels";
 import { Card, Metric, RiskMeter, RISK_COLORS, cx } from "../components/ui/primitives";
@@ -50,7 +45,7 @@ const OBJECTIVES = [
   { id: "SAFEST", label: "SAFEST", desc: "Minimize collision risk & avoid high-density iceberg corridors", icon: Shield },
   { id: "SHORTEST", label: "SHORTEST", desc: "Minimize geodesic distance via direct Great Circle arc", icon: Navigation },
   { id: "BALANCED", label: "BALANCED", desc: "Optimal weighted compromise between time and safety", icon: Compass },
-  { id: "FUEL EFFICIENT", label: "FUEL EFFICIENT", desc: "Maximize fuel economy utilizing favorable ocean currents", icon: Fuel },
+  { id: "FUEL EFFICIENT", label: "FUEL EFFICIENT", desc: "Maximize fuel economy utilizing favorable ocean currents", icon: Gauge },
 ];
 
 export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
@@ -144,7 +139,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               </label>
               <select
                 value={startPreset}
-                onChange={(e) => setStartPreset(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => setStartPreset(e.target.value)}
                 className="w-full rounded-md border border-[#1d445c] bg-[#0d2433] light:border-[#e2d8c7] light:bg-[#f6f0e4] px-2.5 py-1.5 text-[#eaf6f8] light:text-[#0d2433] outline-none"
               >
                 {START_PRESETS.map((p) => (
@@ -165,7 +160,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                       min="-90"
                       max="90"
                       value={customStartLat}
-                      onChange={(e) => setCustomStartLat(parseFloat(e.target.value) || 0)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomStartLat(parseFloat(e.target.value) || 0)}
                       className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
                     />
                   </div>
@@ -177,7 +172,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                       min="-180"
                       max="180"
                       value={customStartLon}
-                      onChange={(e) => setCustomStartLon(parseFloat(e.target.value) || 0)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomStartLon(parseFloat(e.target.value) || 0)}
                       className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
                     />
                   </div>
@@ -192,7 +187,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               </label>
               <select
                 value={destPreset}
-                onChange={(e) => setDestPreset(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => setDestPreset(e.target.value)}
                 className="w-full rounded-md border border-[#1d445c] bg-[#0d2433] light:border-[#e2d8c7] light:bg-[#f6f0e4] px-2.5 py-1.5 text-[#eaf6f8] light:text-[#0d2433] outline-none"
               >
                 {DESTINATION_PRESETS.map((p) => (
@@ -213,7 +208,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                       min="-90"
                       max="90"
                       value={customDestLat}
-                      onChange={(e) => setCustomDestLat(parseFloat(e.target.value) || 0)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomDestLat(parseFloat(e.target.value) || 0)}
                       className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
                     />
                   </div>
@@ -225,7 +220,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                       min="-180"
                       max="180"
                       value={customDestLon}
-                      onChange={(e) => setCustomDestLon(parseFloat(e.target.value) || 0)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomDestLon(parseFloat(e.target.value) || 0)}
                       className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#071521] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
                     />
                   </div>
@@ -266,7 +261,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                       type="text"
                       placeholder="e.g. Bouvet Island Staging Break"
                       value={newWpName}
-                      onChange={(e) => setNewWpName(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setNewWpName(e.target.value)}
                       className="mt-0.5 w-full rounded border border-[#1d445c] bg-[#0d2433] px-2 py-1 text-[11px] text-white outline-none focus:border-[#55d6e8]"
                     />
                   </div>
@@ -277,7 +272,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                         type="number"
                         step="0.1"
                         value={newWpLat}
-                        onChange={(e) => setNewWpLat(parseFloat(e.target.value) || 0)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setNewWpLat(parseFloat(e.target.value) || 0)}
                         className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
                       />
                     </div>
@@ -287,7 +282,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                         type="number"
                         step="0.1"
                         value={newWpLon}
-                        onChange={(e) => setNewWpLon(parseFloat(e.target.value) || 0)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setNewWpLon(parseFloat(e.target.value) || 0)}
                         className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
                       />
                     </div>
@@ -298,7 +293,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                         min="0"
                         max="72"
                         value={newWpBreakH}
-                        onChange={(e) => setNewWpBreakH(parseInt(e.target.value) || 0)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setNewWpBreakH(parseInt(e.target.value) || 0)}
                         className="w-full rounded border border-[#1d445c] bg-[#0d2433] px-1.5 py-1 text-[10.5px] text-white outline-none"
                       />
                     </div>
@@ -336,7 +331,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                         className="text-[#91aeb9] hover:text-[#ef4444] p-1 transition-colors"
                         title="Remove Waypoint"
                       >
-                        <Trash2 size={12} />
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                       </button>
                     </div>
                   ))}
@@ -388,7 +383,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                 min={8}
                 max={18}
                 value={speedKn}
-                onChange={(e) => setSpeedKn(+e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSpeedKn(+e.target.value)}
                 className="w-full accent-[#55d6e8] light:accent-[#0f768e]"
               />
             </div>
@@ -399,7 +394,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               disabled={nav.isCalculating || hasCoordinateError}
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#55d6e8] px-4 py-2.5 text-[12px] font-bold text-[#071521] shadow-lg hover:bg-[#7be3f2] transition-colors cursor-pointer disabled:opacity-50"
             >
-              <Calculator size={15} />
+              <Sparkles size={15} />
               <span>{nav.isCalculating ? "CALCULATING ROUTES..." : "CALCULATE GEOGRAPHIC ROUTES"}</span>
             </button>
           </div>
@@ -438,7 +433,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
                   className="flex items-center gap-1.5 rounded-lg border border-[#55d6e8] bg-[#55d6e8]/10 hover:bg-[#55d6e8]/20 px-3 py-1.5 font-mono text-[11px] font-bold text-[#55d6e8] transition-colors cursor-pointer"
                 >
                   <span>VIEW ON MAP</span>
-                  <ExternalLink size={12} />
+                  <ArrowRight size={12} />
                 </button>
               )}
             </div>
