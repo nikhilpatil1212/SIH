@@ -18,7 +18,8 @@ def calculate_route_alternatives(
     dest_lon: float,
     vessel_speed_kn: float = 14.0,
     objective: str = "SAFEST",
-    hazards: Optional[List[Dict[str, Any]]] = None
+    hazards: Optional[List[Dict[str, Any]]] = None,
+    waypoints: Optional[List[Any]] = None,
 ) -> Dict[str, Any]:
     """
     Calculate real geographic route alternatives between any two points on Earth.
@@ -27,14 +28,28 @@ def calculate_route_alternatives(
     - Route B (Safe Circum-Polar Corridor - Safest)
     - Route C (Favorable Current & Ice-Free Lead Corridor - Fuel Efficient)
     """
+    wp_list = waypoints or []
+    total_break_hours = 0.0
+    for wp in wp_list:
+        if hasattr(wp, "breakDurationHours") and wp.breakDurationHours:
+            total_break_hours += float(wp.breakDurationHours)
+        elif isinstance(wp, dict) and wp.get("breakDurationHours"):
+            total_break_hours += float(wp["breakDurationHours"])
+
     # 1. Base Direct Great Circle Distance
     base_direct_nm = haversine_distance_nm(start_lat, start_lon, dest_lat, dest_lon)
     
     # Generate direct route points
     direct_coords = interpolate_great_circle(start_lat, start_lon, dest_lat, dest_lon, num_points=16)
 
+    def format_voyage_eta(base_h: float, break_h: float) -> str:
+        tot = round(base_h + break_h, 1)
+        d = int(tot // 24)
+        rem = int(round(tot % 24))
+        t_str = f"{d}d {rem}h" if d > 0 else f"{rem}h"
+        return f"{t_str} (incl. {int(break_h)}h breaks)" if break_h > 0 else t_str
+
     # 2. Build Route A: Direct / Fastest
-    # Follows direct line, passes closer to polar pack ice (higher risk score: ~74-82)
     dist_a = base_direct_nm
     eta_h_a = calculate_eta_hours(dist_a, vessel_speed_kn)
     fuel_a = calculate_fuel_tonnes(dist_a, vessel_speed_kn)
@@ -47,8 +62,8 @@ def calculate_route_alternatives(
         "color": "#ef4444",
         "distanceNm": dist_a,
         "distanceKm": round(dist_a * 1.852, 1),
-        "eta": format_eta(eta_h_a),
-        "etaHours": eta_h_a,
+        "eta": format_voyage_eta(eta_h_a, total_break_hours),
+        "etaHours": eta_h_a + total_break_hours,
         "fuelT": fuel_a,
         "riskScore": risk_a,
         "riskLevel": "high",
@@ -57,11 +72,9 @@ def calculate_route_alternatives(
     }
 
     # 3. Build Route B: Safest Arc (Lateral detour avoiding iceberg concentration & dense pack ice)
-    # Detour adds ~4-8% distance to clear hazard clusters, but lowers risk score to ~28-34
     mid_idx = len(direct_coords) // 2
     mid_pt = direct_coords[mid_idx]
     
-    # Calculate lateral offset waypoint (e.g. 3.5 degrees latitude equator-ward or longitude clearance)
     offset_lat = mid_pt["lat"] + 3.2 if mid_pt["lat"] < -50 else mid_pt["lat"] - 2.5
     offset_lon = mid_pt["lon"] - 4.5
     
@@ -82,8 +95,8 @@ def calculate_route_alternatives(
         "color": "#10b981",
         "distanceNm": dist_b,
         "distanceKm": round(dist_b * 1.852, 1),
-        "eta": format_eta(eta_h_b),
-        "etaHours": eta_h_b,
+        "eta": format_voyage_eta(eta_h_b, total_break_hours),
+        "etaHours": eta_h_b + total_break_hours,
         "fuelT": fuel_b,
         "riskScore": risk_b,
         "riskLevel": "low",
@@ -100,8 +113,8 @@ def calculate_route_alternatives(
 
     dist_c = round(haversine_distance_nm(start_lat, start_lon, offset_lat_c, offset_lon_c) + 
                    haversine_distance_nm(offset_lat_c, offset_lon_c, dest_lat, dest_lon), 1)
-    eta_h_c = calculate_eta_hours(dist_c, vessel_speed_kn * 0.95)  # Slightly reduced throttle
-    fuel_c = round(calculate_fuel_tonnes(dist_c, vessel_speed_kn * 0.95) * 0.91, 1)  # Fuel savings
+    eta_h_c = calculate_eta_hours(dist_c, vessel_speed_kn * 0.95)
+    fuel_c = round(calculate_fuel_tonnes(dist_c, vessel_speed_kn * 0.95) * 0.91, 1)
     risk_c = 44
 
     route_c = {
@@ -111,8 +124,8 @@ def calculate_route_alternatives(
         "color": "#38bdf8",
         "distanceNm": dist_c,
         "distanceKm": round(dist_c * 1.852, 1),
-        "eta": format_eta(eta_h_c),
-        "etaHours": eta_h_c,
+        "eta": format_voyage_eta(eta_h_c, total_break_hours),
+        "etaHours": eta_h_c + total_break_hours,
         "fuelT": fuel_c,
         "riskScore": risk_c,
         "riskLevel": "medium",
@@ -122,25 +135,25 @@ def calculate_route_alternatives(
 
     routes = [route_a, route_b, route_c]
 
-    # Evaluate cost based on objective
     costs = {
         r["id"]: evaluate_route_costs(r["distanceNm"], r["riskScore"], r["fuelT"], objective)
         for r in routes
     }
 
-    # Lowest cost route is recommended
     recommended_id = min(costs, key=costs.get)
 
-    # Generate explainable reasons
     reasons = [
         f"Lower iceberg encounter probability (↓ 41% vs direct)",
         f"Marginal pack-ice concentration buffer (28% vs 64%)",
         f"Maintains 15+ nm safety standoff from active hazard clusters",
     ]
+    if total_break_hours > 0:
+        reasons.append(f"Includes {int(total_break_hours)}h scheduled operational/rest breaks")
+
     if objective == "SHORTEST":
         reasons = [
             f"Minimal geodesic distance ({dist_a} nm)",
-            f"Earliest possible arrival time ({format_eta(eta_h_a)})",
+            f"Earliest possible arrival time ({format_voyage_eta(eta_h_a, total_break_hours)})",
             f"Direct passage requiring active radar & ice watch",
         ]
     elif objective == "FUEL EFFICIENT":
@@ -152,14 +165,21 @@ def calculate_route_alternatives(
 
     bbox = compute_route_bounding_box(coords_b)
 
+    rec_route = next((r for r in routes if r["id"] == recommended_id), route_b)
+    base_hours = round(rec_route["distanceNm"] / vessel_speed_kn, 1)
+
     return {
         "calculation_id": f"calc-{uuid.uuid4().hex[:8]}",
         "objective": objective,
         "start": {"lat": start_lat, "lon": start_lon},
         "destination": {"lat": dest_lat, "lon": dest_lon},
+        "waypoints": wp_list,
         "recommended_route_id": recommended_id,
         "routes": routes,
         "why_recommended": reasons,
         "bounding_box": bbox,
         "vessel_speed_kn": vessel_speed_kn,
+        "baseTravelHours": base_hours,
+        "totalBreakHours": total_break_hours,
+        "totalVoyageHours": base_hours + total_break_hours,
     }

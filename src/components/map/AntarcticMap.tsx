@@ -41,7 +41,6 @@ export function AntarcticMap({ onNavigate }: { onNavigate?: (target: "iceberg" |
         selectedRouteId={nav.selectedRouteId}
         onSelectRoute={(id) => {
           nav.setSelectedRoute(id);
-          onNavigate?.("routes");
         }}
         icebergs={nav.icebergs}
         selectedIcebergId={nav.selectedIcebergId}

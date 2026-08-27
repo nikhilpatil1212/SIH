@@ -249,6 +249,7 @@ export function AntarcticPolarMap({
 
   // Operational Layer Visibility
   const [layers, setLayers] = useState({
+    routes: true,
     stations: true,
     gateways: true,
     icebergs: true,
@@ -327,12 +328,16 @@ export function AntarcticPolarMap({
     };
   }, []);
 
-  // Update Style on Provider Change seamlessly
+  const prevProviderRef = useRef(providerId);
+
+  // Update Style only when Provider actually changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    if (prevProviderRef.current === providerId) return;
+    prevProviderRef.current = providerId;
     map.setStyle(mapStyle);
-  }, [mapStyle]);
+  }, [providerId, mapStyle]);
 
   // Trigger resize when fullscreen state toggles
   useEffect(() => {
@@ -348,23 +353,33 @@ export function AntarcticPolarMap({
     const map = mapRef.current;
     if (!map) return;
 
-    const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
-    if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length < 2) return;
+    const fitRoute = () => {
+      const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
+      if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length < 2) return;
 
-    const lats = selectedRoute.coordinates.map((c) => c.lat);
-    const lons = selectedRoute.coordinates.map((c) => c.lon);
-    const minLat = Math.min(...lats);
-    const maxLat = Math.max(...lats);
-    const minLon = Math.min(...lons);
-    const maxLon = Math.max(...lons);
+      const lats = selectedRoute.coordinates.map((c) => c.lat);
+      const lons = selectedRoute.coordinates.map((c) => c.lon);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLon = Math.min(...lons);
+      const maxLon = Math.max(...lons);
 
-    map.fitBounds(
-      [
-        [minLon - 2.5, minLat - 2.5],
-        [maxLon + 2.5, maxLat + 2.5],
-      ],
-      { padding: 60, duration: 1000 }
-    );
+      try {
+        map.fitBounds(
+          [
+            [minLon - 2.5, minLat - 2.5],
+            [maxLon + 2.5, maxLat + 2.5],
+          ],
+          { padding: 70, duration: 1000 }
+        );
+      } catch {}
+    };
+
+    if (map.isStyleLoaded()) {
+      fitRoute();
+    } else {
+      map.once("load", fitRoute);
+    }
   }, [selectedRouteId, routes]);
 
   // Markers management
@@ -507,7 +522,25 @@ export function AntarcticPolarMap({
         addMarker(lon, lat, el);
       });
     }
-  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, activeWaypoints]);
+    // G. Active Route Departure & Destination Endpoints
+    const activeRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
+    if (layers.routes && activeRoute && activeRoute.coordinates && activeRoute.coordinates.length >= 2) {
+      const startPt = activeRoute.coordinates[0];
+      const endPt = activeRoute.coordinates[activeRoute.coordinates.length - 1];
+
+      // Departure Pin
+      const depEl = document.createElement("div");
+      depEl.className = "flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded-full border-2 border-[#10b981] bg-[#071521]/95 text-[#10b981] shadow-[0_0_12px_#10b981] font-mono text-[9px] font-bold transition-transform hover:scale-110";
+      depEl.innerHTML = `<span>🚩 DEP</span><span>(${Math.abs(startPt.lat).toFixed(1)}°S)</span>`;
+      addMarker(startPt.lon, startPt.lat, depEl);
+
+      // Destination Pin
+      const destEl = document.createElement("div");
+      destEl.className = "flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded-full border-2 border-[#55d6e8] bg-[#071521]/95 text-[#55d6e8] shadow-[0_0_12px_#55d6e8] font-mono text-[9px] font-bold transition-transform hover:scale-110";
+      destEl.innerHTML = `<span>🎯 DEST</span><span>(${Math.abs(endPt.lat).toFixed(1)}°S)</span>`;
+      addMarker(endPt.lon, endPt.lat, destEl);
+    }
+  }, [layers, vessel, icebergs, routes, selectedRouteId, providerId, currentZoom, horizonFraction, selectedIcebergId, activeWaypoints]);
 
   // GeoJSON Line & Polygon Layers
   useEffect(() => {
@@ -515,78 +548,7 @@ export function AntarcticPolarMap({
     if (!map) return;
 
     const setupLayers = () => {
-      // 1. Iceberg Predicted Trajectories
-      if (layers.icebergPrediction && icebergs.length > 0) {
-        const trajectoryFeatures = icebergs.map((ibg) => ({
-          type: "Feature" as const,
-          properties: { id: ibg.id, risk: ibg.riskLevel },
-          geometry: {
-            type: "LineString" as const,
-            coordinates: (ibg.predictedPath || [ibg.position]).map((p) => [p.lon, p.lat]),
-          },
-        }));
-
-        if (map.getSource("iceberg-trajectories-source")) {
-          (map.getSource("iceberg-trajectories-source") as GeoJSONSource).setData({
-            type: "FeatureCollection",
-            features: trajectoryFeatures,
-          });
-        } else {
-          map.addSource("iceberg-trajectories-source", {
-            type: "geojson",
-            data: { type: "FeatureCollection", features: trajectoryFeatures },
-          });
-
-          map.addLayer({
-            id: "iceberg-trajectories-line",
-            type: "line",
-            source: "iceberg-trajectories-source",
-            paint: {
-              "line-color": ["match", ["get", "risk"], "high", "#ef4444", "medium", "#f59e0b", "#10b981"],
-              "line-width": 2,
-              "line-dasharray": [4, 2],
-              "line-opacity": 0.85,
-            },
-          });
-        }
-      }
-
-      // 2. Active Navigation Routes Layer (Prominently Highlight Selected Route, Subdue Alternatives)
-      if (routes.length > 0) {
-        const routeFeatures = routes.map((r) => ({
-          type: "Feature" as const,
-          properties: { id: r.id, name: r.name, color: r.color, selected: r.id === selectedRouteId },
-          geometry: {
-            type: "LineString" as const,
-            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
-          },
-        }));
-
-        if (map.getSource("routes-source")) {
-          (map.getSource("routes-source") as GeoJSONSource).setData({
-            type: "FeatureCollection",
-            features: routeFeatures,
-          });
-        } else {
-          map.addSource("routes-source", {
-            type: "geojson",
-            data: { type: "FeatureCollection", features: routeFeatures },
-          });
-
-          map.addLayer({
-            id: "routes-line",
-            type: "line",
-            source: "routes-source",
-            paint: {
-              "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 5.0, 2.2],
-              "line-opacity": ["case", ["get", "selected"], 1.0, 0.45],
-            },
-          });
-        }
-      }
-
-      // 3. Sea Ice Heat / Concentration Polygons
+      // 1. Sea Ice Heat / Concentration Polygons (Rendered at bottom)
       if (seaIceHeat && seaIceHeat.length > 0) {
         const seaIceFeatures = seaIceHeat.map((s) => {
           const coords = s.polygon.map((p) => [p.lon, p.lat]);
@@ -654,6 +616,122 @@ export function AntarcticPolarMap({
             },
           });
         }
+      }
+
+      // 2. Iceberg Predicted Trajectories
+      if (layers.icebergPrediction && icebergs.length > 0) {
+        const trajectoryFeatures = icebergs.map((ibg) => ({
+          type: "Feature" as const,
+          properties: { id: ibg.id, risk: ibg.riskLevel },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: (ibg.predictedPath || [ibg.position]).map((p) => [p.lon, p.lat]),
+          },
+        }));
+
+        if (map.getSource("iceberg-trajectories-source")) {
+          (map.getSource("iceberg-trajectories-source") as GeoJSONSource).setData({
+            type: "FeatureCollection",
+            features: trajectoryFeatures,
+          });
+        } else {
+          map.addSource("iceberg-trajectories-source", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: trajectoryFeatures },
+          });
+
+          map.addLayer({
+            id: "iceberg-trajectories-line",
+            type: "line",
+            source: "iceberg-trajectories-source",
+            paint: {
+              "line-color": ["match", ["get", "risk"], "high", "#ef4444", "medium", "#f59e0b", "#10b981"],
+              "line-width": 2,
+              "line-dasharray": [4, 2],
+              "line-opacity": 0.85,
+            },
+          });
+        }
+      }
+
+      // 3. Active Navigation Routes Layer (Rendered ON TOP of sea ice for guaranteed visibility)
+      if (routes.length > 0 && layers.routes) {
+        const routeFeatures = routes.map((r) => ({
+          type: "Feature" as const,
+          properties: { id: r.id, name: r.name, color: r.color, selected: r.id === selectedRouteId },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
+          },
+        }));
+
+        const existingRouteSource = map.getSource("routes-source") as GeoJSONSource | undefined;
+        if (existingRouteSource) {
+          existingRouteSource.setData({
+            type: "FeatureCollection",
+            features: routeFeatures,
+          });
+        } else {
+          map.addSource("routes-source", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: routeFeatures },
+          });
+
+          // Glow Underlay for high visibility over all base maps
+          map.addLayer({
+            id: "routes-line-glow",
+            type: "line",
+            source: "routes-source",
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": ["case", ["get", "selected"], 10.0, 3.5],
+              "line-blur": 2.5,
+              "line-opacity": ["case", ["get", "selected"], 0.75, 0.25],
+            },
+          });
+
+          // Sharp Center Polyline
+          map.addLayer({
+            id: "routes-line",
+            type: "line",
+            source: "routes-source",
+            layout: {
+              "line-cap": "round",
+              "line-join": "round",
+            },
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": ["case", ["get", "selected"], 4.5, 2.2],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.6],
+            },
+          });
+
+          // Click handler to select route directly by clicking on map line
+          (map as any).on("click", "routes-line", (e: any) => {
+            if (e.features && e.features[0]) {
+              const rId = e.features[0].properties?.id;
+              if (rId && onSelectRoute) {
+                onSelectRoute(rId);
+              }
+            }
+          });
+
+          (map as any).on("mouseenter", "routes-line", () => {
+            if (mapContainerRef.current) {
+              mapContainerRef.current.style.cursor = "pointer";
+            }
+          });
+          (map as any).on("mouseleave", "routes-line", () => {
+            if (mapContainerRef.current) {
+              mapContainerRef.current.style.cursor = "";
+            }
+          });
+        }
+      } else if (!layers.routes && map.getSource("routes-source")) {
+        (map.getSource("routes-source") as GeoJSONSource).setData({
+          type: "FeatureCollection",
+          features: [],
+        });
       }
     };
 
@@ -742,9 +820,36 @@ export function AntarcticPolarMap({
                 {p.shortName}
               </button>
             ))}
+
+            {/* Route Corridor Switcher directly inside the map ribbon */}
+            {routes.length > 0 && layers.routes && (
+              <div className="flex items-center gap-1 border-l border-[#1d445c]/60 pl-2 ml-1">
+                <span className="font-mono text-[9px] font-bold uppercase text-[#55d6e8]">CORRIDOR:</span>
+                {routes.map((r) => {
+                  const isSel = r.id === selectedRouteId;
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => onSelectRoute?.(r.id)}
+                      className={cx(
+                        "flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[9px] font-bold transition-all cursor-pointer",
+                        isSel
+                          ? "bg-[#55d6e8] text-[#071521] shadow-[0_0_8px_#55d6e8]"
+                          : "border border-[#1d445c]/60 bg-[#0d2433]/70 text-[#91aeb9] hover:text-[#eaf6f8] hover:border-[#55d6e8]/40"
+                      )}
+                      title={`${r.name} (${r.distanceNm} nm · ${r.eta} · Risk: ${r.riskScore})`}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: r.color }} />
+                      <span>{r.name.replace(/Route\s+([A-Z]).*/i, "Route $1")}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
+            <LayerChip label="🚢 Corridors" active={layers.routes} onClick={() => toggleLayer("routes")} />
             <LayerChip label="🏢 Stations" active={layers.stations} onClick={() => toggleLayer("stations")} />
             <LayerChip label="⚓ Gateways" active={layers.gateways} onClick={() => toggleLayer("gateways")} />
             <LayerChip label="🧊 Icebergs" active={layers.icebergs} onClick={() => toggleLayer("icebergs")} />

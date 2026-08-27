@@ -223,9 +223,9 @@ export function clientSideCalculateRoutes(payload: RouteCalculatePayload): Route
       max_lon: Math.max(...allLons) + 3.5,
     },
     vessel_speed_kn,
-    baseTravelHours: baseTravelHoursB,
+    baseTravelHours: recId === "route-a" ? baseTravelHoursA : recId === "route-c" ? baseTravelHoursC : baseTravelHoursB,
     totalBreakHours,
-    totalVoyageHours: totalVoyageHoursB,
+    totalVoyageHours: (recId === "route-a" ? baseTravelHoursA : recId === "route-c" ? baseTravelHoursC : baseTravelHoursB) + totalBreakHours,
   };
 }
 

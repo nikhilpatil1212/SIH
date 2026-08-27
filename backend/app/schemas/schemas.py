@@ -50,11 +50,19 @@ class RouteSchema(BaseModel):
     riskScore: int
     riskLevel: str
 
+class RouteWaypointInput(BaseModel):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    lat: float
+    lon: float
+    breakDurationHours: Optional[float] = 0.0
+
 class RouteCalculateRequest(BaseModel):
     vessel_id: Optional[str] = "vessel-sarathi-1"
     start: GeoCoordinate
     destination: GeoCoordinate
-    objective: str = "SAFEST"
+    waypoints: Optional[List[RouteWaypointInput]] = []
+    objective: Optional[str] = "SAFEST"
     vessel_speed_kn: Optional[float] = 14.0
 
 class RouteCalculateResponse(BaseModel):
@@ -62,11 +70,15 @@ class RouteCalculateResponse(BaseModel):
     objective: str
     start: GeoCoordinate
     destination: GeoCoordinate
+    waypoints: Optional[List[RouteWaypointInput]] = []
     recommended_route_id: str
     routes: List[RouteSchema]
     why_recommended: List[str]
     bounding_box: Dict[str, float]
     vessel_speed_kn: float
+    baseTravelHours: Optional[float] = 0.0
+    totalBreakHours: Optional[float] = 0.0
+    totalVoyageHours: Optional[float] = 0.0
 
 class HazardSchema(BaseModel):
     id: str

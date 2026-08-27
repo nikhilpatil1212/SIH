@@ -126,11 +126,14 @@ export function MapView({
     };
   }, []);
 
+  const prevProviderRef = useRef(providerId);
   // Update Style on Provider Change
   useEffect(() => {
     if (!mapRef.current) return;
+    if (prevProviderRef.current === providerId) return;
+    prevProviderRef.current = providerId;
     mapRef.current.setStyle(mapStyle);
-  }, [mapStyle]);
+  }, [providerId, mapStyle]);
 
   // Markers management
   const markersRef = useRef<MapLibreMarker[]>([]);
@@ -311,7 +314,7 @@ export function MapView({
       }
 
       // Routes Layer
-      if (routes.length > 0 && !map.getSource("routes-source")) {
+      if (routes.length > 0) {
         const routeFeatures = routes.map((r) => ({
           type: "Feature" as const,
           properties: { id: r.id, name: r.name, selected: r.id === selectedRouteId, color: r.color },
@@ -321,21 +324,41 @@ export function MapView({
           },
         }));
 
-        map.addSource("routes-source", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: routeFeatures },
-        });
+        const existingSource = map.getSource("routes-source") as maplibregl.GeoJSONSource | undefined;
+        if (existingSource) {
+          existingSource.setData({
+            type: "FeatureCollection",
+            features: routeFeatures,
+          });
+        } else {
+          map.addSource("routes-source", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: routeFeatures },
+          });
 
-        map.addLayer({
-          id: "routes-line",
-          type: "line",
-          source: "routes-source",
-          paint: {
-            "line-color": ["get", "color"],
-            "line-width": ["case", ["get", "selected"], 4, 2.5],
-            "line-opacity": 0.95,
-          },
-        });
+          map.addLayer({
+            id: "routes-line-glow",
+            type: "line",
+            source: "routes-source",
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": ["case", ["get", "selected"], 7, 3],
+              "line-blur": 2,
+              "line-opacity": ["case", ["get", "selected"], 0.65, 0.25],
+            },
+          });
+
+          map.addLayer({
+            id: "routes-line",
+            type: "line",
+            source: "routes-source",
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": ["case", ["get", "selected"], 4, 2],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.6],
+            },
+          });
+        }
       }
     };
 

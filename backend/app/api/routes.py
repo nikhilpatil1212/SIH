@@ -48,7 +48,8 @@ def calculate_routes(req: RouteCalculateRequest):
             dest_lat=req.destination.lat,
             dest_lon=req.destination.lon,
             vessel_speed_kn=req.vessel_speed_kn or 14.0,
-            objective=req.objective or "SAFEST"
+            objective=req.objective or "SAFEST",
+            waypoints=req.waypoints,
         )
         return result
     except Exception as e:
