@@ -1,7 +1,9 @@
 import type { AlertItem, Environment, Hazard, Iceberg, Route, Vessel, SeaIcePredictionResponse } from "../data/types";
 import { alerts as baseAlerts, environment as baseEnv, hazards as baseHazards, icebergs as baseIcebergs, routes as baseRoutes, vessel as baseVessel } from "../data/mock";
 
-const API_BASE = "/api";
+const API_BASE = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL)
+  ? (import.meta as any).env.VITE_API_BASE_URL
+  : "/api";
 
 export interface GeoLocationOption {
   id: string;
@@ -260,22 +262,17 @@ export function clientSideCalculateRoutes(payload: RouteCalculatePayload): Route
 }
 
 export const apiClient = {
-  async checkHealth(): Promise<{ status: string; service: string; environment: string; version: string }> {
+  async checkHealth(): Promise<{ status: string; service: string; environment?: string; version?: string } | null> {
     try {
-      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
       if (res.ok) return await res.json();
     } catch {}
-    return {
-      status: "HEALTHY",
-      service: "dhruva-sarathi-backend",
-      environment: "DEVELOPMENT",
-      version: "1.0.0",
-    };
+    return null;
   },
 
   async getSystemStatus(): Promise<SystemStatus | null> {
     try {
-      const res = await fetch(`${API_BASE}/system/status`, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(`${API_BASE}/system-status`, { signal: AbortSignal.timeout(5000) });
       if (res.ok) return await res.json();
     } catch {}
     return null;

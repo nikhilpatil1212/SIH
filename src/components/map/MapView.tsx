@@ -5,7 +5,7 @@ import { Crosshair, Layers, Maximize2, Minimize2, ShieldAlert, Ship, X } from "l
 import type { Hazard, Iceberg, Route } from "../../data/types";
 import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
-import { MAP_PROVIDERS, type MapTileProviderId, getSectorName, RESEARCH_STATIONS } from "./AntarcticPolarMap";
+import { MAP_PROVIDERS, type MapTileProviderId, getSectorName, RESEARCH_STATIONS } from "../../data/polarMapData";
 import { hazards as mockHazards, vessel } from "../../data/mock";
 
 export interface LayerState {
@@ -132,6 +132,31 @@ export function MapView({
     mapRef.current.setStyle(mapStyle);
   }, [mapStyle]);
 
+  // Selected iceberg & trajectory coordinates derivation
+  const selectedBerg = (icebergs && icebergs.length > 0)
+    ? (icebergs.find((i) => i.id === selectedIcebergId) || icebergs[0])
+    : null;
+
+  const selectedTrajectoryCoords: [number, number][] = useMemo(() => {
+    if (!selectedBerg || !selectedBerg.position) return [];
+    if (selectedBerg.predictedPath && selectedBerg.predictedPath.length >= 2) {
+      return selectedBerg.predictedPath.map((p) => [p.lon, p.lat]);
+    }
+    const speedMs = (selectedBerg.speedMs && selectedBerg.speedMs > 0) ? selectedBerg.speedMs : 0.22;
+    const heading_rad = (((selectedBerg.headingDeg ?? 300)) * Math.PI) / 180.0;
+    const lat_rad = (selectedBerg.position.lat * Math.PI) / 180.0;
+    const dist_24h_km = speedMs * 86.4;
+    const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
+    const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
+
+    return [
+      [selectedBerg.position.lon, selectedBerg.position.lat],
+      [selectedBerg.position.lon + dlon, selectedBerg.position.lat + dlat],
+      [selectedBerg.position.lon + dlon * 2, selectedBerg.position.lat + dlat * 2],
+      [selectedBerg.position.lon + dlon * 3, selectedBerg.position.lat + dlat * 3],
+    ];
+  }, [selectedBerg]);
+
   // Smooth Auto-Focus / Zoom on Selected Iceberg
   const prevSelectedIcebergRef = useRef<string | null>(null);
 
@@ -244,10 +269,27 @@ export function MapView({
         const isSelected = ibg.id === selectedIcebergId;
         const isHigh = ibg.riskLevel === "high";
 
-        // If this is the selected iceberg and it has a multi-point predicted trajectory:
-        if (isSelected && ibg.predictedPath && ibg.predictedPath.length >= 4) {
-          const path = ibg.predictedPath;
+        // If this is the selected iceberg:
+        let path = ibg.predictedPath;
+        if (isSelected && (!path || path.length < 4)) {
+          const speedMs = ibg.speedMs > 0 ? ibg.speedMs : 0.22;
+          const heading_rad = ((ibg.headingDeg || 300) * Math.PI) / 180.0;
+          const lat_rad = (ibg.position.lat * Math.PI) / 180.0;
+          const dist_24h_km = speedMs * 86.4;
+          const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
+          const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
 
+          path = [
+            ibg.position,
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * (6 / 24), lon: ibg.position.lon + dlon * (6 / 24) },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * (12 / 24), lon: ibg.position.lon + dlon * (12 / 24) },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat, lon: ibg.position.lon + dlon },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * 2, lon: ibg.position.lon + dlon * 2 },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * 3, lon: ibg.position.lon + dlon * 3 },
+          ];
+        }
+
+        if (isSelected && path && path.length >= 4) {
           let activeIndex = 0;
           if (horizonFraction <= 0.01) activeIndex = 0;
           else if (Math.abs(horizonFraction - 0.12) < 0.01) activeIndex = 1;
@@ -422,83 +464,96 @@ export function MapView({
     const map = mapRef.current;
     if (!map) return;
 
-    const renderDirectA76CTrajectory = () => {
+    const renderTrajectory = () => {
       try {
         if (!map.isStyleLoaded()) {
-          map.once("style.load", renderDirectA76CTrajectory);
+          map.once("style.load", renderTrajectory);
           return;
         }
 
-        const sourceId = "a76c-direct-trajectory-source";
-        const layerId = "a76c-direct-trajectory-layer";
+        const sourceId = "iceberg-trajectory";
+        const layerId = "iceberg-trajectory-line";
 
         // Clean up old layers if present
-        if (map.getLayer("iceberg-trajectory-line")) map.removeLayer("iceberg-trajectory-line");
+        if (map.getLayer("a76c-direct-trajectory-layer")) map.removeLayer("a76c-direct-trajectory-layer");
+        if (map.getSource("a76c-direct-trajectory-source")) map.removeSource("a76c-direct-trajectory-source");
         if (map.getLayer("iceberg-trajectory-casing")) map.removeLayer("iceberg-trajectory-casing");
         if (map.getSource("iceberg-trajectory-source")) map.removeSource("iceberg-trajectory-source");
 
-        if (map.getLayer(layerId)) {
-          map.removeLayer(layerId);
-        }
-        if (map.getSource(sourceId)) {
-          map.removeSource(sourceId);
+        const lineCoordinates = selectedTrajectoryCoords;
+        if (!lineCoordinates || lineCoordinates.length < 2) {
+          if (map.getLayer(layerId)) {
+            if (typeof (map as any).setLayoutProperty === "function") {
+              (map as any).setLayoutProperty(layerId, "visibility", "none");
+            }
+          }
+          return;
         }
 
-        const lineCoordinates: [number, number][] = [
-          [-29.5000, -53.7300],
-          [-29.6453, -53.6545],
-          [-29.7906, -53.5791],
-          [-29.9359, -53.5036],
-        ];
+        const geojsonData = {
+          type: "Feature" as const,
+          properties: { iceberg_id: selectedBerg?.id || "A76C" },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: lineCoordinates,
+          },
+        };
 
-        map.addSource(sourceId, {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: { iceberg: "A76C" },
-            geometry: {
-              type: "LineString",
-              coordinates: lineCoordinates,
+        const existingSource = map.getSource(sourceId) as any;
+        if (existingSource) {
+          existingSource.setData(geojsonData);
+        } else {
+          map.addSource(sourceId, {
+            type: "geojson",
+            data: geojsonData,
+          });
+        }
+
+        if (!map.getLayer(layerId)) {
+          map.addLayer({
+            id: layerId,
+            type: "line",
+            source: sourceId,
+            layout: {
+              visibility: "visible",
+              "line-cap": "round",
+              "line-join": "round",
             },
-          },
-        });
-
-        map.addLayer({
-          id: layerId,
-          type: "line",
-          source: sourceId,
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-color": "#ff00ff",
-            "line-width": 10,
-            "line-opacity": 1.0,
-          },
-        });
+            paint: {
+              "line-color": "#00e5ff",
+              "line-width": 5,
+              "line-opacity": 0.9,
+              "line-dasharray": [2, 6],
+              "line-blur": 1.5,
+            },
+          });
+        } else {
+          if (typeof (map as any).setLayoutProperty === "function") {
+            (map as any).setLayoutProperty(layerId, "visibility", "visible");
+          }
+        }
 
         if (typeof (map as any).moveLayer === "function") {
-          (map as any).moveLayer(layerId);
+          try {
+            (map as any).moveLayer(layerId);
+          } catch (e) {}
         }
       } catch (err) {
-        console.error("Error in renderDirectA76CTrajectory MapView:", err);
+        console.error("Error in renderTrajectory MapView:", err);
       }
     };
 
     if (map.isStyleLoaded()) {
-      renderDirectA76CTrajectory();
+      renderTrajectory();
     } else {
-      map.once("style.load", renderDirectA76CTrajectory);
+      map.once("style.load", renderTrajectory);
     }
-    map.on("styledata", renderDirectA76CTrajectory);
-    map.on("load", renderDirectA76CTrajectory);
+    map.on("load", renderTrajectory);
 
     return () => {
-      map.off("styledata", renderDirectA76CTrajectory);
-      map.off("load", renderDirectA76CTrajectory);
+      map.off("load", renderTrajectory);
     };
-  }, [providerId, selectedIcebergId, icebergs]);
+  }, [selectedTrajectoryCoords, providerId, selectedBerg]);
 
   const copyCoordinates = () => {
     if (!clickedPin) return;

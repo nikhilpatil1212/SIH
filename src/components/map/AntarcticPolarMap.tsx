@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import { type Map as MapLibreInstance, type Marker as MapLibreMarker, type GeoJSONSource } from "maplibre-gl";
 import {
@@ -27,156 +27,27 @@ import { useTheme } from "../../theme";
 import { hazards as mockHazards } from "../../data/mock";
 import { useOptionalNav, type OperationalWaypoint } from "../../state";
 
-// ---------------------------------------------------------------------------
-// Reliable Base Map Providers
-// ---------------------------------------------------------------------------
-export type MapTileProviderId = "esri-satellite" | "osm" | "carto-dark";
+import {
+  MAP_PROVIDERS,
+  type MapTileProviderId,
+  type MapTileProvider,
+  getSectorName,
+  RESEARCH_STATIONS,
+  type ResearchStation,
+  GATEWAY_PORTS,
+  type GatewayPort,
+} from "../../data/polarMapData";
 
-export interface MapTileProvider {
-  id: MapTileProviderId;
-  name: string;
-  shortName: string;
-  tileUrl: string;
-  tileSize: number;
-  maxZoom: number;
-  attribution: string;
-}
-
-export const MAP_PROVIDERS: MapTileProvider[] = [
-  {
-    id: "esri-satellite",
-    name: "ESRI Satellite",
-    shortName: "ESRI Satellite",
-    tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    tileSize: 256,
-    maxZoom: 19,
-    attribution: "© ESRI, Maxar, Earthstar Geographics",
-  },
-  {
-    id: "osm",
-    name: "OpenStreetMap",
-    shortName: "OpenStreetMap",
-    tileUrl: "https://tile.openstreetmap.org/{z}/{y}/{x}.png",
-    tileSize: 256,
-    maxZoom: 19,
-    attribution: "© OpenStreetMap contributors",
-  },
-  {
-    id: "carto-dark",
-    name: "Nautical Dark",
-    shortName: "Nautical Dark",
-    tileUrl: "https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png",
-    tileSize: 512,
-    maxZoom: 19,
-    attribution: "© CartoDB, OpenStreetMap contributors",
-  },
-];
-
-export function getSectorName(lat: number, lon: number): string {
-  if (lat > -40) return "Sub-Tropical Maritime Gateway Zone";
-  if (lat > -50) return "Roaring Forties · Southern Ocean";
-  if (lat > -60) return "Furious Fifties · Antarctic Circumpolar Current";
-  if (lon >= -75 && lon <= -20) return "Weddell Sea Sector · Antarctic Peninsula";
-  if (lon >= -150 && lon < -75) return "Bellingshausen & Amundsen Sea Sector";
-  if (lon >= 150 || lon < -150) return "Ross Sea & Victoria Land Sector";
-  if (lon >= 60 && lon < 150) return "East Antarctica · Wilkes & Prydz Bay";
-  return "Queen Maud Land · Polar Continental Sector";
-}
-
-export interface ResearchStation {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  lat: number;
-  lon: number;
-  type: "Permanent" | "Summer" | "Historic";
-  desc: string;
-  isPrimary?: boolean;
-}
-
-export const RESEARCH_STATIONS: ResearchStation[] = [
-  {
-    id: "maitri",
-    name: "Maitri Station",
-    country: "India",
-    flag: "🇮🇳",
-    lat: -70.77,
-    lon: 11.73,
-    type: "Permanent",
-    desc: "India's permanent polar base in the ice-free Schirmacher Oasis. Year-round glaciology, biology & atmospheric physics.",
-    isPrimary: true,
-  },
-  {
-    id: "bharati",
-    name: "Bharati Station",
-    country: "India",
-    flag: "🇮🇳",
-    lat: -69.41,
-    lon: 76.19,
-    type: "Permanent",
-    desc: "India's state-of-the-art Antarctic research base in the Larsemann Hills, East Antarctica with high-gain satellite ground terminal.",
-    isPrimary: true,
-  },
-  {
-    id: "dakshin",
-    name: "Dakshin Gangotri",
-    country: "India",
-    flag: "🇮🇳",
-    lat: -70.08,
-    lon: 12.0,
-    type: "Historic",
-    desc: "India's historic first Antarctic base (est. 1983), designated Antarctic historic heritage site and fuel depot.",
-    isPrimary: true,
-  },
-  {
-    id: "mcmurdo",
-    name: "McMurdo Station",
-    country: "USA",
-    flag: "🇺🇸",
-    lat: -77.85,
-    lon: 166.67,
-    type: "Permanent",
-    desc: "The largest Antarctic science base, situated on Ross Island. Primary logistics hub for South Pole flights.",
-  },
-  {
-    id: "halley",
-    name: "Halley VI Station",
-    country: "UK",
-    flag: "🇬🇧",
-    lat: -75.58,
-    lon: -26.54,
-    type: "Permanent",
-    desc: "British Antarctic Survey ski-mounted modular base on the Brunt Ice Shelf. Atmospheric ozone monitoring.",
-  },
-  {
-    id: "rothera",
-    name: "Rothera Station",
-    country: "UK",
-    flag: "🇬🇧",
-    lat: -67.57,
-    lon: -68.13,
-    type: "Permanent",
-    desc: "British Antarctic Survey logistics hub with all-weather airstrip on Adelaide Island, Antarctic Peninsula.",
-  },
-  {
-    id: "casey",
-    name: "Casey Station",
-    country: "Australia",
-    flag: "🇦🇺",
-    lat: -66.28,
-    lon: 110.53,
-    type: "Permanent",
-    desc: "Australian Antarctic base in Wilkes Land with the Wilkins Aerodrome intercontinental runway.",
-  },
-];
-
-export const GATEWAY_PORTS = [
-  { id: "capetown", name: "Port of Cape Town", country: "South Africa", flag: "🇿🇦", lat: -33.92, lon: 18.42, desc: "Primary logistics springboard for Indian (Maitri/Bharati) and European Antarctic expeditions." },
-  { id: "ushuaia", name: "Port of Ushuaia", country: "Argentina", flag: "🇦🇷", lat: -54.8, lon: -68.3, desc: "Premier gateway for Drake Passage navigation and Antarctic Peninsula scientific logistics." },
-  { id: "puntaarenas", name: "Punta Arenas", country: "Chile", flag: "🇨🇱", lat: -53.16, lon: -70.91, desc: "Chilean Antarctic hub and DAP Antarctic flight logistics base." },
-  { id: "hobart", name: "Port of Hobart", country: "Australia", flag: "🇦🇺", lat: -42.88, lon: 147.32, desc: "Home port of RSV Nuyina and gateway for Australian and East Antarctic research." },
-];
+export {
+  MAP_PROVIDERS,
+  type MapTileProviderId,
+  type MapTileProvider,
+  getSectorName,
+  RESEARCH_STATIONS,
+  type ResearchStation,
+  GATEWAY_PORTS,
+  type GatewayPort,
+};
 
 export interface SeaIceHeatFeature {
   region: string;
@@ -267,6 +138,51 @@ export function AntarcticPolarMap({
   const [cursorPos, setCursorPos] = useState<{ lat: number; lon: number; sector: string } | null>(null);
   const [svgPoints, setSvgPoints] = useState<string>("");
   const hoverTimeoutRef = useRef<any>(null);
+  const coordsRef = useRef<[number, number][]>([]);
+
+  // Selected iceberg & trajectory coordinates derivation
+  const selectedBerg = (icebergs && icebergs.length > 0)
+    ? (icebergs.find((i) => i.id === selectedIcebergId) || icebergs[0])
+    : null;
+
+  const selectedTrajectoryCoords: [number, number][] = useMemo(() => {
+    if (!selectedBerg || !selectedBerg.position) return [];
+    if (selectedBerg.predictedPath && selectedBerg.predictedPath.length >= 2) {
+      return selectedBerg.predictedPath.map((p) => [p.lon, p.lat]);
+    }
+    const speedMs = (selectedBerg.speedMs && selectedBerg.speedMs > 0) ? selectedBerg.speedMs : 0.22;
+    const heading_rad = (((selectedBerg.headingDeg ?? 300)) * Math.PI) / 180.0;
+    const lat_rad = (selectedBerg.position.lat * Math.PI) / 180.0;
+    const dist_24h_km = speedMs * 86.4;
+    const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
+    const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
+
+    return [
+      [selectedBerg.position.lon, selectedBerg.position.lat],
+      [selectedBerg.position.lon + dlon, selectedBerg.position.lat + dlat],
+      [selectedBerg.position.lon + dlon * 2, selectedBerg.position.lat + dlat * 2],
+      [selectedBerg.position.lon + dlon * 3, selectedBerg.position.lat + dlat * 3],
+    ];
+  }, [selectedBerg]);
+
+  const updateSvgTrajectory = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const coords = coordsRef.current;
+    if (!coords || coords.length < 2) {
+      setSvgPoints("");
+      return;
+    }
+    try {
+      const pts = coords
+        .map((c) => {
+          const pt = typeof (map as any).project === "function" ? (map as any).project([c[0], c[1]]) : { x: 0, y: 0 };
+          return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+        })
+        .join(" ");
+      setSvgPoints(pts);
+    } catch {}
+  }, []);
 
   const activeProvider = useMemo(() => {
     return MAP_PROVIDERS.find((p) => p.id === providerId) || MAP_PROVIDERS[0];
@@ -313,24 +229,6 @@ export function AntarcticPolarMap({
     mapRef.current = map;
     (window as any).__MAPLIBRE_MAP__ = map;
 
-    const updateSvgTrajectory = () => {
-      const coords = [
-        [-29.5000, -53.7300],
-        [-29.6453, -53.6545],
-        [-29.7906, -53.5791],
-        [-29.9359, -53.5036],
-      ];
-      try {
-        const pts = coords
-          .map((c) => {
-            const pt = typeof (map as any).project === "function" ? (map as any).project([c[0], c[1]]) : { x: 0, y: 0 };
-            return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
-          })
-          .join(" ");
-        setSvgPoints(pts);
-      } catch {}
-    };
-
     map.on("render", updateSvgTrajectory);
     map.on("move", updateSvgTrajectory);
     map.on("zoom", updateSvgTrajectory);
@@ -351,7 +249,7 @@ export function AntarcticPolarMap({
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [updateSvgTrajectory]);
 
   // Update Style on Provider Change seamlessly (Only when provider actually changes)
   const prevProviderRef = useRef<string>(providerId);
@@ -524,10 +422,27 @@ export function AntarcticPolarMap({
         const isSelected = ibg.id === selectedIcebergId;
         const isHigh = ibg.riskLevel === "high";
 
-        // If this is the selected iceberg and it has a multi-point predicted trajectory:
-        if (isSelected && ibg.predictedPath && ibg.predictedPath.length >= 4) {
-          const path = ibg.predictedPath;
+        // If this is the selected iceberg:
+        let path = ibg.predictedPath;
+        if (isSelected && (!path || path.length < 4)) {
+          const speedMs = ibg.speedMs > 0 ? ibg.speedMs : 0.22;
+          const heading_rad = ((ibg.headingDeg || 300) * Math.PI) / 180.0;
+          const lat_rad = (ibg.position.lat * Math.PI) / 180.0;
+          const dist_24h_km = speedMs * 86.4;
+          const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
+          const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
 
+          path = [
+            ibg.position,
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * (6 / 24), lon: ibg.position.lon + dlon * (6 / 24) },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * (12 / 24), lon: ibg.position.lon + dlon * (12 / 24) },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat, lon: ibg.position.lon + dlon },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * 2, lon: ibg.position.lon + dlon * 2 },
+            { x: 500, y: 500, lat: ibg.position.lat + dlat * 3, lon: ibg.position.lon + dlon * 3 },
+          ];
+        }
+
+        if (isSelected && path && path.length >= 4) {
           let activeIndex = 0;
           if (horizonFraction <= 0.01) activeIndex = 0;
           else if (Math.abs(horizonFraction - 0.12) < 0.01) activeIndex = 1;
@@ -770,39 +685,42 @@ export function AntarcticPolarMap({
 
   // Dedicated Robust Trajectory Line Layer Management (Direct MapLibre Implementation)
   useEffect(() => {
+    coordsRef.current = selectedTrajectoryCoords;
     const map = mapRef.current;
     if (!map) return;
 
-    const renderDirectA76CTrajectory = () => {
+    const renderTrajectory = () => {
       try {
         if (!map.isStyleLoaded()) {
-          map.once("style.load", renderDirectA76CTrajectory);
+          map.once("style.load", renderTrajectory);
           return;
         }
 
-        const sourceId = "trajectory-debug-test";
-        const layerId = "trajectory-debug-test-line";
+        const sourceId = "iceberg-trajectory";
+        const layerId = "iceberg-trajectory-line";
 
         // Clean up legacy layer names if present
+        if (map.getLayer("trajectory-debug-test-line")) map.removeLayer("trajectory-debug-test-line");
+        if (map.getSource("trajectory-debug-test")) map.removeSource("trajectory-debug-test");
         if (map.getLayer("a76c-trajectory-layer")) map.removeLayer("a76c-trajectory-layer");
         if (map.getSource("a76c-trajectory-source")) map.removeSource("a76c-trajectory-source");
         if (map.getLayer("a76c-direct-trajectory-layer")) map.removeLayer("a76c-direct-trajectory-layer");
         if (map.getSource("a76c-direct-trajectory-source")) map.removeSource("a76c-direct-trajectory-source");
-        if (map.getLayer("iceberg-trajectory-line")) map.removeLayer("iceberg-trajectory-line");
         if (map.getLayer("iceberg-trajectory-casing")) map.removeLayer("iceberg-trajectory-casing");
-        if (map.getSource("iceberg-trajectory-source")) map.removeSource("iceberg-trajectory-source");
 
-        // Coordinates strictly in [lon, lat] order
-        const lineCoordinates: [number, number][] = [
-          [-29.5000, -53.7300], // NOW
-          [-29.6453, -53.6545], // +24H
-          [-29.7906, -53.5791], // +48H
-          [-29.9359, -53.5036], // +72H
-        ];
+        const lineCoordinates = selectedTrajectoryCoords;
+        if (!lineCoordinates || lineCoordinates.length < 2) {
+          if (map.getLayer(layerId)) {
+            if (typeof (map as any).setLayoutProperty === "function") {
+              (map as any).setLayoutProperty(layerId, "visibility", "none");
+            }
+          }
+          return;
+        }
 
         const geojsonData = {
           type: "Feature" as const,
-          properties: {},
+          properties: { iceberg_id: selectedBerg?.id || "A76C" },
           geometry: {
             type: "LineString" as const,
             coordinates: lineCoordinates,
@@ -830,9 +748,11 @@ export function AntarcticPolarMap({
               "line-join": "round",
             },
             paint: {
-              "line-color": "#ff00ff",
-              "line-width": 12,
-              "line-opacity": 1.0,
+              "line-color": "#00e5ff",
+              "line-width": 5,
+              "line-opacity": 0.9,
+              "line-dasharray": [2, 6],
+              "line-blur": 1.5,
             },
           });
         } else {
@@ -845,37 +765,26 @@ export function AntarcticPolarMap({
           try {
             (map as any).moveLayer(layerId);
           } catch (err) {
-            console.warn("[A76C Trajectory moveLayer]", err);
+            console.warn("[Iceberg Trajectory moveLayer]", err);
           }
         }
-
-        const currentLayers = typeof (map as any).getStyle === "function" ? (map as any).getStyle()?.layers?.map((l: any) => l.id) || [] : [];
-        console.log("[A76C MAGENTA TRAJECTORY DEBUG]", {
-          coordinates: lineCoordinates,
-          sourceExists: !!map.getSource(sourceId),
-          layerExists: !!map.getLayer(layerId),
-          sourceData: (map.getSource(sourceId) as any)?._data,
-          layerObject: map.getLayer(layerId),
-          isLayerVisible: typeof (map as any).getLayoutProperty === "function" ? (map as any).getLayoutProperty(layerId, "visibility") : "visible",
-          allLayers: currentLayers,
-          trajectoryLayerPresent: currentLayers.includes(layerId),
-        });
       } catch (err) {
-        console.error("Error in renderDirectA76CTrajectory:", err);
+        console.error("Error in renderTrajectory:", err);
       }
     };
 
     if (map.isStyleLoaded()) {
-      renderDirectA76CTrajectory();
+      renderTrajectory();
     } else {
-      map.once("style.load", renderDirectA76CTrajectory);
+      map.once("style.load", renderTrajectory);
     }
-    map.on("load", renderDirectA76CTrajectory);
+    map.on("load", renderTrajectory);
+    updateSvgTrajectory();
 
     return () => {
-      map.off("load", renderDirectA76CTrajectory);
+      map.off("load", renderTrajectory);
     };
-  }, [providerId, selectedIcebergId, icebergs]);
+  }, [selectedTrajectoryCoords, providerId, selectedBerg, updateSvgTrajectory]);
 
   return (
     <div
@@ -975,7 +884,7 @@ export function AntarcticPolarMap({
       <div className="relative flex-1 min-h-[380px] overflow-hidden bg-[#050d17]">
         <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
 
-        {/* Diagnostic High-Precision Trajectory SVG Overlay (100% physically rendered across browsers) */}
+        {/* High-Precision Trajectory Bright Cyan Dotted Neon SVG Overlay */}
         {layers.icebergPrediction && svgPoints && (
           <svg
             className="absolute inset-0 h-full w-full pointer-events-none z-10 overflow-visible"
@@ -983,12 +892,14 @@ export function AntarcticPolarMap({
           >
             <polyline
               points={svgPoints}
-              stroke="#ff00ff"
-              strokeWidth="8"
+              stroke="#00e5ff"
+              strokeWidth="5"
+              strokeDasharray="2, 10"
               strokeLinecap="round"
               strokeLinejoin="round"
+              strokeOpacity="0.9"
               fill="none"
-              style={{ filter: "drop-shadow(0 0 8px #ff00ff)" }}
+              style={{ filter: "drop-shadow(0 0 6px #00e5ff)" }}
             />
           </svg>
         )}

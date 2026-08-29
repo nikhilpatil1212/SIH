@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { systemMeta } from "../data/mock";
 import { StatusDot } from "./ui/primitives";
 import { ThemeToggle } from "../theme";
 import type { User } from "../data/auth";
+import apiClient from "../api/client";
 
 export function TopBar({
   title,
@@ -15,6 +17,27 @@ export function TopBar({
   user?: User | null;
   onSignOut?: () => void;
 }) {
+  const [backendStatus, setBackendStatus] = useState<"connecting" | "online" | "offline">("connecting");
+
+  useEffect(() => {
+    let mounted = true;
+    const check = async () => {
+      const res = await apiClient.checkHealth();
+      if (!mounted) return;
+      if (res && (res.status === "ok" || res.status === "HEALTHY")) {
+        setBackendStatus("online");
+      } else {
+        setBackendStatus("offline");
+      }
+    };
+    check();
+    const interval = setInterval(check, 10000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <header className="flex h-13 shrink-0 items-center justify-between gap-4 border-b border-[#1d445c]/50 bg-[#0a1e2d] light:border-[#e2d8c7] light:bg-[#f5efe3] px-5 transition-colors">
       <div className="min-w-0">
@@ -23,11 +46,33 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Live Telemetry Status Pill */}
-        <div className="flex items-center gap-2 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 light:border-[#10b981]/40 light:bg-[#10b981]/15 px-3 py-1">
-          <StatusDot color="#10b981" pulse />
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#10b981] light:text-[#059669]">
-            Live Telemetry
+        {/* Real Backend Status Indicator */}
+        <div
+          className={`flex items-center gap-2 rounded-full border px-3 py-1 transition-colors ${
+            backendStatus === "online"
+              ? "border-[#10b981]/40 bg-[#10b981]/15 text-[#10b981] light:border-[#10b981]/50 light:text-[#059669]"
+              : backendStatus === "connecting"
+              ? "border-[#f5b942]/40 bg-[#f5b942]/15 text-[#f5b942] light:border-[#d97706]/50 light:text-[#d97706]"
+              : "border-[#ef4444]/40 bg-[#ef4444]/15 text-[#ef4444] light:border-[#dc2626]/50 light:text-[#dc2626]"
+          }`}
+          title={
+            backendStatus === "online"
+              ? "FastAPI AI Engine Connected"
+              : backendStatus === "connecting"
+              ? "Connecting to FastAPI..."
+              : "Backend Offline (Port 8000)"
+          }
+        >
+          <StatusDot
+            color={backendStatus === "online" ? "#10b981" : backendStatus === "connecting" ? "#f5b942" : "#ef4444"}
+            pulse={backendStatus === "online" || backendStatus === "connecting"}
+          />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider">
+            {backendStatus === "online"
+              ? "BACKEND ONLINE"
+              : backendStatus === "connecting"
+              ? "CONNECTING..."
+              : "BACKEND OFFLINE"}
           </span>
         </div>
 
