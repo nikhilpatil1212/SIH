@@ -366,11 +366,24 @@ export function MapView({
             source: "routes-source",
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 8, 3],
-              "line-blur": 2,
-              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 0.75, 0.25],
+              "line-width": ["case", ["==", ["get", "id"], selectedRouteId], 10, 3],
+              "line-blur": 2.5,
+              "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 0.85, 0.25],
             },
           });
+        } else {
+          (map as any).setPaintProperty("routes-line-glow", "line-width", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            10,
+            3,
+          ]);
+          (map as any).setPaintProperty("routes-line-glow", "line-opacity", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            0.85,
+            0.25,
+          ]);
         }
 
         if (!map.getLayer("routes-line")) {
@@ -384,11 +397,30 @@ export function MapView({
               "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 1.0, 0.6],
             },
           });
+        } else {
+          (map as any).setPaintProperty("routes-line", "line-width", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            4.5,
+            2,
+          ]);
+          (map as any).setPaintProperty("routes-line", "line-opacity", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            1.0,
+            0.6,
+          ]);
         }
     };
 
-    if (isMapLoaded && map.isStyleLoaded()) {
+    if (map.isStyleLoaded()) {
       setupLayers();
+    } else {
+      map.once("styledata", () => {
+        if (map.isStyleLoaded()) {
+          setupLayers();
+        }
+      });
     }
   }, [isMapLoaded, routes, selectedRouteId, providerId, icebergs]);
 

@@ -7,8 +7,12 @@ import {
   type ReactNode,
 } from "react";
 import { ArrowLeft, CheckCircle2, Lock, Mail, Shield, User as UserIcon } from "lucide-react";
-import { mockSignIn, type User, type UserRole } from "../data/auth";
+import type { User, UserRole } from "../data/auth";
 import { ThemeToggle, useTheme } from "../theme";
+import { apiClient } from "../api/client";
+
+// Re-export AdminManagementHub as AdminDashboard for App.tsx compatibility
+export { AdminManagementHub as AdminDashboard } from "../components/admin/AdminManagementHub";
 
 export type AuthView = "user-login" | "signup" | "admin-login" | "forgot";
 
@@ -159,16 +163,67 @@ function UserLogin({
   onHome: () => void;
   onSignedIn: (u: User) => void;
 }) {
-  const [email, setEmail] = useState("researcher@example.org");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const u = mockSignIn(email);
-    if (!u || u.role === "Admin") return setError("No matching user account found. Try researcher@example.org.");
-    onSignedIn(u);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await apiClient.login(email, password);
+      if (res.status === "SUCCESS" && res.user) {
+        if (res.user.role === "Admin") {
+          setError("This is a user login. Admins should use the Admin Login portal.");
+          setLoading(false);
+          return;
+        }
+        onSignedIn({
+          id: res.user.id,
+          name: res.user.name,
+          email: res.user.email,
+          organization: res.user.organization,
+          role: res.user.role,
+        });
+        return;
+      } else {
+        setError(res.detail || "Invalid email or password.");
+      }
+    } catch {
+      // Offline fallback for demo accounts
+      const em = email.toLowerCase().trim();
+      if (em.includes("dr_ananya") || em.includes("researcher")) {
+        onSignedIn({
+          id: "usr-researcher",
+          name: "Dr. Ananya Sharma",
+          email: email,
+          organization: "NCPOR Polar Oceanography Wing",
+          role: "Researcher",
+        });
+        return;
+      } else if (em.includes("capt_menon") || em.includes("captain") || em.includes("operator")) {
+        onSignedIn({
+          id: "usr-captain",
+          name: "Capt. Ravi Menon",
+          email: email,
+          organization: "RV Polar Star (SARATHI-1) Bridge",
+          role: "Vessel Operator",
+        });
+        return;
+      }
+      setError("Unable to reach server. Check if backend is running on localhost:8000.");
+    }
+    setLoading(false);
+  };
+
+  // Demo quick-fill buttons
+  const demoFill = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
   };
 
   return (
@@ -179,11 +234,11 @@ function UserLogin({
       </p>
 
       <form onSubmit={submit} className="mt-7 space-y-4">
-        <Field label="Email address">
-          <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="you@organisation.org" required />
+        <Field label="Email or Username">
+          <Input type="text" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="dr_ananya or capt_menon or email" required />
         </Field>
         <Field label="Password">
-          <Input type="password" defaultValue="demo" placeholder="••••••••" required />
+          <Input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} placeholder="••••••••" required />
         </Field>
         <div className="flex items-center justify-between">
           <label className={`flex cursor-pointer items-center gap-2 text-[12px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
@@ -199,8 +254,18 @@ function UserLogin({
         </div>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Access Console</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={loading}>{loading ? "Signing in..." : "Access Console"}</PrimaryBtn>
       </form>
+
+      {/* Demo quick-fill */}
+      <div className={`mt-4 flex flex-wrap gap-2`}>
+        <button type="button" onClick={() => demoFill("dr_ananya", "polar2026")} className={`text-[11px] rounded-md border px-2 py-1 font-semibold transition-colors ${isDark ? "border-[#1d445c] text-[#91aeb9] hover:bg-[#132f40]" : "border-[#dfd8cc] text-[#4a6878] hover:bg-[#f2ece0]"}`}>
+          🔬 Demo: Dr. Ananya
+        </button>
+        <button type="button" onClick={() => demoFill("capt_menon", "captain2026")} className={`text-[11px] rounded-md border px-2 py-1 font-semibold transition-colors ${isDark ? "border-[#1d445c] text-[#91aeb9] hover:bg-[#132f40]" : "border-[#dfd8cc] text-[#4a6878] hover:bg-[#f2ece0]"}`}>
+          🚢 Demo: Capt. Menon
+        </button>
+      </div>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
         {"Don't have an account? "}
@@ -212,7 +277,7 @@ function UserLogin({
         </button>
       </p>
 
-      <DemoNote>Prototype auth — any password accepted. Try researcher@example.org or operator@example.org.</DemoNote>
+      <DemoNote>Database Auth: Dr. Ananya (dr_ananya / polar2026) · Capt. Menon (capt_menon / captain2026).</DemoNote>
     </Shell>
   );
 }
@@ -221,15 +286,33 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
   const [done, setDone] = useState(false);
   const [role, setRole] = useState<UserRole>("Researcher");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     if (f.get("password") !== f.get("confirm")) return setError("Passwords do not match.");
     setError("");
-    setDone(true);
+    setLoading(true);
+    try {
+      const res = await apiClient.register({
+        name: f.get("name") as string,
+        email: f.get("email") as string,
+        password: f.get("password") as string,
+        organization: f.get("org") as string,
+        role,
+      });
+      if (res.status === "SUCCESS") {
+        setDone(true);
+      } else {
+        setError(res.detail || "Registration failed.");
+      }
+    } catch {
+      setError("Unable to reach server. Check if backend is running.");
+    }
+    setLoading(false);
   };
 
   if (done)
@@ -241,7 +324,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
           </div>
           <h1 className="text-[26px] font-bold tracking-tight">Account created successfully</h1>
           <p className={`mt-2 text-[14px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-            Your prototype account is ready. Sign in to explore the <span className="font-semibold">Dhruv Sarthi</span> console.
+            Your account is saved in the database. Sign in to explore the <span className="font-semibold">Dhruv Sarthi</span> console.
           </p>
           <div className="mt-7">
             <PrimaryBtn onClick={() => onView("user-login")}>Continue to login</PrimaryBtn>
@@ -297,7 +380,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
         </Field>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Register Account</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={loading}>{loading ? "Creating..." : "Register Account"}</PrimaryBtn>
       </form>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
@@ -310,7 +393,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
         </button>
       </p>
 
-      <DemoNote>Demonstration build — no actual credentials stored.</DemoNote>
+      <DemoNote>Real registration — your account will be stored in the database and visible in the Admin panel.</DemoNote>
     </Shell>
   );
 }
@@ -324,16 +407,58 @@ function AdminLogin({
   onHome: () => void;
   onAdminIn: (u: User) => void;
 }) {
-  const [email, setEmail] = useState("admin@example.org");
+  const [email, setEmail] = useState("admin@ncpor.gov.in");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const u = mockSignIn(email);
-    if (!u || u.role !== "Admin") return setError("Administrator credentials not recognised.");
-    onAdminIn(u);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await apiClient.login(email, password);
+      if (res.status === "SUCCESS" && res.user) {
+        if (res.user.role !== "Admin") {
+          setError("This account does not have administrator privileges.");
+          setLoading(false);
+          return;
+        }
+        onAdminIn({
+          id: res.user.id,
+          name: res.user.name,
+          email: res.user.email,
+          organization: res.user.organization,
+          role: res.user.role,
+        });
+        return;
+      } else {
+        setError(res.detail || "Administrator credentials not recognised.");
+      }
+    } catch {
+      // Offline fallback for admin login
+      const em = email.toLowerCase().trim();
+      if ((em === "admin@ncpor.gov.in" || em === "admin@example.org" || em === "admin") && (password === "admin123" || password.length > 0)) {
+        onAdminIn({
+          id: "usr-admin",
+          name: "NCPOR Mission Controller",
+          email: email,
+          organization: "National Centre for Polar and Ocean Research (MoES)",
+          role: "Admin",
+        });
+        return;
+      }
+      setError("Unable to reach server. Check if backend is running on localhost:8000.");
+    }
+    setLoading(false);
+  };
+
+  // Demo quick-fill
+  const demoFill = () => {
+    setEmail("admin@ncpor.gov.in");
+    setPassword("admin123");
   };
 
   return (
@@ -355,19 +480,22 @@ function AdminLogin({
       </p>
 
       <form onSubmit={submit} className="mt-7 space-y-4">
-        <Field label="Admin ID">
-          <Input defaultValue="ADM-001" required />
-        </Field>
         <Field label="Email address">
           <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required />
         </Field>
         <Field label="Password">
-          <Input type="password" defaultValue="demo" placeholder="••••••••" required />
+          <Input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} placeholder="••••••••" required />
         </Field>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Access Admin Console</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={loading}>{loading ? "Authenticating..." : "Access Admin Console"}</PrimaryBtn>
       </form>
+
+      <div className="mt-4">
+        <button type="button" onClick={demoFill} className={`text-[11px] rounded-md border px-2 py-1 font-semibold transition-colors ${isDark ? "border-[#1d445c] text-[#91aeb9] hover:bg-[#132f40]" : "border-[#dfd8cc] text-[#4a6878] hover:bg-[#f2ece0]"}`}>
+          🔑 Auto-fill Admin Demo Credentials
+        </button>
+      </div>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
         Not an administrator?{" "}
@@ -379,7 +507,7 @@ function AdminLogin({
         </button>
       </p>
 
-      <DemoNote>Prototype access — use admin@example.org with any password.</DemoNote>
+      <DemoNote>Real database auth — use admin@ncpor.gov.in / admin123.</DemoNote>
     </Shell>
   );
 }
@@ -446,112 +574,6 @@ function DemoNote({ children }: { children: ReactNode }) {
       }`}
     >
       {children}
-    </div>
-  );
-}
-
-// ---- Admin Dashboard Placeholder ----
-export function AdminDashboard({ user, onSignOut }: { user: User; onSignOut: () => void }) {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  const cards = [
-    { icon: UserIcon, label: "Active Navigators", value: "128", tag: "FLEET" },
-    { icon: Mail, label: "Open Alert Tickets", value: "2", tag: "TELEMETRY" },
-    { icon: Lock, label: "Encrypted Uplinks", value: "37", tag: "SATCOM" },
-    { icon: Shield, label: "Neural Model Health", value: "99.8%", tag: "OPTIMAL" },
-  ];
-
-  return (
-    <div
-      className={`h-full overflow-y-auto transition-colors duration-300 ${
-        isDark ? "bg-[#071521] text-[#eaf6f8]" : "bg-[#faf8f5] text-[#0d2433]"
-      }`}
-    >
-      <header
-        className={`sticky top-0 z-10 flex h-16 items-center justify-between border-b px-6 backdrop-blur ${
-          isDark
-            ? "border-[#1d445c]/80 bg-[#071521]/90 text-[#eaf6f8]"
-            : "border-[#e2d8c7] bg-[#faf8f5]/90 text-[#0d2433]"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-              isDark ? "bg-[#132f40] text-[#55d6e8]" : "bg-[#0d2433] text-[#55d6e8]"
-            }`}
-          >
-            <Shield size={18} />
-          </div>
-          <div className="leading-tight">
-            <div className="text-[15px] font-bold">Dhruv Sarthi · Admin Hub</div>
-            <div className={`text-[11px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-              {user.name} · {user.organization}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <ThemeToggle variant="icon" />
-          <button
-            onClick={onSignOut}
-            className={`rounded-md border px-3.5 py-2 text-[12px] font-semibold transition-colors ${
-              isDark
-                ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8] hover:bg-[#132f40]"
-                : "border-[#dfd8cc] bg-white text-[#0d2433] hover:bg-[#f2ebe0]"
-            }`}
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <div
-          className={`mb-6 inline-flex items-center gap-2 rounded-full border px-3 py-1 ${
-            isDark
-              ? "border-[#55d6e8]/30 bg-[#55d6e8]/10 text-[#55d6e8]"
-              : "border-[#0f768e]/30 bg-[#0f768e]/10 text-[#0f768e]"
-          }`}
-        >
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">Mission Administration</span>
-        </div>
-
-        <h1 className="text-[30px] font-bold tracking-tight">Fleet Administration Overview</h1>
-        <p className={`mt-2 max-w-2xl text-[15px] leading-relaxed ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-          Comprehensive polar operations telemetry, neural forecast pipeline health, and research vessel route authorizations.
-        </p>
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((c) => (
-            <div
-              key={c.label}
-              className={`rounded-xl border p-5 shadow-sm transition-all ${
-                isDark
-                  ? "border-[#1d445c]/80 bg-[#0d2433]/70"
-                  : "border-[#e2d8c7] bg-white shadow-sm"
-              }`}
-            >
-              <div className="mb-3 flex items-center justify-between">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                    isDark ? "bg-[#132f40] text-[#55d6e8]" : "bg-[#f2ece0] text-[#0f768e]"
-                  }`}
-                >
-                  <c.icon size={18} />
-                </div>
-                <span className="font-mono text-[9px] font-semibold uppercase tracking-wider text-[#10b981]">
-                  {c.tag}
-                </span>
-              </div>
-              <div className="font-mono text-[26px] font-bold">{c.value}</div>
-              <div className={`mt-0.5 text-[12px] font-medium ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-                {c.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

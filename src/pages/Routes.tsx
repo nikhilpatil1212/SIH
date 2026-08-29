@@ -466,7 +466,10 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             onSelectRoute={nav.setSelectedRoute}
             icebergs={nav.icebergs}
             selectedIcebergId={nav.selectedIcebergId}
-            onSelectIceberg={nav.setSelectedIceberg}
+            onSelectIceberg={(id) => {
+              nav.setSelectedIceberg(id);
+              onNavigate?.("iceberg");
+            }}
             vessel={{
               name: vessel.name,
               position: { lat: vessel.position.lat, lon: vessel.position.lon },

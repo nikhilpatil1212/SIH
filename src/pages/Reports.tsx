@@ -54,7 +54,7 @@ export function Reports() {
             <div className="rounded-md border-l-2 border-[#f59e0b] bg-[#f59e0b]/10 light:bg-[#fef3c7] p-3.5 text-[12px]">
               <div className="font-mono text-[10px] text-[#91aeb9] light:text-[#78350f]">10:31 UTC · AUTONOMOUS DISPATCH</div>
               <div className="mt-0.5 text-[#eaf6f8] light:text-[#0d2433] font-medium">
-                Automated reroute from Route B → Route C triggered following newly accelerated tabular iceberg IBG-1247 trajectory.
+                Automated reroute from Route B → Route C triggered following newly accelerated tabular iceberg A81 (51.9 km) trajectory.
               </div>
             </div>
           ) : (

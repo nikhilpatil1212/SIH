@@ -48,10 +48,10 @@ export function OperationalApp({ user, onSignOut }: { user: User | null; onSignO
             {page === "map" && <MapPage onNavigate={setPage} />}
             {page === "routes" && <Routes onNavigate={setPage} />}
             {page === "iceberg" && <IcebergPrediction />}
-            {page === "seaice" && <SeaIcePrediction />}
+            {page === "seaice" && <SeaIcePrediction onNavigate={setPage} />}
             {page === "environmental" && <Environmental />}
             {page === "hazards" && <Hazards />}
-            {page === "rerouting" && <Rerouting />}
+            {page === "rerouting" && <Rerouting onNavigate={setPage} />}
             {page === "whatif" && <WhatIf />}
             {page === "reports" && <Reports />}
             {page === "help" && <Help onNavigate={setPage} />}

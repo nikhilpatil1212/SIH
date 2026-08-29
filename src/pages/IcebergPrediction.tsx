@@ -111,7 +111,7 @@ export function IcebergPrediction() {
         </Card>
 
         {selected && <IcebergDetailPanel iceberg={selected} />}
-        {selected && <IcebergRiskPanel icebergId={selected.id} />}
+        {selected && <IcebergRiskPanel icebergId={selected.id} iceberg={selected} />}
       </div>
     </div>
   );

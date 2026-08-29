@@ -81,7 +81,7 @@ export function RouteComparison({
                       <span>✓</span> <span>Lower sea-ice concentration (28% vs 64%)</span>
                     </li>
                     <li className="flex items-center gap-1.5 text-[#10b981]">
-                      <span>✓</span> <span>Avoids IBG-1247 interception corridor</span>
+                      <span>✓</span> <span>Avoids A81 interception corridor</span>
                     </li>
                   </ul>
                 </div>

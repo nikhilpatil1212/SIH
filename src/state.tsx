@@ -4,11 +4,12 @@ import {
   useContext,
   useMemo,
   useState,
+  useEffect,
   type ReactNode,
 } from "react";
 import type { LayerState } from "./components/map/MapView";
 import { alerts as baseAlerts, icebergs as baseIcebergs, routes as baseRoutes } from "./data/mock";
-import type { AlertItem, Iceberg, Route } from "./data/types";
+import type { AlertItem, Iceberg, Route, GeoPoint } from "./data/types";
 import apiClient, { type RouteCalculatePayload, type RouteWaypointInput } from "./api/client";
 
 export interface BoundingBox {
@@ -60,6 +61,7 @@ interface NavState {
   calculateNewRoutes: (payload: RouteCalculatePayload) => Promise<void>;
   setActiveBoundingBox: (bbox: BoundingBox | null) => void;
   reset: () => void;
+  refreshIcebergs: () => Promise<void>;
 }
 
 const Ctx = createContext<NavState | null>(null);
@@ -70,7 +72,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<AlertItem[]>(baseAlerts);
   const [selectedRouteId, setSelectedRoute] = useState("route-b");
   const [recommendedRouteId, setRecommended] = useState("route-b");
-  const [selectedIcebergId, setSelectedIceberg] = useState<string | null>("IBG-1247");
+  const [selectedIcebergId, setSelectedIceberg] = useState<string | null>("A81");
   const [rerouted, setRerouted] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [activeBoundingBox, setActiveBoundingBox] = useState<BoundingBox | null>(null);
@@ -105,9 +107,62 @@ export function NavProvider({ children }: { children: ReactNode }) {
     weather: false,
   });
 
+  const refreshIcebergs = useCallback(async () => {
+    try {
+      const dbBergs = await apiClient.getIcebergRegistry();
+      if (dbBergs && dbBergs.length > 0) {
+        const mapped = dbBergs.map((r: any): Iceberg => {
+          const lat = r.latitude;
+          const lon = r.longitude;
+          const speed = r.speed_ms ?? 0.3;
+          const heading = r.heading_deg ?? 0.0;
+          
+          // Generate dynamic predicted path points based on drift vector
+          const path: GeoPoint[] = [];
+          for (let i = 0; i < 4; i++) {
+            const hours = i * 24;
+            const distMeters = speed * 3600 * hours;
+            const dy = distMeters * Math.cos(heading * Math.PI / 180);
+            const dx = distMeters * Math.sin(heading * Math.PI / 180);
+            const dLat = dy / 111000;
+            const dLon = dx / (111000 * Math.cos(lat * Math.PI / 180));
+            
+            path.push({
+              x: 0,
+              y: 0,
+              lat: lat + dLat,
+              lon: lon + dLon
+            });
+          }
+          
+          return {
+            id: r.name,
+            position: { x: 0, y: 0, lat, lon },
+            observedAt: r.last_updated || "18 Aug 2026 00:00 UTC",
+            speedMs: speed,
+            headingDeg: heading,
+            riskLevel: (r.risk_level?.toLowerCase() || "medium") as any,
+            predictedPath: path,
+            uncertainty: [3, 9, 18, 30],
+            confidence: Math.round((r.confidence || 0.85) * 100),
+            sizeKm: r.size_km || (r.length_nm * 1.852) || 10.0,
+          };
+        });
+        setIcebergs(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to load icebergs from registry:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshIcebergs();
+  }, [refreshIcebergs]);
+
   const toggleLayer = useCallback((k: keyof LayerState) => {
     setLayers((l) => ({ ...l, [k]: !l[k] }));
   }, []);
+
 
   const addWaypoint = useCallback((wp: Omit<OperationalWaypoint, "id">) => {
     const id = `wp-${Date.now()}`;
@@ -218,6 +273,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       calculateNewRoutes,
       setActiveBoundingBox,
       reset,
+      refreshIcebergs,
     }),
     [
       routes,
@@ -247,6 +303,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       calculateNewRoutes,
       setActiveBoundingBox,
       reset,
+      refreshIcebergs,
     ],
   );
 

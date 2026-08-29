@@ -1,8 +1,10 @@
-import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { LogOut, MessageSquare } from "lucide-react";
 import { systemMeta } from "../data/mock";
 import { StatusDot } from "./ui/primitives";
 import { ThemeToggle } from "../theme";
 import type { User } from "../data/auth";
+import { FeedbackModal } from "./FeedbackModal";
 
 export function TopBar({
   title,
@@ -15,7 +17,10 @@ export function TopBar({
   user?: User | null;
   onSignOut?: () => void;
 }) {
+  const [fbOpen, setFbOpen] = useState(false);
+
   return (
+    <>
     <header className="flex h-13 shrink-0 items-center justify-between gap-4 border-b border-[#1d445c]/50 bg-[#0a1e2d] light:border-[#e2d8c7] light:bg-[#f5efe3] px-5 transition-colors">
       <div className="min-w-0">
         <h1 className="truncate text-[14px] font-bold text-[#eaf6f8] light:text-[#0d2433] tracking-tight">{title}</h1>
@@ -38,6 +43,18 @@ export function TopBar({
         </div>
 
         <div className="h-6 w-px bg-[#1d445c]/60 light:bg-[#d8d0c2]" />
+
+        {/* Feedback Button */}
+        {user && (
+          <button
+            onClick={() => setFbOpen(true)}
+            className="flex items-center gap-1 rounded-md border border-[#1d445c] light:border-[#d8d0c2] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#91aeb9] light:text-[#4a6878] transition-colors hover:border-[#55d6e8]/50 hover:text-[#55d6e8]"
+            title="Send Feedback"
+          >
+            <MessageSquare size={12} />
+            <span className="hidden sm:inline">Feedback</span>
+          </button>
+        )}
 
         {/* Theme Toggle Button */}
         <ThemeToggle variant="icon" />
@@ -65,5 +82,8 @@ export function TopBar({
         )}
       </div>
     </header>
+    <FeedbackModal open={fbOpen} onClose={() => setFbOpen(false)} user={user} />
+    </>
   );
 }
+

@@ -10,7 +10,7 @@ from app.services.iceberg_ingestion import (
 )
 from app.services.trajectory_features import compute_trajectory_features
 
-DATA_DIR = r"c:\Users\Nikhil\OneDrive\Desktop\Website creation\47years-iceberg-dataset"
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "47years-iceberg-dataset"))
 
 
 def test_date_parser_7digit():

@@ -370,6 +370,170 @@ export const apiClient = {
     } catch {}
     return null;
   },
+
+  async getSeaIceForecast() {
+    try {
+      const res = await fetch(`${API_BASE}/environment/sea-ice/forecast`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) return await res.json();
+    } catch {}
+    return null;
+  },
+
+  // ─── Auth & Admin API ─────────────────────────────────────────────────
+
+  async login(emailOrUsername: string, password: string): Promise<{ status: string; user?: any; detail?: string }> {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username_or_email: emailOrUsername,
+        password: password,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      return { status: "SUCCESS", user: data.user };
+    }
+    return { status: "ERROR", detail: data.detail || "Authentication failed" };
+  },
+
+  async register(payload: { username?: string; name: string; email: string; password: string; organization?: string; role?: string }): Promise<{ status: string; user?: any; detail?: string }> {
+    const username = payload.username || payload.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_");
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        name: payload.name,
+        email: payload.email,
+        password: payload.password,
+        organization: payload.organization || "National Centre for Polar and Ocean Research",
+        role: payload.role || "Researcher",
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      return { status: "SUCCESS", user: data.user };
+    }
+    return { status: "ERROR", detail: data.detail || "Registration failed" };
+  },
+
+  // Users CRUD
+  async getUsers(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/auth/users`);
+    if (res.ok) return res.json();
+    return [];
+  },
+  async createUser(payload: any): Promise<any> {
+    const username = payload.username || payload.email?.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_") || "user";
+    const res = await fetch(`${API_BASE}/auth/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...payload,
+        username,
+        password: payload.password || "default123",
+        role: payload.role || "Researcher",
+      }),
+    });
+    return res.json();
+  },
+  async updateUser(userId: string, payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/auth/users/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async deleteUser(userId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/auth/users/${userId}`, { method: "DELETE" });
+    return res.json();
+  },
+
+  // Missions CRUD
+  async getMissions(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/missions`);
+    if (res.ok) return res.json();
+    return [];
+  },
+  async createMission(payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/missions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async updateMission(missionId: string, payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/missions/${missionId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async deleteMission(missionId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/missions/${missionId}`, { method: "DELETE" });
+    return res.json();
+  },
+
+  // Iceberg Registry CRUD
+  async getIcebergRegistry(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/icebergs/registry`);
+    if (res.ok) return res.json();
+    return [];
+  },
+  async createIcebergRecord(payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/icebergs/registry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async updateIcebergRecord(icebergId: string, payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/icebergs/registry/${icebergId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async deleteIcebergRecord(icebergId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/icebergs/registry/${icebergId}`, { method: "DELETE" });
+    return res.json();
+  },
+
+  // Feedback CRUD
+  async getFeedback(): Promise<any[]> {
+    const res = await fetch(`${API_BASE}/feedback`);
+    if (res.ok) return res.json();
+    return [];
+  },
+  async createFeedback(payload: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+  async updateFeedbackStatus(feedbackId: number, status: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/feedback/${feedbackId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    return res.json();
+  },
+  async deleteFeedback(feedbackId: number): Promise<any> {
+    const res = await fetch(`${API_BASE}/feedback/${feedbackId}`, { method: "DELETE" });
+    return res.json();
+  },
 };
 
 export default apiClient;
+

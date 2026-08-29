@@ -5,9 +5,13 @@ and physics-based analytical drift projections.
 import os
 import json
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Depends, status
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
+from ..database.connection import get_db
+from ..database.models import IcebergRecord
+from ..schemas.schemas import IcebergRecordSchema, IcebergRecordCreateUpdate
 from ..schemas.iceberg import (
     IcebergTrackSummary,
     TrajectoryFeaturePoint,
@@ -52,6 +56,100 @@ def list_icebergs(
             break
 
     return results
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Database-Backed Registry CRUD for Admin & Fleet Console
+# ─────────────────────────────────────────────────────────────────────────────
+def _to_record_schema(r: IcebergRecord) -> IcebergRecordSchema:
+    return IcebergRecordSchema(
+        id=r.id,
+        name=r.name,
+        sector=r.sector,
+        latitude=r.latitude,
+        longitude=r.longitude,
+        length_nm=r.length_nm,
+        width_nm=r.width_nm,
+        area_sqnm=r.area_sqnm,
+        size_km=r.size_km,
+        speed_ms=r.speed_ms,
+        heading_deg=r.heading_deg,
+        risk_level=r.risk_level,
+        confidence=r.confidence,
+        last_updated=r.last_updated,
+    )
+
+@router.get("/registry", response_model=List[IcebergRecordSchema])
+def get_iceberg_registry(db: Session = Depends(get_db)):
+    """Retrieves all tracked icebergs stored in the persistent database."""
+    records = db.query(IcebergRecord).all()
+    return [_to_record_schema(r) for r in records]
+
+@router.post("/registry", response_model=IcebergRecordSchema, status_code=status.HTTP_201_CREATED)
+def create_iceberg_record(req: IcebergRecordCreateUpdate, db: Session = Depends(get_db)):
+    """Admin endpoint to add a newly detected iceberg to the registry."""
+    rec_id = f"NIC-{req.name.upper()}"
+    existing = db.query(IcebergRecord).filter(IcebergRecord.id == rec_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Iceberg {req.name} already exists in registry.")
+
+    record = IcebergRecord(
+        id=rec_id,
+        name=req.name.upper(),
+        sector=req.sector,
+        latitude=req.latitude,
+        longitude=req.longitude,
+        length_nm=req.length_nm,
+        width_nm=req.width_nm,
+        area_sqnm=req.area_sqnm,
+        size_km=req.size_km,
+        speed_ms=req.speed_ms,
+        heading_deg=req.heading_deg,
+        risk_level=req.risk_level,
+        confidence=req.confidence,
+        last_updated=req.last_updated or "18 Aug 2026 00:00 UTC",
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return _to_record_schema(record)
+
+@router.put("/registry/{iceberg_id}", response_model=IcebergRecordSchema)
+def update_iceberg_record(iceberg_id: str, req: IcebergRecordCreateUpdate, db: Session = Depends(get_db)):
+    """Admin endpoint to update telemetry or attributes of a tracked iceberg."""
+    record = db.query(IcebergRecord).filter(IcebergRecord.id == iceberg_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Iceberg record not found.")
+
+    record.name = req.name.upper()
+    record.sector = req.sector
+    record.latitude = req.latitude
+    record.longitude = req.longitude
+    record.length_nm = req.length_nm
+    record.width_nm = req.width_nm
+    record.area_sqnm = req.area_sqnm
+    record.size_km = req.size_km
+    record.speed_ms = req.speed_ms
+    record.heading_deg = req.heading_deg
+    record.risk_level = req.risk_level
+    record.confidence = req.confidence
+    if req.last_updated:
+        record.last_updated = req.last_updated
+
+    db.commit()
+    db.refresh(record)
+    return _to_record_schema(record)
+
+@router.delete("/registry/{iceberg_id}")
+def delete_iceberg_record(iceberg_id: str, db: Session = Depends(get_db)):
+    """Admin endpoint to decommission/delete an iceberg from the database."""
+    record = db.query(IcebergRecord).filter(IcebergRecord.id == iceberg_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Iceberg record not found.")
+
+    db.delete(record)
+    db.commit()
+    return {"status": "SUCCESS", "message": f"Iceberg {iceberg_id} removed from registry."}
 
 
 @router.get("/{iceberg_id}", response_model=IcebergTrackSummary, summary="Get summary metadata for a single iceberg")
@@ -117,16 +215,18 @@ from ..ml.schemas import HybridForecastResult
 from ..ml.hybrid_forecaster import HybridForecaster
 from ..ml.residual_model import HybridDriftModel
 
-MODEL_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed", "phase3", "ml_residual_model.json")
-)
+MODEL_CANDIDATE_PATHS = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ml", "hybrid_drift_model.json")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed", "phase3", "ml_residual_model.json")),
+]
 
 _forecaster_instance: Optional[HybridForecaster] = None
 
 def get_forecaster() -> HybridForecaster:
     global _forecaster_instance
     if _forecaster_instance is None:
-        model = HybridDriftModel(MODEL_PATH if os.path.exists(MODEL_PATH) else None)
+        model_path = next((p for p in MODEL_CANDIDATE_PATHS if os.path.exists(p)), None)
+        model = HybridDriftModel(model_path)
         _forecaster_instance = HybridForecaster(model)
     return _forecaster_instance
 
@@ -197,3 +297,4 @@ def predict_iceberg_drift(req: PredictIcebergDriftRequest):
         forecast_horizon_hours=req.forecast_hours,
     )
     return result
+

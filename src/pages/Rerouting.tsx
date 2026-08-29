@@ -6,6 +6,8 @@ import { Card, RiskMeter, cx } from "../components/ui/primitives";
 import { vessel } from "../data/mock";
 import { useNav } from "../state";
 
+import type { PageId } from "../components/Sidebar";
+
 const STEPS = [
   "New accelerated iceberg telemetry received",
   "Route B corridor risk dynamically re-computed",
@@ -14,7 +16,7 @@ const STEPS = [
   "Route C recommended & authorized",
 ];
 
-export function Rerouting() {
+export function Rerouting({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
   const nav = useNav();
   const [running, setRunning] = useState(false);
   const [step, setStep] = useState(-1);
@@ -110,7 +112,10 @@ export function Rerouting() {
           <AntarcticPolarMap
             icebergs={nav.icebergs}
             selectedIcebergId={nav.selectedIcebergId}
-            onSelectIceberg={nav.setSelectedIceberg}
+            onSelectIceberg={(id) => {
+              nav.setSelectedIceberg(id);
+              onNavigate?.("iceberg");
+            }}
             vessel={{
               name: vessel.name,
               position: { lat: vessel.position.lat, lon: vessel.position.lon },

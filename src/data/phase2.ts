@@ -41,17 +41,40 @@ export const icebergPredictedPositions: Record<string, PredictedPosition[]> = Ob
   }),
 );
 
-export const icebergRisk: Record<string, IcebergRiskAssessment> = {
-  "IBG-1247": { distanceNm: 18, closestApproach: "+14h", intersection: "possible", confidence: 89, risk: "high" },
-  "IBG-A23A": { distanceNm: 34, closestApproach: "+11h", intersection: "possible", confidence: 94, risk: "high" },
-  "IBG-1183": { distanceNm: 46, closestApproach: "+38h", intersection: "unlikely", confidence: 81, risk: "medium" },
-  "IBG-B15K": { distanceNm: 78, closestApproach: "+44h", intersection: "unlikely", confidence: 86, risk: "medium" },
-  "IBG-D28": { distanceNm: 52, closestApproach: "+29h", intersection: "unlikely", confidence: 84, risk: "medium" },
-  "IBG-C19A": { distanceNm: 110, closestApproach: "+60h", intersection: "unlikely", confidence: 79, risk: "low" },
-  "IBG-0842": { distanceNm: 22, closestApproach: "+16h", intersection: "possible", confidence: 88, risk: "high" },
-  "IBG-1405": { distanceNm: 41, closestApproach: "+32h", intersection: "unlikely", confidence: 82, risk: "medium" },
-  "IBG-0996": { distanceNm: 62, closestApproach: "+52h", intersection: "unlikely", confidence: 76, risk: "low" },
-  "IBG-1290": { distanceNm: 33, closestApproach: "+26h", intersection: "possible", confidence: 79, risk: "medium" },
+export const icebergRisk: Record<string, IcebergRiskAssessment> = Object.fromEntries(
+  icebergs.map((ib) => {
+    const dLat = (ib.position.lat - (-64.2)) * 60;
+    const dLon = (ib.position.lon - (-54.3)) * 60 * Math.cos((ib.position.lat * Math.PI) / 180);
+    const distNm = Math.max(14, Math.round(Math.sqrt(dLat * dLat + dLon * dLon)));
+    const isHigh = ib.riskLevel === "high";
+    const isMed = ib.riskLevel === "medium";
+    return [
+      ib.id,
+      {
+        distanceNm: distNm,
+        closestApproach: isHigh ? "+14h" : isMed ? "+32h" : "+54h",
+        intersection: isHigh ? "possible" : isMed ? "possible" : "unlikely",
+        confidence: ib.confidence,
+        risk: ib.riskLevel,
+      },
+    ];
+  }),
+);
+
+export const seaIceModelMetrics = {
+  datasetName: "antarctic_sea_ice_ml_dataset.csv",
+  totalSamples: 15820,
+  yearsCovered: "1978 – 2026 (48-year satellite record)",
+  currentExtent: 16.898, // Million sq km
+  predicted24hExtent: 16.956,
+  predicted48hExtent: 17.042,
+  predicted72hExtent: 17.072,
+  r2_24h: 0.9999,
+  r2_48h: 0.9998,
+  r2_72h: 0.9996,
+  mae24h: 0.0408,
+  mae48h: 0.0671,
+  mae72h: 0.0867,
 };
 
 export const seaIcePredictions: SeaIcePrediction[] = [
@@ -61,9 +84,9 @@ export const seaIcePredictions: SeaIcePrediction[] = [
     predictions: [
       { horizon: "24h", concentration: 45 },
       { horizon: "48h", concentration: 51 },
-      { horizon: "72h", concentration: 58 },
+      { horizon: "72h", concentration: 57 },
     ],
-    confidence: 85,
+    confidence: 88,
     routeImpact: "medium",
     affectedRoute: "Route C",
     polygon: seaIceRegions[0].polygon,
@@ -72,11 +95,11 @@ export const seaIcePredictions: SeaIcePrediction[] = [
     region: "Eastern Approach",
     currentConcentration: 58,
     predictions: [
-      { horizon: "24h", concentration: 60 },
-      { horizon: "48h", concentration: 64 },
-      { horizon: "72h", concentration: 69 },
+      { horizon: "24h", concentration: 61 },
+      { horizon: "48h", concentration: 68 },
+      { horizon: "72h", concentration: 75 },
     ],
-    confidence: 82,
+    confidence: 85,
     routeImpact: "high",
     affectedRoute: "Route B",
     polygon: seaIceRegions[1].polygon,
@@ -85,23 +108,23 @@ export const seaIcePredictions: SeaIcePrediction[] = [
     region: "Ross Sea Channel",
     currentConcentration: 48,
     predictions: [
-      { horizon: "24h", concentration: 52 },
-      { horizon: "48h", concentration: 57 },
-      { horizon: "72h", concentration: 63 },
+      { horizon: "24h", concentration: 51 },
+      { horizon: "48h", concentration: 56 },
+      { horizon: "72h", concentration: 62 },
     ],
-    confidence: 80,
+    confidence: 84,
     routeImpact: "medium",
     affectedRoute: "Route A",
     polygon: seaIceRegions[2].polygon,
   },
 ];
 
-// Basin-averaged concentration used for the timeline summary cards.
+// Basin-averaged concentration predicted across 24h, 48h, 72h horizons
 export const seaIceBasin: { horizon: Horizon; avg: number; min: number; max: number }[] = [
-  { horizon: "0h", avg: 35, min: 12, max: 62 },
-  { horizon: "24h", avg: 38, min: 14, max: 66 },
-  { horizon: "48h", avg: 42, min: 18, max: 71 },
-  { horizon: "72h", avg: 46, min: 22, max: 78 },
+  { horizon: "0h", avg: 49, min: 42, max: 58 },
+  { horizon: "24h", avg: 52, min: 45, max: 61 },
+  { horizon: "48h", avg: 58, min: 51, max: 68 },
+  { horizon: "72h", avg: 65, min: 57, max: 75 },
 ];
 
 export const environmentForecast: EnvForecastPoint[] = [
@@ -151,6 +174,6 @@ export const faqEntries: FAQEntry[] = [
   { category: "Iceberg AI Drift", q: "What does the 95% spatial uncertainty envelope represent?", a: "Because Southern Ocean wind fields and mesoscale eddies have non-linear turbulence, the forecast trajectory includes a probabilistic expansion corridor that widens over the 6h, 12h, 24h, 48h, and 72h horizons." },
   { category: "Sea-Ice Predictions", q: "How does sea-ice concentration affect corridor safety?", a: "Concentrations above 40% significantly increase hull friction, structural compression, and risk of besetment. Dhruv Sarthi automatically routes through lead fractures and marginal ice zones." },
   { category: "Route Optimization", q: "What trade-offs are balanced between Route A, B, and C?", a: "Route A minimizes transit time, Route B avoids high-risk iceberg drift corridors by keeping to deeper open leads, and Route C optimizes specific fuel consumption against head currents and pack ice resistance." },
-  { category: "Dynamic Re-Routing", q: "What triggers autonomous re-route recommendations?", a: "If a newly observed or accelerating iceberg (such as IBG-1247 or A23A) has an uncertainty corridor intersecting the active waypoint within 12 hours, the platform elevates alert levels and dispatches an alternative safe corridor." },
+  { category: "Dynamic Re-Routing", q: "What triggers autonomous re-route recommendations?", a: "If a newly observed or accelerating iceberg (such as A81 or D15A) has an uncertainty corridor intersecting the active waypoint within 12 hours, the platform elevates alert levels and dispatches an alternative safe corridor." },
   { category: "Sensors & Satellites", q: "What telemetry sources feed into the system?", a: "Multi-satellite SAR constellations (Sentinel-1, NISAR), MODIS/VIIRS multi-spectral optical data, AMSR-2 microwave radiometry, and shipboard Doppler sonar telemetry." },
 ];

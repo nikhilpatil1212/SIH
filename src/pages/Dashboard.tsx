@@ -75,7 +75,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
   const handleKpiClick = (label: string) => {
     setActiveKpiFilter(label === activeKpiFilter ? null : label);
     if (label.includes("Iceberg")) {
-      nav.setSelectedIceberg("IBG-1247");
+      nav.setSelectedIceberg("A81");
     } else if (label.includes("Hazard") || label.includes("Collision")) {
       nav.setSelectedRoute("route-a");
     } else if (label.includes("Risk Index")) {
@@ -209,7 +209,10 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                   onSelectRoute={nav.setSelectedRoute}
                   icebergs={nav.icebergs}
                   selectedIcebergId={nav.selectedIcebergId}
-                  onSelectIceberg={nav.setSelectedIceberg}
+                  onSelectIceberg={(id) => {
+                    nav.setSelectedIceberg(id);
+                    onNavigate?.("iceberg");
+                  }}
                   horizonFraction={HORIZON_FRACTIONS[horizon]}
                   vessel={{
                     name: vessel.name,
@@ -229,7 +232,10 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                   selectedRouteId={nav.selectedRouteId}
                   onSelectRoute={nav.setSelectedRoute}
                   selectedIcebergId={nav.selectedIcebergId}
-                  onSelectIceberg={nav.setSelectedIceberg}
+                  onSelectIceberg={(id) => {
+                    nav.setSelectedIceberg(id);
+                    onNavigate?.("iceberg");
+                  }}
                   layers={layers}
                   zoom={zoom}
                   horizonFraction={HORIZON_FRACTIONS[horizon]}

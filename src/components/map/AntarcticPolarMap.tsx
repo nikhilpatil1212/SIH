@@ -206,6 +206,7 @@ export interface AntarcticPolarMapProps {
   seaIceHeat?: SeaIceHeatFeature[];
   selectedRegion?: string | null;
   onSelectRegion?: (region: string) => void;
+  initialProviderId?: MapTileProviderId;
 }
 
 export type HoveredEntity =
@@ -233,6 +234,7 @@ export function AntarcticPolarMap({
   seaIceHeat,
   selectedRegion,
   onSelectRegion,
+  initialProviderId,
 }: AntarcticPolarMapProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -241,8 +243,8 @@ export function AntarcticPolarMap({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreInstance | null>(null);
 
-  // Active Base Map State (Defaults to ESRI Satellite)
-  const [providerId, setProviderId] = useState<MapTileProviderId>("esri-satellite");
+  // Active Base Map State (Defaults to initialProviderId or ESRI Satellite)
+  const [providerId, setProviderId] = useState<MapTileProviderId>(initialProviderId ?? "esri-satellite");
   const [fullscreen, setFullscreen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
   const [currentZoom, setCurrentZoom] = useState(2.5);
@@ -506,6 +508,12 @@ export function AntarcticPolarMap({
         el.onmouseleave = handleEntityMouseLeave;
         el.onclick = (e) => {
           e.stopPropagation();
+          e.preventDefault();
+          onSelectIceberg?.(ibg.id);
+        };
+        el.ontouchend = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
           onSelectIceberg?.(ibg.id);
         };
         addMarker(targetPt.lon, targetPt.lat, el);
@@ -557,8 +565,9 @@ export function AntarcticPolarMap({
     if (!map) return;
 
     const setupLayers = () => {
-      // 1. Sea Ice Heat / Concentration Polygons (Rendered at bottom)
-      if (seaIceHeat && seaIceHeat.length > 0) {
+      // 1. Sea Ice Heat / Concentration Polygons (Rendered ONLY on OpenStreetMap 'osm' as requested)
+      const isOsm = providerId === "osm";
+      if (isOsm && layers.seaice && seaIceHeat && seaIceHeat.length > 0) {
         const seaIceFeatures = seaIceHeat.map((s) => {
           const coords = s.polygon.map((p) => [p.lon, p.lat]);
           if (
@@ -602,15 +611,21 @@ export function AntarcticPolarMap({
                 ["linear"],
                 ["get", "concentration"],
                 0,
-                "#a9dfe9",
+                "#a5f3fc",
+                15,
+                "#2dd4bf",
                 30,
-                "#55d6e8",
+                "#0ea5e9",
+                45,
+                "#2563eb",
                 60,
-                "#3b82f6",
+                "#7c3aed",
+                75,
+                "#f97316",
                 90,
-                "#1e3a8a",
+                "#dc2626",
               ],
-              "fill-opacity": ["case", ["get", "selected"], 0.45, 0.22],
+              "fill-opacity": ["case", ["get", "selected"], 0.65, 0.45],
             },
           });
 
@@ -619,12 +634,32 @@ export function AntarcticPolarMap({
             type: "line",
             source: "sea-ice-source",
             paint: {
-              "line-color": "#55d6e8",
-              "line-width": ["case", ["get", "selected"], 2.5, 1],
-              "line-opacity": 0.8,
+              "line-color": [
+                "interpolate",
+                ["linear"],
+                ["get", "concentration"],
+                0,
+                "#0891b2",
+                30,
+                "#0284c7",
+                60,
+                "#6d28d9",
+                75,
+                "#ea580c",
+                90,
+                "#b91c1c",
+              ],
+              "line-width": ["case", ["get", "selected"], 3.0, 1.5],
+              "line-opacity": 0.9,
             },
           });
         }
+      } else if (map.getSource("sea-ice-source")) {
+        // Hide sea ice concentration polygons on all non-OpenStreetMap base maps
+        (map.getSource("sea-ice-source") as GeoJSONSource).setData({
+          type: "FeatureCollection",
+          features: [],
+        });
       }
 
       // 2. Iceberg Predicted Trajectories
@@ -665,15 +700,6 @@ export function AntarcticPolarMap({
 
       // 3. Active Navigation Routes Layer (Rendered ON TOP of sea ice for guaranteed visibility)
       if (routes.length > 0 && layers.routes) {
-        const routeFeatures = routes.map((r) => ({
-          type: "Feature" as const,
-          properties: { id: r.id, name: r.name, color: r.color, selected: r.id === selectedRouteId },
-          geometry: {
-            type: "LineString" as const,
-            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
-          },
-        }));
-
         const validRoutes = routes
           .filter((r) => r.coordinates && r.coordinates.length >= 2)
           .map((r) => {
@@ -692,7 +718,7 @@ export function AntarcticPolarMap({
           properties: {
             id: r.id,
             name: r.name,
-            color: r.color,
+            color: r.color || (r.id === "route-a" ? "#ef4444" : r.id === "route-c" ? "#38bdf8" : "#10b981"),
             selected: r.id === selectedRouteId,
           },
           geometry: {
@@ -727,6 +753,19 @@ export function AntarcticPolarMap({
               "line-opacity": ["case", ["==", ["get", "id"], selectedRouteId], 0.85, 0.25],
             },
           });
+        } else {
+          (map as any).setPaintProperty("routes-line-glow", "line-width", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            12.0,
+            3.5,
+          ]);
+          (map as any).setPaintProperty("routes-line-glow", "line-opacity", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            0.85,
+            0.25,
+          ]);
         }
 
         // Ensure Sharp Center Polyline is added
@@ -747,7 +786,8 @@ export function AntarcticPolarMap({
           });
 
           // Click handler to select route directly by clicking on map line
-          (map as any).on("click", "routes-line", (e: any) => {
+          const mapObj = map as any;
+          mapObj.on("click", "routes-line", (e: any) => {
             if (e.features && e.features[0]) {
               const rId = e.features[0].properties?.id;
               if (rId && onSelectRoute) {
@@ -756,27 +796,49 @@ export function AntarcticPolarMap({
             }
           });
 
-          (map as any).on("mouseenter", "routes-line", () => {
+          mapObj.on("mouseenter", "routes-line", () => {
             if (mapContainerRef.current) {
               mapContainerRef.current.style.cursor = "pointer";
             }
           });
-          (map as any).on("mouseleave", "routes-line", () => {
+          mapObj.on("mouseleave", "routes-line", () => {
             if (mapContainerRef.current) {
               mapContainerRef.current.style.cursor = "";
             }
           });
+        } else {
+          (map as any).setPaintProperty("routes-line", "line-width", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            5.0,
+            2.2,
+          ]);
+          (map as any).setPaintProperty("routes-line", "line-opacity", [
+            "case",
+            ["==", ["get", "id"], selectedRouteId],
+            1.0,
+            0.6,
+          ]);
         }
       } else if (!layers.routes && map.getSource("routes-source")) {
-        (map.getSource("routes-source") as GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [],
-        });
+        const routeSrc = map.getSource("routes-source") as GeoJSONSource;
+        if (routeSrc) {
+          routeSrc.setData({
+            type: "FeatureCollection",
+            features: [],
+          });
+        }
       }
     };
 
-    if (isMapLoaded && map.isStyleLoaded()) {
+    if (map.isStyleLoaded()) {
       setupLayers();
+    } else {
+      map.once("styledata", () => {
+        if (map.isStyleLoaded()) {
+          setupLayers();
+        }
+      });
     }
   }, [isMapLoaded, routes, selectedRouteId, providerId, layers, icebergs, seaIceHeat, selectedRegion]);
 
@@ -859,6 +921,26 @@ export function AntarcticPolarMap({
               </button>
             ))}
 
+            {/* Sea Ice Concentration Colormap indicator: restricted to OpenStreetMap */}
+            {seaIceHeat && seaIceHeat.length > 0 && (
+              <div className="flex items-center gap-1 border-l border-[#1d445c]/60 pl-2 ml-1">
+                {providerId === "osm" ? (
+                  <span className="flex items-center gap-1 rounded bg-[#10b981]/20 border border-[#10b981]/60 px-2 py-0.5 font-mono text-[9px] font-bold text-[#10b981]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
+                    <span>OSM Sea-Ice Colormap Active</span>
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setProviderId("osm")}
+                    className="flex items-center gap-1 rounded bg-[#f59e0b]/20 border border-[#f59e0b]/60 px-2 py-0.5 font-mono text-[9px] font-bold text-[#f59e0b] hover:bg-[#f59e0b]/30 transition-all cursor-pointer"
+                    title="Click to view sea ice concentration heatmap on OpenStreetMap"
+                  >
+                    <span>⚠️ Sea-Ice Colormap on OpenStreetMap Only (Click to switch)</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Route Corridor Switcher directly inside the map ribbon */}
             {routes.length > 0 && layers.routes && (
               <div className="flex items-center gap-1 border-l border-[#1d445c]/60 pl-2 ml-1">
@@ -934,6 +1016,15 @@ export function AntarcticPolarMap({
                 <div className="text-[10px] text-[#55d6e8] border-t border-[#1d445c]/40 pt-1">
                   AI Trajectory Confidence: {hoveredEntity.data.confidence}%
                 </div>
+                <button
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onSelectIceberg?.(hoveredEntity.data.id);
+                  }}
+                  className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#55d6e8] hover:bg-[#38bdf8] px-3 py-1.5 font-mono text-[10.5px] font-bold text-[#071521] shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  <span>📈 View Drift Forecast & Prediction →</span>
+                </button>
               </>
             )}
 

@@ -137,7 +137,7 @@ class WhatIfResponse(BaseModel):
 
 class ReroutingSimulateRequest(BaseModel):
     active_route_id: str = "route-b"
-    trigger_hazard_id: Optional[str] = "IBG-1247"
+    trigger_hazard_id: Optional[str] = "A81"
 
 class ReroutingSimulateResponse(BaseModel):
     rerouted: bool
@@ -148,3 +148,145 @@ class ReroutingSimulateResponse(BaseModel):
     new_risk_score: int
     routes: List[RouteSchema]
     alert: Dict[str, Any]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Auth & User Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+class UserRegisterRequest(BaseModel):
+    username: str
+    name: str
+    email: str
+    password: str
+    organization: Optional[str] = "National Centre for Polar and Ocean Research"
+    role: Optional[str] = "Researcher"
+
+class UserLoginRequest(BaseModel):
+    username_or_email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    name: str
+    email: str
+    organization: str
+    role: str
+    status: str
+    created_at: Optional[str] = None
+    last_login: Optional[str] = None
+
+class UserAdminCreateRequest(BaseModel):
+    username: str
+    name: str
+    email: str
+    password: str
+    organization: Optional[str] = "NCPOR Mission Control"
+    role: str = "Researcher"
+    status: str = "Active"
+
+class UserUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    organization: Optional[str] = None
+    role: Optional[str] = None
+    status: Optional[str] = None
+
+class AuthResponse(BaseModel):
+    token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Mission Voyage Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+class MissionVoyageSchema(BaseModel):
+    id: str
+    ship_name: str
+    ship_no: str
+    ship_ice_class: str = "PC6"
+    start_destination: str
+    end_destination: str
+    no_of_break_points: int = 6
+    departure_time: str
+    expected_arrival_time: str
+    expected_travel_duration: str
+    distance_nm: float = 2450.0
+    fuel_expected_tons: float = 184.2
+    status: str = "UNDERWAY"
+
+class MissionVoyageCreateUpdate(BaseModel):
+    ship_name: str
+    ship_no: str
+    ship_ice_class: str = "PC6"
+    start_destination: str
+    end_destination: str
+    no_of_break_points: int = 6
+    departure_time: str
+    expected_arrival_time: str
+    expected_travel_duration: str
+    distance_nm: Optional[float] = 2450.0
+    fuel_expected_tons: Optional[float] = 184.2
+    status: Optional[str] = "UNDERWAY"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Iceberg Registry Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+class IcebergRecordSchema(BaseModel):
+    id: str
+    name: str
+    sector: str
+    latitude: float
+    longitude: float
+    length_nm: float
+    width_nm: float
+    area_sqnm: float
+    size_km: float
+    speed_ms: float
+    heading_deg: float
+    risk_level: str
+    confidence: float
+    last_updated: str
+
+class IcebergRecordCreateUpdate(BaseModel):
+    name: str
+    sector: str = "Antarctic Waters"
+    latitude: float
+    longitude: float
+    length_nm: float
+    width_nm: float
+    area_sqnm: float
+    size_km: float
+    speed_ms: float = 0.3
+    heading_deg: float = 0.0
+    risk_level: str = "medium"
+    confidence: float = 85.0
+    last_updated: Optional[str] = None
+
+# ─────────────────────────────────────────────────────────────────────────────
+# User Feedback Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+class FeedbackCreateRequest(BaseModel):
+    user_id: Optional[str] = None
+    user_name: str
+    user_email: str
+    category: str = "General Feedback"
+    rating: int = 5
+    subject: str
+    message: str
+
+class FeedbackResponse(BaseModel):
+    id: int
+    user_id: Optional[str] = None
+    user_name: str
+    user_email: str
+    category: str
+    rating: int
+    subject: str
+    message: str
+    status: str
+    created_at: str
+
+class FeedbackStatusUpdateRequest(BaseModel):
+    status: str
+

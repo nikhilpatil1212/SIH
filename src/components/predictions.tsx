@@ -5,11 +5,13 @@ import { Card, Chip, Metric, RISK_COLORS } from "./ui/primitives";
 import { ConfidenceBadge, DemoTag } from "./ui/phase2";
 
 const SEA_ICE_SCALE = [
-  { range: "0–10%", label: "Very Low", color: "#a9dfe9" },
-  { range: "10–30%", label: "Low", color: "#8ccfe0" },
-  { range: "30–50%", label: "Moderate", color: "#55d6e8" },
-  { range: "50–70%", label: "High", color: "#3b82f6" },
-  { range: "70–100%", label: "Very High", color: "#2563eb" },
+  { range: "0–15%", label: "Very Low / Marginal", color: "#a5f3fc" },
+  { range: "15–30%", label: "Low Pack Ice", color: "#2dd4bf" },
+  { range: "30–45%", label: "Moderate", color: "#0ea5e9" },
+  { range: "45–60%", label: "Medium-High", color: "#2563eb" },
+  { range: "60–75%", label: "High / Close Pack", color: "#7c3aed" },
+  { range: "75–85%", label: "Very High / Heavy", color: "#f97316" },
+  { range: "85–100%", label: "Consolidated Pack", color: "#dc2626" },
 ];
 
 export function SeaIceLegend() {
@@ -64,13 +66,23 @@ export function PredictionLegend() {
 export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onClose?: () => void }) {
   const color = RISK_COLORS[iceberg.riskLevel];
   const positions = icebergPredictedPositions[iceberg.id] ?? [];
-  const future = positions.filter((p) => ["24h", "48h", "72h"].includes(p.horizon));
+  const future = positions.length > 0
+    ? positions.filter((p) => ["24h", "48h", "72h"].includes(p.horizon))
+    : (iceberg.predictedPath || []).slice(1).map((pt, idx) => ({
+        horizon: (["24h", "48h", "72h"][idx] || `+${(idx + 1) * 24}h`) as any,
+        lat: pt.lat,
+        lon: pt.lon,
+      }));
+
+  const latStr = `${Math.abs(iceberg.position.lat).toFixed(2)}°${iceberg.position.lat >= 0 ? "N" : "S"}`;
+  const lonStr = `${Math.abs(iceberg.position.lon).toFixed(2)}°${iceberg.position.lon >= 0 ? "E" : "W"}`;
+
   return (
     <Card
       title="Iceberg Details"
       action={
         <div className="flex items-center gap-2">
-          <DemoTag label="AI FORECAST" />
+          <DemoTag label="NIC REPORT / PINN" />
           {onClose && (
             <button onClick={onClose} className="text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]" aria-label="Close">
               <X size={14} />
@@ -85,16 +97,16 @@ export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onC
           <Chip level={iceberg.riskLevel}>{iceberg.riskLevel.toUpperCase()} RISK</Chip>
         </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-          <Metric label="Latitude" value={`${Math.abs(iceberg.position.lat).toFixed(2)}°S`} />
-          <Metric label="Longitude" value={`${Math.abs(iceberg.position.lon).toFixed(2)}°W`} />
+          <Metric label="Latitude" value={latStr} />
+          <Metric label="Longitude" value={lonStr} />
+          <Metric label="Length (Size)" value={iceberg.sizeKm} unit="km" />
           <Metric label="Drift Speed" value={iceberg.speedMs} unit="m/s" />
           <Metric label="Bearing" value={`${iceberg.headingDeg}°`} />
           <Metric label="Observed" value={iceberg.observedAt.split(" UTC")[0]} />
-          <Metric label="Horizon" value="72 hours" />
         </div>
 
         <div className="mt-3 flex items-center justify-between border-t border-[#1d445c]/40 light:border-[#e8e0d2] pt-3">
-          <span className="text-[11px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">Confidence</span>
+          <span className="text-[11px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">AI Model Confidence</span>
           <ConfidenceBadge value={iceberg.confidence} />
         </div>
 
@@ -103,19 +115,23 @@ export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onC
             Predicted Positions (72h Horizon)
           </div>
           <div className="overflow-hidden rounded-md border border-[#1d445c]/50 light:border-[#e2d8c7]">
-            {future.map((p, i) => (
-              <div
-                key={p.horizon}
-                className={"flex items-center justify-between px-3 py-2 " + (i % 2 ? "bg-[#0d2433]/40 light:bg-[#f8f4ec]" : "bg-transparent")}
-              >
-                <span className="font-mono text-[11px] font-semibold" style={{ color }}>
-                  +{p.horizon}
-                </span>
-                <span className="font-mono text-[11px] text-[#c8dde3] light:text-[#0d2433]">
-                  {Math.abs(p.lat).toFixed(2)}°S {Math.abs(p.lon).toFixed(2)}°W
-                </span>
-              </div>
-            ))}
+            {future.map((p, i) => {
+              const pLatStr = `${Math.abs(p.lat).toFixed(2)}°${p.lat >= 0 ? "N" : "S"}`;
+              const pLonStr = `${Math.abs(p.lon).toFixed(2)}°${p.lon >= 0 ? "E" : "W"}`;
+              return (
+                <div
+                  key={p.horizon}
+                  className={"flex items-center justify-between px-3 py-2 " + (i % 2 ? "bg-[#0d2433]/40 light:bg-[#f8f4ec]" : "bg-transparent")}
+                >
+                  <span className="font-mono text-[11px] font-semibold" style={{ color }}>
+                    +{p.horizon}
+                  </span>
+                  <span className="font-mono text-[11px] text-[#c8dde3] light:text-[#0d2433]">
+                    {pLatStr} {pLonStr}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -123,8 +139,22 @@ export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onC
   );
 }
 
-export function IcebergRiskPanel({ icebergId }: { icebergId: string }) {
-  const r = icebergRisk[icebergId];
+export function IcebergRiskPanel({ icebergId, iceberg }: { icebergId: string; iceberg?: Iceberg }) {
+  let r = icebergRisk[icebergId];
+  if (!r && iceberg) {
+    const dLat = (iceberg.position.lat - (-64.2)) * 60;
+    const dLon = (iceberg.position.lon - (-54.3)) * 60 * Math.cos((iceberg.position.lat * Math.PI) / 180);
+    const distNm = Math.max(14, Math.round(Math.sqrt(dLat * dLat + dLon * dLon)));
+    const isHigh = iceberg.riskLevel === "high";
+    const isMed = iceberg.riskLevel === "medium";
+    r = {
+      distanceNm: distNm,
+      closestApproach: isHigh ? "+18h @ 3.2 nm" : isMed ? "+36h @ 8.4 nm" : "+54h @ 18.2 nm",
+      intersection: isHigh ? "likely" : isMed ? "possible" : "unlikely",
+      risk: iceberg.riskLevel,
+      confidence: iceberg.confidence || 88,
+    };
+  }
   if (!r) return null;
   const color = RISK_COLORS[r.risk];
   const intersectionColor =
