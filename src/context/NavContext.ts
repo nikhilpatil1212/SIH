@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import type { LayerState } from "../components/map/MapView";
-import type { AlertItem, Iceberg, Route, SeaIcePredictionResponse } from "../data/types";
+import type { AlertItem, Hazard, Iceberg, Route, SeaIcePredictionResponse } from "../data/types";
 import type { RouteCalculatePayload } from "../api/client";
 
 export interface BoundingBox {
@@ -28,11 +28,13 @@ export interface NavState {
   routes: Route[];
   icebergs: Iceberg[];
   usnicIcebergs: Iceberg[];
+  hazards: Hazard[];
   alerts: AlertItem[];
   selectedRouteId: string;
   recommendedRouteId: string;
   selectedIcebergId: string | null;
   selectedUsnicIcebergId: string | null;
+
   layers: LayerState;
   rerouted: boolean;
   activeBoundingBox: BoundingBox | null;

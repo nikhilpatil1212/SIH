@@ -49,13 +49,21 @@ class RouteSchema(BaseModel):
     fuelT: float
     riskScore: int
     riskLevel: str
+    minimumIcebergClearanceKm: Optional[float] = None
+    nearestIceberg: Optional[str] = None
+    landCollision: Optional[bool] = False
+    seaIceRisk: Optional[str] = "LOW"
+    icebergSafetyBufferKm: Optional[float] = 20.0
+    safe: Optional[bool] = True
 
 class RouteCalculateRequest(BaseModel):
     vessel_id: Optional[str] = "vessel-sarathi-1"
     start: GeoCoordinate
     destination: GeoCoordinate
+    waypoints: Optional[List[Dict[str, Any]]] = []
     objective: str = "SAFEST"
     vessel_speed_kn: Optional[float] = 14.0
+    safety_buffer_km: Optional[float] = 20.0
 
 class RouteCalculateResponse(BaseModel):
     calculation_id: str
@@ -67,6 +75,11 @@ class RouteCalculateResponse(BaseModel):
     why_recommended: List[str]
     bounding_box: Dict[str, float]
     vessel_speed_kn: float
+    safety_buffer_km: Optional[float] = 20.0
+    baseTravelHours: Optional[int] = 0
+    totalBreakHours: Optional[int] = 0
+    totalVoyageHours: Optional[int] = 0
+    all_physically_safe: Optional[bool] = True
 
 class HazardSchema(BaseModel):
     id: str
@@ -125,7 +138,8 @@ class WhatIfResponse(BaseModel):
 
 class ReroutingSimulateRequest(BaseModel):
     active_route_id: str = "route-b"
-    trigger_hazard_id: Optional[str] = "IBG-1247"
+    trigger_hazard_id: Optional[str] = "A76C"
+
 
 class ReroutingSimulateResponse(BaseModel):
     rerouted: bool

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { hazards } from "../data/mock";
 import type { Hazard } from "../data/types";
 import { Card, cx } from "../components/ui/primitives";
 import { HazardCard } from "../components/predictions";
 import { StateBlock } from "../components/ui/phase2";
+import { useNav } from "../state";
 
 const CATEGORIES: { id: Hazard["type"] | "All"; label: string }[] = [
   { id: "All", label: "All" },
@@ -16,6 +16,7 @@ const CATEGORIES: { id: Hazard["type"] | "All"; label: string }[] = [
 ];
 
 export function Hazards() {
+  const { hazards } = useNav();
   const [category, setCategory] = useState<Hazard["type"] | "All">("All");
   const filtered = hazards.filter((h) => category === "All" || h.type === category);
   const counts = {
@@ -24,6 +25,7 @@ export function Hazards() {
     predicted: hazards.filter((h) => h.status === "predicted").length,
     high: hazards.filter((h) => h.severity === "high").length,
   };
+
 
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">

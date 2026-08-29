@@ -17,7 +17,23 @@ export const mockUsers: User[] = [
   { id: "adm-001", name: "System Administrator", email: "admin@example.org", organization: "Dhruv Sarthi Mission Ops", role: "Admin" },
 ];
 
-/** Simulated sign-in. Any password is accepted in the prototype. */
+/** Simulated sign-in. Any email/password is accepted in the prototype. */
 export function mockSignIn(email: string): User | null {
-  return mockUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) ?? null;
+  const trimmed = email.trim().toLowerCase();
+  const existing = mockUsers.find((u) => u.email.toLowerCase() === trimmed);
+  if (existing) return existing;
+  
+  if (trimmed) {
+    const namePart = trimmed.split("@")[0] || "Navigator";
+    const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+    return {
+      id: `usr-${Date.now().toString().slice(-4)}`,
+      name: formattedName,
+      email: trimmed,
+      organization: "Polar Research Fleet (India)",
+      role: trimmed.includes("admin") ? "Admin" : "Researcher",
+    };
+  }
+  return null;
 }
+

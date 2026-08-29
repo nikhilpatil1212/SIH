@@ -53,143 +53,78 @@ DATA_SOURCES: List[Dict[str, Any]] = [
     }
 ]
 
-# Tracked Icebergs (Real geographic positions in Weddell & East Antarctic sectors)
-ICEBERGS_DATA: List[Dict[str, Any]] = [
-    {
-        "id": "IBG-1247",
-        "position": {"x": 520, "y": 680, "lat": -69.2, "lon": -48.1},
-        "observedAt": "2026-08-26T08:00:00Z",
-        "speedMs": 0.8,
-        "headingDeg": 290.0,
-        "riskLevel": "high",
-        "predictedPath": [
-            {"lat": -69.2, "lon": -48.1},
-            {"lat": -69.05, "lon": -48.45},
-            {"lat": -68.85, "lon": -48.9},
-            {"lat": -68.6, "lon": -49.4},
-            {"lat": -68.3, "lon": -50.1},
-        ],
-        "uncertainty": [2.0, 4.5, 7.0, 11.0, 15.0],
-        "confidence": 88.5,
-        "sizeKm": 14.2,
-    },
-    {
-        "id": "IBG-A23A",
-        "position": {"x": 480, "y": 590, "lat": -66.5, "lon": -44.0},
-        "observedAt": "2026-08-26T07:30:00Z",
-        "speedMs": 1.1,
-        "headingDeg": 315.0,
-        "riskLevel": "high",
-        "predictedPath": [
-            {"lat": -66.5, "lon": -44.0},
-            {"lat": -66.15, "lon": -44.5},
-            {"lat": -65.7, "lon": -45.1},
-            {"lat": -65.2, "lon": -45.8},
-            {"lat": -64.6, "lon": -46.6},
-        ],
-        "uncertainty": [3.0, 6.0, 9.5, 14.0, 19.0],
-        "confidence": 92.0,
-        "sizeKm": 42.0,
-    },
-    {
-        "id": "IBG-1183",
-        "position": {"x": 610, "y": 740, "lat": -71.1, "lon": -38.5},
-        "observedAt": "2026-08-26T06:00:00Z",
-        "speedMs": 0.4,
-        "headingDeg": 260.0,
-        "riskLevel": "medium",
-        "predictedPath": [
-            {"lat": -71.1, "lon": -38.5},
-            {"lat": -71.05, "lon": -38.9},
-            {"lat": -70.95, "lon": -39.4},
-            {"lat": -70.85, "lon": -40.0},
-            {"lat": -70.7, "lon": -40.7},
-        ],
-        "uncertainty": [1.5, 3.5, 6.0, 9.0, 13.0],
-        "confidence": 84.0,
-        "sizeKm": 6.8,
-    },
-    {
-        "id": "IBG-B15K",
-        "position": {"x": 390, "y": 640, "lat": -67.8, "lon": -54.2},
-        "observedAt": "2026-08-26T08:30:00Z",
-        "speedMs": 0.6,
-        "headingDeg": 0.0,
-        "riskLevel": "medium",
-        "predictedPath": [
-            {"lat": -67.8, "lon": -54.2},
-            {"lat": -67.5, "lon": -54.2},
-            {"lat": -67.15, "lon": -54.15},
-            {"lat": -66.7, "lon": -54.1},
-            {"lat": -66.2, "lon": -54.0},
-        ],
-        "uncertainty": [2.0, 4.0, 7.0, 10.5, 14.5],
-        "confidence": 87.0,
-        "sizeKm": 11.5,
-    },
-    {
-        "id": "IBG-D28",
-        "position": {"x": 750, "y": 480, "lat": -65.2, "lon": 72.0},
-        "observedAt": "2026-08-26T05:00:00Z",
-        "speedMs": 0.7,
-        "headingDeg": 285.0,
-        "riskLevel": "low",
-        "predictedPath": [
-            {"lat": -65.2, "lon": 72.0},
-            {"lat": -65.1, "lon": 71.4},
-            {"lat": -64.95, "lon": 70.7},
-            {"lat": -64.75, "lon": 69.9},
-            {"lat": -64.5, "lon": 69.0},
-        ],
-        "uncertainty": [2.5, 5.0, 8.0, 12.0, 16.0],
-        "confidence": 89.0,
-        "sizeKm": 28.0,
-    }
-]
+from .usnic_service import load_current_icebergs
 
-# Active & Predicted Hazards
-HAZARDS_DATA: List[Dict[str, Any]] = [
-    {
-        "id": "HAZ-01",
-        "type": "Iceberg",
-        "location": "66.8°S 33.1°W",
-        "severity": "high",
-        "predictedTime": "+8h",
-        "confidence": 91.0,
-        "affectedRoute": "Route A",
-        "status": "active"
-    },
-    {
-        "id": "HAZ-02",
-        "type": "Sea-Ice",
-        "location": "68.2°S 29.5°W",
-        "severity": "medium",
-        "predictedTime": "+18h",
-        "confidence": 84.0,
-        "affectedRoute": "Route A",
-        "status": "predicted"
-    },
-    {
-        "id": "HAZ-03",
-        "type": "Weather",
-        "location": "63.5°S 41.0°W",
-        "severity": "medium",
-        "predictedTime": "+36h",
-        "confidence": 78.0,
-        "affectedRoute": "Route B",
-        "status": "predicted"
-    },
-    {
-        "id": "HAZ-04",
-        "type": "Visibility",
-        "location": "70.1°S 12.0°E",
-        "severity": "low",
-        "predictedTime": "+48h",
-        "confidence": 72.0,
-        "affectedRoute": "Route C",
-        "status": "predicted"
-    },
-]
+# Canonical Real Tracked Icebergs (Source: US National Ice Center)
+def get_current_canonical_icebergs() -> List[Dict[str, Any]]:
+    try:
+        return load_current_icebergs()
+    except Exception as e:
+        print(f"[!] Error loading canonical icebergs in data_store: {e}")
+        return []
+
+ICEBERGS_DATA: List[Dict[str, Any]] = get_current_canonical_icebergs()
+
+# Active & Predicted Hazards derived from real iceberg data
+def get_canonical_hazards() -> List[Dict[str, Any]]:
+    hazards_list = []
+    bergs = ICEBERGS_DATA if ICEBERGS_DATA else get_current_canonical_icebergs()
+    high_and_med = [b for b in bergs if b.get("riskLevel") in ("high", "medium")]
+    
+    for idx, b in enumerate(high_and_med[:5]):
+        p = b.get("position", {})
+        lat = p.get("lat", -65.0)
+        lon = p.get("lon", -40.0)
+        lat_str = f"{abs(lat):.1f}°{'S' if lat < 0 else 'N'}"
+        lon_str = f"{abs(lon):.1f}°{'W' if lon < 0 else 'E'}"
+        
+        hazards_list.append({
+            "id": b["id"],
+            "type": "Iceberg",
+            "location": f"{lat_str} {lon_str}",
+            "severity": b.get("riskLevel", "high"),
+            "predictedTime": f"+{12 + idx * 6}h",
+            "confidence": b.get("confidence", 85),
+            "affectedRoute": "Route A" if idx % 2 == 0 else "Route B",
+            "status": "active" if idx < 2 else "predicted"
+        })
+        
+    hazards_list.extend([
+        {
+            "id": "SI-E-01",
+            "type": "Sea-Ice",
+            "location": "68.2°S 29.5°W",
+            "severity": "medium",
+            "predictedTime": "+18h",
+            "confidence": 84.0,
+            "affectedRoute": "Route A",
+            "status": "active"
+        },
+        {
+            "id": "WX-04",
+            "type": "Weather",
+            "location": "63.5°S 41.0°W",
+            "severity": "medium",
+            "predictedTime": "+36h",
+            "confidence": 78.0,
+            "affectedRoute": "Route B",
+            "status": "predicted"
+        },
+        {
+            "id": "VIS-02",
+            "type": "Visibility",
+            "location": "70.1°S 12.0°E",
+            "severity": "low",
+            "predictedTime": "+48h",
+            "confidence": 72.0,
+            "affectedRoute": "Route C",
+            "status": "predicted"
+        }
+    ])
+    return hazards_list
+
+HAZARDS_DATA: List[Dict[str, Any]] = get_canonical_hazards()
+
 
 # Metocean Environmental Baseline
 ENVIRONMENT_DATA = {

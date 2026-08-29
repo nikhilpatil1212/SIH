@@ -26,8 +26,9 @@ export const HORIZON_TIME: Record<Horizon, string> = {
 // Predicted lat/lon per horizon, keyed by iceberg id.
 export const icebergPredictedPositions: Record<string, PredictedPosition[]> = Object.fromEntries(
   icebergs.map((ib) => {
-    const last = ib.predictedPath[ib.predictedPath.length - 1]!;
-    const first = ib.predictedPath[0];
+    const defaultPos = ib.position || { x: 500, y: 500, lat: -65.0, lon: -40.0 };
+    const first = ib.predictedPath && ib.predictedPath.length > 0 ? ib.predictedPath[0] : defaultPos;
+    const last = ib.predictedPath && ib.predictedPath.length > 0 ? ib.predictedPath[ib.predictedPath.length - 1]! : defaultPos;
     const lerp = (t: number, key: "lat" | "lon") => +(first[key] + (last[key] - first[key]) * t).toFixed(2);
     const positions: PredictedPosition[] = [
       { horizon: "0h", time: HORIZON_TIME["0h"], lat: first.lat, lon: first.lon },
@@ -41,18 +42,20 @@ export const icebergPredictedPositions: Record<string, PredictedPosition[]> = Ob
   }),
 );
 
+
 export const icebergRisk: Record<string, IcebergRiskAssessment> = {
-  "IBG-1247": { distanceNm: 18, closestApproach: "+14h", intersection: "possible", confidence: 89, risk: "high" },
-  "IBG-A23A": { distanceNm: 34, closestApproach: "+11h", intersection: "possible", confidence: 94, risk: "high" },
-  "IBG-1183": { distanceNm: 46, closestApproach: "+38h", intersection: "unlikely", confidence: 81, risk: "medium" },
-  "IBG-B15K": { distanceNm: 78, closestApproach: "+44h", intersection: "unlikely", confidence: 86, risk: "medium" },
-  "IBG-D28": { distanceNm: 52, closestApproach: "+29h", intersection: "unlikely", confidence: 84, risk: "medium" },
-  "IBG-C19A": { distanceNm: 110, closestApproach: "+60h", intersection: "unlikely", confidence: 79, risk: "low" },
-  "IBG-0842": { distanceNm: 22, closestApproach: "+16h", intersection: "possible", confidence: 88, risk: "high" },
-  "IBG-1405": { distanceNm: 41, closestApproach: "+32h", intersection: "unlikely", confidence: 82, risk: "medium" },
-  "IBG-0996": { distanceNm: 62, closestApproach: "+52h", intersection: "unlikely", confidence: 76, risk: "low" },
-  "IBG-1290": { distanceNm: 33, closestApproach: "+26h", intersection: "possible", confidence: 79, risk: "medium" },
+  "A76C": { distanceNm: 18, closestApproach: "+12h", intersection: "possible", confidence: 88, risk: "high" },
+  "A81": { distanceNm: 34, closestApproach: "+18h", intersection: "possible", confidence: 91, risk: "high" },
+  "A83": { distanceNm: 46, closestApproach: "+24h", intersection: "unlikely", confidence: 84, risk: "medium" },
+  "A84": { distanceNm: 78, closestApproach: "+36h", intersection: "unlikely", confidence: 82, risk: "medium" },
+  "A85": { distanceNm: 52, closestApproach: "+30h", intersection: "unlikely", confidence: 85, risk: "medium" },
+  "B09B": { distanceNm: 110, closestApproach: "+60h", intersection: "unlikely", confidence: 85, risk: "low" },
+  "B09G": { distanceNm: 95, closestApproach: "+52h", intersection: "unlikely", confidence: 85, risk: "low" },
+  "B22A": { distanceNm: 41, closestApproach: "+32h", intersection: "unlikely", confidence: 85, risk: "medium" },
+  "B22F": { distanceNm: 28, closestApproach: "+20h", intersection: "possible", confidence: 85, risk: "high" },
+  "B22H": { distanceNm: 62, closestApproach: "+48h", intersection: "unlikely", confidence: 85, risk: "low" },
 };
+
 
 export const seaIcePredictions: SeaIcePrediction[] = [
   {
@@ -151,6 +154,7 @@ export const faqEntries: FAQEntry[] = [
   { category: "Iceberg AI Drift", q: "What does the 95% spatial uncertainty envelope represent?", a: "Because Southern Ocean wind fields and mesoscale eddies have non-linear turbulence, the forecast trajectory includes a probabilistic expansion corridor that widens over the 6h, 12h, 24h, 48h, and 72h horizons." },
   { category: "Sea-Ice Predictions", q: "How does sea-ice concentration affect corridor safety?", a: "Concentrations above 40% significantly increase hull friction, structural compression, and risk of besetment. Dhruv Sarthi automatically routes through lead fractures and marginal ice zones." },
   { category: "Route Optimization", q: "What trade-offs are balanced between Route A, B, and C?", a: "Route A minimizes transit time, Route B avoids high-risk iceberg drift corridors by keeping to deeper open leads, and Route C optimizes specific fuel consumption against head currents and pack ice resistance." },
-  { category: "Dynamic Re-Routing", q: "What triggers autonomous re-route recommendations?", a: "If a newly observed or accelerating iceberg (such as IBG-1247 or A23A) has an uncertainty corridor intersecting the active waypoint within 12 hours, the platform elevates alert levels and dispatches an alternative safe corridor." },
+  { category: "Dynamic Re-Routing", q: "What triggers autonomous re-route recommendations?", a: "If a newly observed or accelerating iceberg (such as A76C or A81) has an uncertainty corridor intersecting the active waypoint within 12 hours, the platform elevates alert levels and dispatches an alternative safe corridor." },
   { category: "Sensors & Satellites", q: "What telemetry sources feed into the system?", a: "Multi-satellite SAR constellations (Sentinel-1, NISAR), MODIS/VIIRS multi-spectral optical data, AMSR-2 microwave radiometry, and shipboard Doppler sonar telemetry." },
 ];
+

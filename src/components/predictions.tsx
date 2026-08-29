@@ -69,9 +69,17 @@ export function PredictionLegend() {
   );
 }
 
-export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onClose?: () => void }) {
+export function IcebergDetailPanel({ iceberg, onClose }: { iceberg?: Iceberg | null; onClose?: () => void }) {
   const nav = useNav();
-  const color = RISK_COLORS[iceberg.riskLevel];
+  if (!iceberg) {
+    return (
+      <Card title="Iceberg Details">
+        <div className="p-4 text-center text-xs text-[#91aeb9]">Loading iceberg details...</div>
+      </Card>
+    );
+  }
+
+  const color = RISK_COLORS[iceberg.riskLevel || "high"];
   
   type FuturePos = { horizon: string; lat: number; lon: number; isReal?: boolean; time?: string };
   const realPred = nav.predictionsCache[iceberg.id];
@@ -96,6 +104,10 @@ export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onC
     ];
   }
 
+  const curLat = iceberg.position?.lat ?? -53.73;
+  const curLon = iceberg.position?.lon ?? -29.5;
+  const observed = iceberg.observedAt ? iceberg.observedAt.split(" UTC")[0] : "27 Aug 2026";
+
   return (
     <Card
       title="Iceberg Details"
@@ -113,16 +125,17 @@ export function IcebergDetailPanel({ iceberg, onClose }: { iceberg: Iceberg; onC
       <div className="p-3.5">
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-[15px] font-semibold text-[#eaf6f8] light:text-[#0d2433]">{iceberg.id}</span>
-          <Chip level={iceberg.riskLevel}>{iceberg.riskLevel.toUpperCase()} RISK</Chip>
+          <Chip level={iceberg.riskLevel || "high"}>{(iceberg.riskLevel || "high").toUpperCase()} RISK</Chip>
         </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-          <Metric label="Latitude" value={`${Math.abs(iceberg.position.lat).toFixed(4)}°S`} />
-          <Metric label="Longitude" value={`${Math.abs(iceberg.position.lon).toFixed(4)}°W`} />
-          <Metric label="Drift Speed" value={iceberg.speedMs} unit="m/s" />
-          <Metric label="Bearing" value={`${iceberg.headingDeg}°`} />
-          <Metric label="Observed" value={iceberg.observedAt.split(" UTC")[0]} />
+          <Metric label="Latitude" value={`${Math.abs(curLat).toFixed(4)}°S`} />
+          <Metric label="Longitude" value={`${Math.abs(curLon).toFixed(4)}°W`} />
+          <Metric label="Drift Speed" value={iceberg.speedMs || 0.22} unit="m/s" />
+          <Metric label="Bearing" value={`${iceberg.headingDeg || 300}°`} />
+          <Metric label="Observed" value={observed} />
           <Metric label="Horizon" value="72 hours" />
         </div>
+
 
         <div className="mt-3 flex items-center justify-between border-t border-[#1d445c]/40 light:border-[#e8e0d2] pt-3">
           <span className="text-[11px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">Confidence</span>

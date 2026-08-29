@@ -47,12 +47,15 @@ def calculate_routes(req: RouteCalculateRequest):
             start_lon=req.start.lon,
             dest_lat=req.destination.lat,
             dest_lon=req.destination.lon,
+            waypoints=req.waypoints,
             vessel_speed_kn=req.vessel_speed_kn or 14.0,
-            objective=req.objective or "SAFEST"
+            objective=req.objective or "SAFEST",
+            safety_buffer_km=req.safety_buffer_km or 20.0,
         )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Route calculation error: {str(e)}")
+
 
 
 @router.get("/default", response_model=RouteCalculateResponse)
@@ -64,6 +67,7 @@ def get_default_routes():
         dest_lat=-70.77,
         dest_lon=11.73,
         vessel_speed_kn=14.0,
-        objective="SAFEST"
+        objective="SAFEST",
+        safety_buffer_km=20.0,
     )
 

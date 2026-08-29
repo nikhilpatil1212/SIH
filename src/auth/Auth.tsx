@@ -451,7 +451,15 @@ function DemoNote({ children }: { children: ReactNode }) {
 }
 
 // ---- Admin Dashboard Placeholder ----
-export function AdminDashboard({ user, onSignOut }: { user: User; onSignOut: () => void }) {
+export function AdminDashboard({
+  user,
+  onSignOut,
+  onOpenConsole,
+}: {
+  user: User;
+  onSignOut: () => void;
+  onOpenConsole?: () => void;
+}) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -492,6 +500,14 @@ export function AdminDashboard({ user, onSignOut }: { user: User; onSignOut: () 
         </div>
 
         <div className="flex items-center gap-3">
+          {onOpenConsole && (
+            <button
+              onClick={onOpenConsole}
+              className="rounded-md bg-[#55d6e8] px-3.5 py-2 text-[12px] font-bold text-[#071521] shadow transition-colors hover:bg-[#7be3f2]"
+            >
+              Open Navigation Dashboard →
+            </button>
+          )}
           <ThemeToggle variant="icon" />
           <button
             onClick={onSignOut}
@@ -505,6 +521,7 @@ export function AdminDashboard({ user, onSignOut }: { user: User; onSignOut: () 
           </button>
         </div>
       </header>
+
 
       <div className="mx-auto max-w-5xl px-6 py-10">
         <div

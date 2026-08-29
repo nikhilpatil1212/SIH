@@ -61,10 +61,33 @@ export function RouteComparison({
                   <Metric label="Fuel" value={r.fuelT} unit="t" />
                 </div>
 
+                {/* Physical Safety & Iceberg Clearance Telemetry */}
+                <div className="mt-2.5 grid grid-cols-3 gap-1 rounded bg-[#071521]/70 light:bg-[#ede5d8]/70 p-2 font-mono text-[9px] border border-[#1d445c]/40">
+                  <div>
+                    <span className="text-[#91aeb9] light:text-[#5a7686] block">ICEBERG CLEARANCE</span>
+                    <span className={cx("font-bold", (r.minimumIcebergClearanceKm ?? 30) >= (r.icebergSafetyBufferKm ?? 20) ? "text-[#10b981]" : "text-[#ef4444]")}>
+                      {r.minimumIcebergClearanceKm !== undefined ? `${r.minimumIcebergClearanceKm} km` : "Safe (Standoff)"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#91aeb9] light:text-[#5a7686] block">LAND CROSSING</span>
+                    <span className={cx("font-bold", r.landCollision ? "text-[#ef4444]" : "text-[#10b981]")}>
+                      {r.landCollision ? "COLLISION ❌" : "ZERO (Ocean) ✓"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#91aeb9] light:text-[#5a7686] block">PHYSICAL SAFETY</span>
+                    <span className={cx("font-bold uppercase", r.safe !== false ? "text-[#10b981]" : "text-[#ef4444]")}>
+                      {r.safe !== false ? "100% SAFE ✓" : "UNSAFE ❌"}
+                    </span>
+                  </div>
+                </div>
+
                 <div className="mt-2.5">
                   <RiskMeter score={r.riskScore} />
                 </div>
               </button>
+
 
               {/* Requirement 6: "WHY?" Section beneath recommended route */}
               {recommended && (
@@ -81,8 +104,9 @@ export function RouteComparison({
                       <span>✓</span> <span>Lower sea-ice concentration (28% vs 64%)</span>
                     </li>
                     <li className="flex items-center gap-1.5 text-[#10b981]">
-                      <span>✓</span> <span>Avoids IBG-1247 interception corridor</span>
+                      <span>✓</span> <span>Avoids A76C / iceberg interception corridor</span>
                     </li>
+
                   </ul>
                 </div>
               )}

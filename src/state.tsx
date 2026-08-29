@@ -42,7 +42,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<AlertItem[]>(baseAlerts);
   const [selectedRouteId, setSelectedRoute] = useState("route-b");
   const [recommendedRouteId, setRecommended] = useState("route-b");
-  const [selectedIcebergId, setSelectedIceberg] = useState<string | null>("IBG-1247");
+  const [selectedIcebergId, setSelectedIceberg] = useState<string | null>("A76C");
   const [rerouted, setRerouted] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [activeBoundingBox, setActiveBoundingBox] = useState<BoundingBox | null>(null);
@@ -68,10 +68,37 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [predictionError, setPredictionError] = useState<string | null>(null);
   const [predictionsCache, setPredictionsCache] = useState<Record<string, { lat: number; lon: number; displacement_km: number }>>({});
 
-  const [usnicIcebergs, setUsnicIcebergs] = useState<Iceberg[]>([]);
-  const [selectedUsnicIcebergId, setSelectedUsnicIcebergId] = useState<string | null>(null);
   const [seaIcePrediction, setSeaIcePrediction] = useState<SeaIcePredictionResponse | null>(null);
   const fetchingRef = useRef<Record<string, boolean>>({});
+
+  // Canonical hazards derived dynamically from active real icebergs
+  const hazards = useMemo<Hazard[]>(() => {
+    const list: Hazard[] = [];
+    const highAndMed = icebergs.filter((b) => b.riskLevel === "high" || b.riskLevel === "medium");
+    highAndMed.slice(0, 6).forEach((b, idx) => {
+      const lat = b.position?.lat ?? -65.0;
+      const lon = b.position?.lon ?? -40.0;
+      const latStr = `${Math.abs(lat).toFixed(1)}°${lat < 0 ? "S" : "N"}`;
+      const lonStr = `${Math.abs(lon).toFixed(1)}°${lon < 0 ? "W" : "E"}`;
+      list.push({
+        id: b.id,
+        type: "Iceberg",
+        location: `${latStr} ${lonStr}`,
+        severity: (b.riskLevel as "high" | "medium" | "low") || "high",
+        predictedTime: `+${12 + idx * 6}h`,
+        confidence: b.confidence ?? 85,
+        affectedRoute: idx % 2 === 0 ? "Route A" : "Route B",
+        status: idx < 2 ? "active" : "predicted",
+      });
+    });
+    // Add standard environmental contact baselines
+    list.push(
+      { id: "SI-E-01", type: "Sea-Ice", location: "68.2°S 29.5°W", severity: "medium", predictedTime: "+18h", confidence: 84, affectedRoute: "Route A", status: "active" },
+      { id: "WX-04", type: "Weather", location: "63.5°S 41.0°W", severity: "medium", predictedTime: "+36h", confidence: 78, affectedRoute: "Route B", status: "predicted" },
+      { id: "VIS-02", type: "Visibility", location: "70.1°S 12.0°E", severity: "low", predictedTime: "+48h", confidence: 72, affectedRoute: "Route C", status: "predicted" },
+    );
+    return list;
+  }, [icebergs]);
 
   const fetchPrediction = useCallback(async (ibg: Iceberg) => {
     if (!ibg || !ibg.position || fetchingRef.current[ibg.id]) return;
@@ -153,19 +180,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
         getPt(72 / 24), // 72h (Forecast)
       ];
 
-      const updateList = (prevList: Iceberg[]) =>
-        prevList.map((item) => {
-          if (item.id === ibg.id) {
-            return {
-              ...item,
-              predictedPath: newPath,
-            };
-          }
-          return item;
-        });
-
-      setIcebergs(updateList);
-      setUsnicIcebergs(updateList);
+      setIcebergs((prevList) =>
+        prevList.map((item) => (item.id === ibg.id ? { ...item, predictedPath: newPath } : item))
+      );
 
       setPredictionsCache((prev) => ({
         ...prev,
@@ -189,11 +206,12 @@ export function NavProvider({ children }: { children: ReactNode }) {
       try {
         const data = await apiClient.getCurrentIcebergs();
         if (data && data.length > 0) {
-          setUsnicIcebergs(data);
-          const defaultBerg = data.find((i) => i.hasKinematics) || data[0];
-          if (defaultBerg) {
-            setSelectedUsnicIcebergId(defaultBerg.id);
-          }
+          setIcebergs(data);
+          setSelectedIceberg((prev) => {
+            if (prev && data.some((i) => i.id === prev)) return prev;
+            const defaultBerg = data.find((i) => i.hasKinematics) || data[0];
+            return defaultBerg ? defaultBerg.id : "A76C";
+          });
         }
       } catch (err) {
         console.error("Failed to load current USNIC icebergs:", err);
@@ -217,13 +235,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (selectedUsnicIcebergId) {
-      const ibg = usnicIcebergs.find((i) => i.id === selectedUsnicIcebergId);
-      if (ibg && !predictionsCache[selectedUsnicIcebergId] && !fetchingRef.current[selectedUsnicIcebergId]) {
+    if (selectedIcebergId) {
+      const ibg = icebergs.find((i) => i.id === selectedIcebergId);
+      if (ibg && !predictionsCache[selectedIcebergId] && !fetchingRef.current[selectedIcebergId]) {
         fetchPrediction(ibg);
       }
     }
-  }, [selectedUsnicIcebergId, fetchPrediction, predictionsCache, usnicIcebergs]);
+  }, [selectedIcebergId, fetchPrediction, predictionsCache, icebergs]);
+
 
   const [whyRecommended, setWhyRecommended] = useState<string[]>([
     "Lower iceberg encounter probability (↓ 41% vs direct)",
@@ -255,17 +274,6 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setWaypoints((prev) => prev.map((w) => (w.id === id ? { ...w, ...updates } : w)));
   }, []);
 
-  useEffect(() => {
-    if (selectedIcebergId) {
-      const ibg = icebergs.find((i) => i.id === selectedIcebergId);
-      if (ibg && !predictionsCache[selectedIcebergId]) {
-        fetchPrediction(ibg);
-      }
-    }
-  }, [selectedIcebergId, fetchPrediction, predictionsCache, icebergs]);
-
-  // Calculate Routes with real backend API & geodesic fallback
-
   const calculateNewRoutes = useCallback(async (payload: RouteCalculatePayload) => {
     setIsCalculating(true);
     try {
@@ -280,12 +288,24 @@ export function NavProvider({ children }: { children: ReactNode }) {
       setBaseTravelHours(result.baseTravelHours);
       setTotalBreakHours(result.totalBreakHours);
       setTotalVoyageHours(result.totalVoyageHours);
+    } catch (err) {
+      console.error("Route calculation failed, applying physical geodesic fallback:", err);
+      const fallbackResult = clientSideCalculateRoutes(payload);
+      setRoutes(fallbackResult.routes);
+      setRecommended(fallbackResult.recommended_route_id);
+      setSelectedRoute(fallbackResult.recommended_route_id);
+      setWhyRecommended(fallbackResult.why_recommended);
+      setActiveBoundingBox(fallbackResult.bounding_box);
+      setActiveStartPoint(fallbackResult.start);
+      setActiveDestinationPoint(fallbackResult.destination);
+      setBaseTravelHours(fallbackResult.baseTravelHours);
+      setTotalBreakHours(fallbackResult.totalBreakHours);
+      setTotalVoyageHours(fallbackResult.totalVoyageHours);
     } finally {
       setIsCalculating(false);
     }
   }, []);
 
-  // Tactical Re-routing simulation
   const simulateObservation = useCallback(async () => {
     const res = await apiClient.simulateRerouting(selectedRouteId);
     setRerouted(true);
@@ -326,6 +346,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setAlerts(baseAlerts);
     setSelectedRoute("route-b");
     setRecommended("route-b");
+    setSelectedIceberg("A76C");
     setRerouted(false);
     setActiveBoundingBox(null);
     setWaypoints([]);
@@ -336,12 +357,13 @@ export function NavProvider({ children }: { children: ReactNode }) {
     () => ({
       routes,
       icebergs,
-      usnicIcebergs,
+      usnicIcebergs: icebergs,
+      hazards,
       alerts,
       selectedRouteId,
       recommendedRouteId,
       selectedIcebergId,
-      selectedUsnicIcebergId,
+      selectedUsnicIcebergId: selectedIcebergId,
       layers,
       rerouted,
       activeBoundingBox,
@@ -359,7 +381,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       seaIcePrediction,
       setSelectedRoute,
       setSelectedIceberg,
-      setSelectedUsnicIcebergId,
+      setSelectedUsnicIcebergId: setSelectedIceberg,
       toggleLayer,
       addWaypoint,
       removeWaypoint,
@@ -372,12 +394,11 @@ export function NavProvider({ children }: { children: ReactNode }) {
     [
       routes,
       icebergs,
-      usnicIcebergs,
+      hazards,
       alerts,
       selectedRouteId,
       recommendedRouteId,
       selectedIcebergId,
-      selectedUsnicIcebergId,
       layers,
       rerouted,
       activeBoundingBox,
@@ -395,7 +416,6 @@ export function NavProvider({ children }: { children: ReactNode }) {
       seaIcePrediction,
       setSelectedRoute,
       setSelectedIceberg,
-      setSelectedUsnicIcebergId,
       toggleLayer,
       addWaypoint,
       removeWaypoint,

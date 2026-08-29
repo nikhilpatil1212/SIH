@@ -118,7 +118,13 @@ const WHY = [
   },
 ];
 
-function Header({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
+function Header({
+  onAuth,
+  onOpenConsole,
+}: {
+  onAuth: (t: LandingTarget) => void;
+  onOpenConsole?: () => void;
+}) {
   const [loginOpen, setLoginOpen] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -219,7 +225,7 @@ function Header({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
           </div>
 
           <button
-            onClick={() => onAuth("signup")}
+            onClick={() => (onOpenConsole ? onOpenConsole() : onAuth("user-login"))}
             className={`rounded-md px-4 py-2 text-[13px] font-semibold transition-colors ${
               isDark
                 ? "bg-[#55d6e8] text-[#071521] hover:bg-[#7be3f2]"
@@ -234,6 +240,7 @@ function Header({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
   );
 }
 
+
 function SectionLabel({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   return (
@@ -247,7 +254,13 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
+export function Landing({
+  onAuth,
+  onOpenConsole,
+}: {
+  onAuth: (t: LandingTarget) => void;
+  onOpenConsole?: () => void;
+}) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -257,7 +270,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
         isDark ? "bg-[#071521] text-[#eaf6f8]" : "bg-[#faf8f5] text-[#0d2433]"
       }`}
     >
-      <Header onAuth={onAuth} />
+      <Header onAuth={onAuth} onOpenConsole={onOpenConsole} />
 
       {/* Hero Section */}
       <section
@@ -299,7 +312,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <button
-                onClick={() => onAuth("user-login")}
+                onClick={() => (onOpenConsole ? onOpenConsole() : onAuth("user-login"))}
                 className={`rounded-md px-6 py-3.5 text-[14px] font-semibold shadow-lg transition-all ${
                   isDark
                     ? "bg-[#55d6e8] text-[#071521] hover:bg-[#7be3f2] shadow-[#55d6e8]/10"
@@ -311,6 +324,7 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
               <button
                 onClick={() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })}
                 className={`rounded-md border px-6 py-3.5 text-[14px] font-semibold transition-colors ${
+
                   isDark
                     ? "border-[#1d445c] bg-[#0d2433]/60 text-[#eaf6f8] hover:bg-[#132f40]"
                     : "border-[#d8d0c2] bg-white text-[#0d2433] hover:bg-[#f2ebe0]"
@@ -584,11 +598,12 @@ export function Landing({ onAuth }: { onAuth: (t: LandingTarget) => void }) {
           </div>
           <div className="mt-12 flex flex-wrap items-center gap-4">
             <button
-              onClick={() => onAuth("signup")}
+              onClick={() => (onOpenConsole ? onOpenConsole() : onAuth("user-login"))}
               className="rounded-md bg-[#55d6e8] px-7 py-3.5 text-[15px] font-bold text-[#071521] transition-colors hover:bg-[#7be3f2] shadow-lg shadow-[#55d6e8]/20"
             >
               Access Dhruv Sarthi Console
             </button>
+
             <button
               onClick={() => onAuth("user-login")}
               className="rounded-md border border-[#1d445c] px-7 py-3.5 text-[15px] font-semibold text-[#eaf6f8] transition-colors hover:bg-[#132f40]"

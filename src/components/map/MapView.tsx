@@ -465,22 +465,151 @@ export function MapView({
             },
           });
 
+          // 1. Safest Route (Solid line)
           map.addLayer({
-            id: "routes-line",
+            id: "routes-safest-line",
             type: "line",
             source: "routes-source",
+            filter: ["==", ["get", "type"], "safest"],
             layout: {
               "line-cap": "round",
               "line-join": "round",
             },
             paint: {
-              "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 6.0, 3.5],
+              "line-color": "#10b981",
+              "line-width": ["case", ["get", "selected"], 6.5, 4.0],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.75],
+            },
+          });
+
+          // 2. Shortest Route (Dashed line)
+          map.addLayer({
+            id: "routes-shortest-line",
+            type: "line",
+            source: "routes-source",
+            filter: ["==", ["get", "type"], "fastest"],
+            layout: {
+              "line-cap": "round",
+              "line-join": "round",
+            },
+            paint: {
+              "line-color": "#ef4444",
+              "line-width": ["case", ["get", "selected"], 5.5, 3.5],
+              "line-dasharray": [4, 2],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.75],
+            },
+          });
+
+          // 3. Fuel-Efficient Route (Dotted/dashed line)
+          map.addLayer({
+            id: "routes-fuel-line",
+            type: "line",
+            source: "routes-source",
+            filter: ["==", ["get", "type"], "fuel"],
+            layout: {
+              "line-cap": "round",
+              "line-join": "round",
+            },
+            paint: {
+              "line-color": "#38bdf8",
+              "line-width": ["case", ["get", "selected"], 5.5, 3.5],
+              "line-dasharray": [1.5, 2],
               "line-opacity": ["case", ["get", "selected"], 1.0, 0.75],
             },
           });
         }
       }
+
+      // 3. Iceberg Standoff Safety Buffer Circles Layer (20 km Hazard Zones)
+      if (icebergs && icebergs.length > 0) {
+        const helperCreateCircle = (lat: number, lon: number, radiusKm: number, numSegments: number = 24): [number, number][] => {
+          const poly: [number, number][] = [];
+          const radLat = (lat * Math.PI) / 180;
+          const radLon = (lon * Math.PI) / 180;
+          const dByR = radiusKm / 6371.0;
+          for (let i = 0; i <= numSegments; i++) {
+            const bearing = (i * 2 * Math.PI) / numSegments;
+            const pLat = Math.asin(
+              Math.sin(radLat) * Math.cos(dByR) +
+              Math.cos(radLat) * Math.sin(dByR) * Math.cos(bearing)
+            );
+            const pLon = radLon + Math.atan2(
+              Math.sin(bearing) * Math.sin(dByR) * Math.cos(radLat),
+              Math.cos(dByR) - Math.sin(radLat) * Math.sin(pLat)
+            );
+            poly.push([
+              ((((pLon * 180) / Math.PI) + 180) % 360) - 180,
+              (pLat * 180) / Math.PI,
+            ]);
+          }
+          return poly;
+        };
+
+        const safetyFeatures: any[] = [];
+        const bufferKm = 20.0;
+
+        icebergs.forEach((ibg) => {
+          if (!ibg || !ibg.position) return;
+          const isTarget = ibg.id === selectedIcebergId || ibg.riskLevel === "high";
+          const pts = [ibg.position];
+          if (ibg.predictedPath && ibg.predictedPath.length > 0) {
+            pts.push(...ibg.predictedPath);
+          }
+
+          pts.forEach((p, idx) => {
+            if (!p || p.lat == null || p.lon == null) return;
+            const circleCoords = helperCreateCircle(p.lat, p.lon, bufferKm);
+            safetyFeatures.push({
+              type: "Feature",
+              properties: {
+                iceberg_id: ibg.id,
+                horizon: idx === 0 ? "NOW" : `+${idx * 18}H`,
+                selected: isTarget,
+              },
+              geometry: {
+                type: "Polygon",
+                coordinates: [circleCoords],
+              },
+            });
+          });
+        });
+
+        const safetySource = map.getSource("iceberg-safety-zones") as any;
+        if (safetySource) {
+          safetySource.setData({
+            type: "FeatureCollection",
+            features: safetyFeatures,
+          });
+        } else if (safetyFeatures.length > 0) {
+          map.addSource("iceberg-safety-zones", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: safetyFeatures },
+          });
+
+          map.addLayer({
+            id: "iceberg-safety-zones-fill",
+            type: "fill",
+            source: "iceberg-safety-zones",
+            paint: {
+              "fill-color": "#ef4444",
+              "fill-opacity": ["case", ["get", "selected"], 0.16, 0.08],
+            },
+          });
+
+          map.addLayer({
+            id: "iceberg-safety-zones-outline",
+            type: "line",
+            source: "iceberg-safety-zones",
+            paint: {
+              "line-color": "#ef4444",
+              "line-width": ["case", ["get", "selected"], 1.5, 0.8],
+              "line-dasharray": [2, 2],
+              "line-opacity": ["case", ["get", "selected"], 0.7, 0.35],
+            },
+          });
+        }
+      }
+
     };
 
     if (map.isStyleLoaded()) {

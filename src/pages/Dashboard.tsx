@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
 import {
   Compass,
   Layers,
@@ -57,6 +58,19 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
   const [fullscreen, setFullscreen] = useState(false);
   const [activeKpiFilter, setActiveKpiFilter] = useState<string | null>(null);
 
+  const dynamicKpis = useMemo(() => {
+    const totalCount = nav.icebergs.length;
+    const highRiskCount = nav.icebergs.filter((i) => i.riskLevel === "high").length;
+    const activeHazardsCount = nav.hazards.filter((h) => h.status === "active").length;
+    return [
+      { label: "Tracked Icebergs", value: `${totalCount}`, accent: "#8ccfe0", tag: "USNIC FEED" },
+      { label: "Active Collision Hazards", value: `${activeHazardsCount}`, accent: "#ff5c5c", tag: "IMPACT WARNING" },
+      { label: "Polar Pack Ice", value: "35%", accent: "#55d6e8", tag: "SAT RADAR" },
+      { label: "Voyage Risk Index", value: `${selectedRoute?.riskScore || 32}/100`, accent: (selectedRoute?.riskScore || 32) > 60 ? "#ff5c5c" : "#10b981", tag: "SAFE CORRIDOR" },
+      { label: "High-Risk Bergs", value: `${highRiskCount}`, accent: "#f59e0b", tag: "ML ENSEMBLE" },
+    ];
+  }, [nav.icebergs, nav.hazards, selectedRoute]);
+
   const [layers, setLayers] = useState<LayerState>({
     icebergs: true,
     seaice: true,
@@ -74,8 +88,9 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
 
   const handleKpiClick = (label: string) => {
     setActiveKpiFilter(label === activeKpiFilter ? null : label);
-    if (label.includes("Iceberg")) {
-      nav.setSelectedIceberg("IBG-1247");
+    if (label.includes("Iceberg") || label.includes("Bergs")) {
+      const topBerg = nav.icebergs.find((i) => i.id === "A76C") || nav.icebergs[0];
+      if (topBerg) nav.setSelectedIceberg(topBerg.id);
     } else if (label.includes("Hazard") || label.includes("Collision")) {
       nav.setSelectedRoute("route-a");
     } else if (label.includes("Risk Index")) {
@@ -87,7 +102,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-3">
       {/* 1. Actionable Top KPI Overview Cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-        {dashboardKpis.map((k) => {
+        {dynamicKpis.map((k) => {
           const isActive = activeKpiFilter === k.label;
           return (
             <button
@@ -115,6 +130,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
           );
         })}
       </div>
+
 
       {/* 2. Main Content Grid */}
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_360px]">

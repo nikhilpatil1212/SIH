@@ -63,11 +63,20 @@ export interface Route {
   coordinates: GeoPoint[];
   waypoints: GeoPoint[];
   distanceNm: number;
+  distanceKm?: number;
   eta: string;
+  etaHours?: number;
   fuelT: number;
   riskScore: number;
   riskLevel: RiskLevel;
+  minimumIcebergClearanceKm?: number;
+  nearestIceberg?: string;
+  landCollision?: boolean;
+  seaIceRisk?: string;
+  icebergSafetyBufferKm?: number;
+  safe?: boolean;
 }
+
 
 export interface RiskFactor {
   label: string;

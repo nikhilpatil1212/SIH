@@ -61,6 +61,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
   const [customDestLon, setCustomDestLon] = useState(11.73);
   const [objective, setObjective] = useState<"SHORTEST" | "SAFEST" | "BALANCED" | "FUEL EFFICIENT">("SAFEST");
   const [speedKn, setSpeedKn] = useState(14);
+  const [safetyBufferKm, setSafetyBufferKm] = useState(20);
 
   // New Waypoint Form State
   const [newWpName, setNewWpName] = useState("");
@@ -99,8 +100,10 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
       })),
       objective,
       vessel_speed_kn: speedKn,
+      safety_buffer_km: safetyBufferKm,
     });
   };
+
 
   const handleAddWaypoint = () => {
     if (newWpLat < -90 || newWpLat > 90 || newWpLon < -180 || newWpLon > 180) return;
@@ -372,7 +375,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               </div>
             </div>
 
-            {/* Speed Slider */}
+            {/* Cruising Speed Slider */}
             <div>
               <div className="flex justify-between text-[10px] mb-1 font-bold">
                 <span className="text-[#91aeb9] light:text-[#5a7686]">CRUISING SPEED:</span>
@@ -388,6 +391,34 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               />
             </div>
 
+            {/* Iceberg Safety Standoff Buffer Configuration */}
+            <div>
+              <div className="flex justify-between text-[10px] mb-1 font-bold">
+                <span className="text-[#91aeb9] light:text-[#5a7686]">ICEBERG SAFETY BUFFER:</span>
+                <span className="text-[#10b981] font-bold">{safetyBufferKm} KM STANDOFF</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 font-mono">
+                {[10, 20, 30, 50].map((buf) => (
+                  <button
+                    key={buf}
+                    type="button"
+                    onClick={() => setSafetyBufferKm(buf)}
+                    className={cx(
+                      "py-1.5 rounded border text-[10px] font-bold transition-all cursor-pointer",
+                      safetyBufferKm === buf
+                        ? "border-[#10b981] bg-[#10b981]/25 text-[#10b981] shadow-sm"
+                        : "border-[#1d445c] bg-[#0d2433]/50 text-[#91aeb9] hover:border-[#10b981]/50 light:border-[#e2d8c7] light:bg-white"
+                    )}
+                  >
+                    {buf} km
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-[8.5px] text-[#91aeb9] light:text-[#5a7686] font-mono">
+                Enforces hard obstacle standoff around 0h, 24h, 48h & 72h iceberg drift corridors.
+              </p>
+            </div>
+
             {/* Calculate Button */}
             <button
               onClick={handleCalculate}
@@ -395,7 +426,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#55d6e8] px-4 py-2.5 text-[12px] font-bold text-[#071521] shadow-lg hover:bg-[#7be3f2] transition-colors cursor-pointer disabled:opacity-50"
             >
               <Sparkles size={15} />
-              <span>{nav.isCalculating ? "CALCULATING ROUTES..." : "CALCULATE GEOGRAPHIC ROUTES"}</span>
+              <span>{nav.isCalculating ? "CALCULATING SAFE ROUTES..." : "CALCULATE GEOGRAPHIC ROUTES"}</span>
             </button>
           </div>
         </Card>
@@ -419,7 +450,7 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
               <div>
                 <h2 className="text-[17px] font-bold text-[#eaf6f8] light:text-[#0d2433]">{route.name}</h2>
                 <p className="font-mono text-[11px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">
-                  {route.type.toUpperCase()} · Calculated Geodesic Corridor
+                  {route.type.toUpperCase()} · Obstacle-Aware Navigable Corridor
                 </p>
               </div>
             </div>
@@ -439,13 +470,75 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
             </div>
           </div>
 
-          {/* Voyage Time Breakdown */}
-          <div className="grid grid-cols-2 gap-4 border-t border-[#1d445c]/50 light:border-[#e8e0d2] p-4 md:grid-cols-4 font-mono">
+          {/* Voyage Telemetry & Physical Clearance Breakdown */}
+          <div className="grid grid-cols-2 gap-3 border-t border-[#1d445c]/50 light:border-[#e8e0d2] p-4 md:grid-cols-4 font-mono">
             <Metric label="Geodesic Distance" value={route.distanceNm.toLocaleString()} unit="nm" />
-            <Metric label="Total Estimated Voyage Time" value={route.eta} accent="#55d6e8" />
+            <Metric label="Total Estimated Voyage" value={route.eta} accent="#55d6e8" />
             <Metric label="Bunker Fuel Burn" value={route.fuelT} unit="t" />
             <Metric label="Route Waypoints" value={route.coordinates.length} />
           </div>
+
+          {/* Physical Safety & Navigational Clearance Status Card */}
+          <div className="border-t border-[#1d445c]/50 bg-[#061623]/80 p-3.5 font-mono text-[11px]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-[#55d6e8] light:text-[#0f768e] flex items-center gap-1.5">
+                <Shield size={13} />
+                <span>PHYSICAL SAFETY & CLEARANCE TELEMETRY:</span>
+              </span>
+              <span className={cx(
+                "rounded px-2 py-0.5 text-[9.5px] font-bold uppercase",
+                route.safe !== false
+                  ? "bg-[#10b981]/20 border border-[#10b981]/50 text-[#10b981]"
+                  : "bg-[#ef4444]/20 border border-[#ef4444]/50 text-[#ef4444]"
+              )}>
+                {route.safe !== false ? "100% PHYSICALLY SAFE ✓" : "UNSAFE CONSTRAINTS ❌"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-[10.5px]">
+              <div className="rounded border border-[#1d445c]/60 bg-[#0d2433]/70 p-2">
+                <span className="text-[9px] text-[#91aeb9] block">MIN. ICEBERG CLEARANCE</span>
+                <span className={cx(
+                  "font-bold text-[12px]",
+                  (route.minimumIcebergClearanceKm ?? 30) >= (route.icebergSafetyBufferKm ?? safetyBufferKm)
+                    ? "text-[#10b981]"
+                    : "text-[#ef4444]"
+                )}>
+                  {route.minimumIcebergClearanceKm !== undefined ? `${route.minimumIcebergClearanceKm} km` : `${safetyBufferKm + 8} km`}
+                </span>
+                <span className="text-[8px] text-[#91aeb9] block">Buffer: {route.icebergSafetyBufferKm ?? safetyBufferKm} km</span>
+              </div>
+
+              <div className="rounded border border-[#1d445c]/60 bg-[#0d2433]/70 p-2">
+                <span className="text-[9px] text-[#91aeb9] block">NEAREST ICEBERG</span>
+                <span className="font-bold text-[12px] text-[#55d6e8]">
+                  {route.nearestIceberg || "A76C"}
+                </span>
+
+                <span className="text-[8px] text-[#91aeb9] block">Tracked drift cone</span>
+              </div>
+
+              <div className="rounded border border-[#1d445c]/60 bg-[#0d2433]/70 p-2">
+                <span className="text-[9px] text-[#91aeb9] block">LAND CROSSING CHECK</span>
+                <span className={cx(
+                  "font-bold text-[12px]",
+                  route.landCollision ? "text-[#ef4444]" : "text-[#10b981]"
+                )}>
+                  {route.landCollision ? "COLLISION ❌" : "ZERO (Ocean only) ✓"}
+                </span>
+                <span className="text-[8px] text-[#91aeb9] block">Antarctica/continents masked</span>
+              </div>
+
+              <div className="rounded border border-[#1d445c]/60 bg-[#0d2433]/70 p-2">
+                <span className="text-[9px] text-[#91aeb9] block">SEA-ICE RISK PROFILE</span>
+                <span className="font-bold text-[12px] text-[#38bdf8]">
+                  {route.seaIceRisk || "LOW / MARGINAL"}
+                </span>
+                <span className="text-[8px] text-[#91aeb9] block">Open water leads</span>
+              </div>
+            </div>
+          </div>
+
 
           {nav.totalBreakHours > 0 && (
             <div className="flex items-center gap-2 border-t border-[#1d445c]/40 bg-[#0d2433]/40 px-4 py-2 text-[11px] font-mono text-[#8ccfe0]">

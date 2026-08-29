@@ -33,7 +33,8 @@ def simulate_rerouting(req: ReroutingSimulateRequest):
 
     return {
         "rerouted": True,
-        "trigger_description": f"Accelerated drift vector for {req.trigger_hazard_id or 'IBG-1247'} intersects Route B corridor in ~8h.",
+        "trigger_description": f"Accelerated drift vector for {req.trigger_hazard_id or 'A76C'} intersects Route B corridor in ~8h.",
+
         "old_route_id": "route-b",
         "new_recommended_route_id": "route-c",
         "old_risk_score": 32,

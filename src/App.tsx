@@ -25,7 +25,13 @@ export default function App() {
   return (
     <ThemeProvider>
       <NavProvider>
-        {screen === "landing" && <Landing onAuth={openAuth} />}
+        {screen === "landing" && (
+          <Landing
+            onAuth={openAuth}
+            onOpenConsole={() => setScreen("app")}
+          />
+        )}
+
 
         {screen === "auth" && (
           <AuthFlow
@@ -38,14 +44,21 @@ export default function App() {
             }}
             onAdminIn={(u) => {
               setUser(u);
-              setScreen("admin");
+              setScreen("app");
             }}
           />
         )}
 
-        {screen === "admin" && user && <AdminDashboard user={user} onSignOut={signOut} />}
+        {screen === "admin" && user && (
+          <AdminDashboard
+            user={user}
+            onSignOut={signOut}
+            onOpenConsole={() => setScreen("app")}
+          />
+        )}
 
         {screen === "app" && <OperationalApp user={user} onSignOut={signOut} />}
+
       </NavProvider>
     </ThemeProvider>
   );
