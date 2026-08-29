@@ -39,6 +39,18 @@ export interface Iceberg {
   uncertainty: number[];
   confidence: number;
   sizeKm: number;
+  lengthNm?: number;
+  widthNm?: number;
+  region?: string;
+  hasKinematics?: boolean;
+  previous_delta_latitude?: number;
+  previous_delta_longitude?: number;
+  metadata?: {
+    source: string;
+    last_update: string;
+    fetched_at: string;
+    data_frequency: string;
+  };
 }
 
 export type RouteType = "fastest" | "safest" | "fuel";
@@ -162,3 +174,20 @@ export interface FAQEntry {
   a: string;
   category: string;
 }
+
+export interface SeaIceHorizonData {
+  horizon: Horizon;
+  source_product: string;
+  timestamp: string;
+  spatial_resolution: string;
+  units: string;
+  avg_concentration: number;
+  min_concentration: number;
+  max_concentration: number;
+  regions: SeaIcePrediction[];
+}
+
+export interface SeaIcePredictionResponse {
+  horizons: Record<Horizon, SeaIceHorizonData>;
+}
+

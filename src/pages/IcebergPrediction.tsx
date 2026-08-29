@@ -21,7 +21,7 @@ const HORIZON_FRACTION: Record<Horizon, number> = {
 export function IcebergPrediction() {
   const nav = useNav();
   const [horizon, setHorizon] = useState<Horizon>("72h");
-  const selected = nav.icebergs.find((i) => i.id === nav.selectedIcebergId) ?? nav.icebergs[0];
+  const selected = nav.usnicIcebergs.find((i) => i.id === nav.selectedUsnicIcebergId) ?? nav.usnicIcebergs[0];
 
   return (
     <div className="grid h-full grid-cols-1 gap-3 overflow-y-auto p-3 xl:grid-cols-[1fr_380px]">
@@ -65,29 +65,30 @@ export function IcebergPrediction() {
               speedKn: vessel.speedKn,
               status: vessel.status,
             }}
-            icebergs={nav.icebergs}
+            icebergs={nav.usnicIcebergs}
             selectedIcebergId={selected?.id}
-            onSelectIceberg={nav.setSelectedIceberg}
+            onSelectIceberg={nav.setSelectedUsnicIcebergId}
             horizonFraction={HORIZON_FRACTION[horizon]}
             className="h-full w-full"
           />
+          <PredictionLegend />
         </div>
       </div>
 
       {/* Right Column: Tracked Iceberg Fleet & Intelligence Panels */}
       <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
-        <Card title={`Antarctic Iceberg Fleet (${nav.icebergs.length})`}>
+        <Card title={`Antarctic Iceberg Fleet (${nav.usnicIcebergs.length})`}>
           <div className="flex flex-col p-2 gap-1 max-h-[220px] overflow-y-auto">
-            {nav.icebergs.length === 0 ? (
-              <StateBlock kind="error" message="Unable to load iceberg observations." />
+            {nav.usnicIcebergs.length === 0 ? (
+              <StateBlock kind="error" message="Unable to load USNIC iceberg data." />
             ) : (
-              nav.icebergs.map((ib) => {
+              nav.usnicIcebergs.map((ib) => {
                 const active = ib.id === selected?.id;
                 const c = ib.riskLevel === "high" ? "#ef4444" : ib.riskLevel === "medium" ? "#f59e0b" : "#10b981";
                 return (
                   <button
                     key={ib.id}
-                    onClick={() => nav.setSelectedIceberg(ib.id)}
+                    onClick={() => nav.setSelectedUsnicIcebergId(ib.id)}
                     className={cx(
                       "flex items-center justify-between rounded-md border px-3 py-2 text-left transition-colors",
                       active
@@ -107,6 +108,25 @@ export function IcebergPrediction() {
                 );
               })
             )}
+          </div>
+          {/* USNIC Source Indicator Footer */}
+          <div className="border-t border-[#1e2d3d]/50 light:border-[#e0d6c8] p-2 bg-[#081524] light:bg-[#f6ebd9] rounded-b-lg">
+            <div className="flex flex-col gap-0.5 text-[9px] font-mono text-[#91aeb9] light:text-[#5a7686]">
+              <div className="flex justify-between">
+                <span>SOURCE:</span>
+                <span className="font-bold text-[#55d6e8] light:text-[#0f768e]">USNIC Tracked</span>
+              </div>
+              <div className="flex justify-between">
+                <span>LAST TRACKED:</span>
+                <span className="text-[#eaf6f8] light:text-[#0d2433]">
+                  {selected?.observedAt ? selected.observedAt.replace(" (USNIC tracked)", "") : "Weekly"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>DATA FREQUENCY:</span>
+                <span className="text-[#eaf6f8] light:text-[#0d2433]">Weekly (Updated Weekly)</span>
+              </div>
+            </div>
           </div>
         </Card>
 

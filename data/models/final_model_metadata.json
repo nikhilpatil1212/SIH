@@ -1,0 +1,41 @@
+{
+  "deployment_model_name": "Model V1 (Kinematic Trajectory + Sea-Ice RF)",
+  "saved_model_file": "data/models/iceberg_trajectory_final.joblib",
+  "created_timestamp": "2026-08-27T18:38:42.927034",
+  "model_architecture": "RandomForestRegressor (Multi-output Regression)",
+  "primary_features": [
+    "latitude",
+    "longitude",
+    "previous_delta_latitude",
+    "previous_delta_longitude",
+    "drift_speed_kmh",
+    "drift_heading_deg",
+    "size_1_nm",
+    "size_2_nm",
+    "sin_doy",
+    "cos_doy",
+    "current_extent"
+  ],
+  "environmental_features_verified": [
+    "u10_t",
+    "v10_t",
+    "uo_t",
+    "vo_t"
+  ],
+  "targets": [
+    "next_delta_latitude",
+    "next_delta_longitude"
+  ],
+  "training_sample_count": 65775,
+  "test_sample_count": 13764,
+  "validation_strategy": "Deterministic Track-Based Group Split (GroupKFold by iceberg_id)",
+  "metrics": {
+    "model_v1_mean_haversine_error_km": 10.91,
+    "model_v1_median_haversine_error_km": 3.38,
+    "model_v1_p90_haversine_error_km": 15.82,
+    "model_v2_environmental_mean_error_km": 5.1,
+    "model_v2_environmental_sample_count": 157,
+    "naive_persistence_baseline_mean_error_km": 7.26
+  },
+  "model_selection_rationale": "Model V1 was trained on 65,775 samples across 12 complete tracks (covering 37 years, 1989-2026) and evaluated on 13,764 unseen test samples across 4 distinct iceberg tracks. Model V2 was evaluated on a small 157-sample 3-month window (Jan-Mar 2020), where small sample size prevents statistical generalization across all Antarctic sectors. Therefore, Model V1 is selected as the primary deployment model for global full-trajectory inference, while Model V2 is preserved for environmental proof-of-concept."
+}

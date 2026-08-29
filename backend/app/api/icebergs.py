@@ -15,6 +15,7 @@ from ..schemas.iceberg import (
     WagnerPhysicsOutput,
 )
 from ..physics.wagner_drift_model import compute_iceberg_velocity
+from ..services.usnic_service import load_current_icebergs
 
 router = APIRouter(prefix="/icebergs", tags=["Icebergs & Trajectories"])
 
@@ -52,6 +53,18 @@ def list_icebergs(
             break
 
     return results
+
+
+@router.get("/current", summary="Get current USNIC tracked icebergs")
+def get_current_icebergs():
+    """Retrieve the latest real Antarctic icebergs tracked by the US National Ice Center (USNIC)."""
+    try:
+        return load_current_icebergs()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error loading current icebergs: {e}",
+        )
 
 
 @router.get("/{iceberg_id}", response_model=IcebergTrackSummary, summary="Get summary metadata for a single iceberg")

@@ -1,7 +1,7 @@
-import type { AlertItem, Environment, Hazard, Iceberg, Route, Vessel } from "../data/types";
+import type { AlertItem, Environment, Hazard, Iceberg, Route, Vessel, SeaIcePredictionResponse } from "../data/types";
 import { alerts as baseAlerts, environment as baseEnv, hazards as baseHazards, icebergs as baseIcebergs, routes as baseRoutes, vessel as baseVessel } from "../data/mock";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = "/api";
 
 export interface GeoLocationOption {
   id: string;
@@ -58,6 +58,36 @@ export interface SystemStatus {
   active_hazards_count: number;
   data_sources_online: number;
   last_updated: string;
+}
+
+export interface MLPredictRequest {
+  latitude: number;
+  longitude: number;
+  previous_delta_latitude: number;
+  previous_delta_longitude: number;
+  drift_speed_kmh: number;
+  drift_heading_deg: number;
+  size_1_nm?: number;
+  size_2_nm?: number;
+  sin_doy?: number | null;
+  cos_doy?: number | null;
+  current_extent?: number;
+  iceberg_id?: string | null;
+  observation_date?: string | null;
+}
+
+export interface MLPredictResponse {
+  iceberg_id: string | null;
+  model_version: string;
+  prediction_horizon: string;
+  current_latitude: number;
+  current_longitude: number;
+  predicted_delta_latitude: number;
+  predicted_delta_longitude: number;
+  predicted_latitude: number;
+  predicted_longitude: number;
+  displacement_km: number;
+  features_used: Record<string, any>;
 }
 
 // Great-Circle Distance Calculation
@@ -232,7 +262,7 @@ export function clientSideCalculateRoutes(payload: RouteCalculatePayload): Route
 export const apiClient = {
   async checkHealth(): Promise<{ status: string; service: string; environment: string; version: string }> {
     try {
-      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) });
       if (res.ok) return await res.json();
     } catch {}
     return {
@@ -243,50 +273,130 @@ export const apiClient = {
     };
   },
 
-  async getSystemStatus(): Promise<SystemStatus> {
+  async getSystemStatus(): Promise<SystemStatus | null> {
     try {
-      const res = await fetch(`${API_BASE}/system-status`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/system/status`, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) return await res.json();
+    } catch {}
+    return null;
+  },
+
+  async getRoutes(): Promise<Route[]> {
+    try {
+      const res = await fetch(`${API_BASE}/routes`, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) return await res.json();
+    } catch {}
+    return baseRoutes;
+  },
+
+  async getGeoLocations(): Promise<{ ports: GeoLocationOption[]; stations: GeoLocationOption[] }> {
+    try {
+      const res = await fetch(`${API_BASE}/routes/locations`, { signal: AbortSignal.timeout(5000) });
       if (res.ok) return await res.json();
     } catch {}
     return {
-      status: "ONLINE",
-      environment: "SIMULATION",
-      version: "1.0.0",
-      api_health: "HEALTHY",
-      database: "CONNECTED",
-      routing_engine: "READY",
-      risk_engine: "ACTIVE",
-      tracked_icebergs_count: baseIcebergs.length,
-      active_hazards_count: baseHazards.length,
-      data_sources_online: 4,
-      last_updated: new Date().toISOString(),
+      ports: [
+        { id: "punta-arenas", name: "Punta Arenas", country: "Chile", flag: "🇨🇱", lat: -53.1638, lon: -70.9171, type: "Port" },
+        { id: "ushuaia", name: "Ushuaia", country: "Argentina", flag: "🇦🇷", lat: -54.8019, lon: -68.303, type: "Port" },
+        { id: "cape-town", name: "Cape Town", country: "South Africa", flag: "🇿🇦", lat: -33.9249, lon: 18.4241, type: "Port" },
+        { id: "hobart", name: "Hobart", country: "Australia", flag: "🇦🇺", lat: -42.8821, lon: 147.3272, type: "Port" },
+        { id: "christchurch", name: "Lyttelton (Christchurch)", country: "New Zealand", flag: "🇳🇿", lat: -43.6033, lon: 172.7194, type: "Port" },
+        { id: "stanley", name: "Stanley", country: "Falkland Islands", flag: "🇫🇰", lat: -51.6977, lon: -57.8517, type: "Port" },
+      ],
+      stations: [
+        { id: "st-1", name: "Maitri Station", country: "India", flag: "🇮🇳", lat: -70.767, lon: 11.733, type: "Station" },
+        { id: "st-2", name: "Bharati Station", country: "India", flag: "🇮🇳", lat: -69.412, lon: 76.187, type: "Station" },
+        { id: "st-3", name: "McMurdo Station", country: "USA", flag: "🇺🇸", lat: -77.846, lon: 166.668, type: "Station" },
+        { id: "st-4", name: "Rothera Research Station", country: "UK", flag: "🇬🇧", lat: -67.57, lon: -68.125, type: "Station" },
+        { id: "st-5", name: "Halley VI Research Station", country: "UK", flag: "🇬🇧", lat: -75.583, lon: -26.667, type: "Station" },
+        { id: "st-6", name: "Neumayer-Station III", country: "Germany", flag: "🇩🇪", lat: -70.667, lon: -8.267, type: "Station" },
+        { id: "st-7", name: "Palmer Station", country: "USA", flag: "🇺🇸", lat: -64.774, lon: -64.053, type: "Station" },
+        { id: "st-8", name: "Casey Station", country: "Australia", flag: "🇦🇺", lat: -66.282, lon: 110.528, type: "Station" },
+        { id: "st-9", name: "Davis Station", country: "Australia", flag: "🇦🇺", lat: -68.576, lon: 77.967, type: "Station" },
+        { id: "st-10", name: "Mawson Station", country: "Australia", flag: "🇦🇺", lat: -67.604, lon: 62.874, type: "Station" },
+        { id: "st-11", name: "Showa Station", country: "Japan", flag: "🇯🇵", lat: -69.004, lon: 39.581, type: "Station" },
+        { id: "st-12", name: "Zhongshan Station", country: "China", flag: "🇨🇳", lat: -69.373, lon: 76.378, type: "Station" },
+        { id: "st-13", name: "Amundsen-Scott South Pole", country: "USA", flag: "🇺🇸", lat: -90.0, lon: 0.0, type: "Station" },
+        { id: "st-14", name: "Concordia Station", country: "France/Italy", flag: "🇪🇺", lat: -75.1, lon: 123.333, type: "Station" },
+        { id: "st-15", name: "Princess Elisabeth", country: "Belgium", flag: "🇧🇪", lat: -71.95, lon: 23.35, type: "Station" },
+        { id: "st-16", name: "Troll Station", country: "Norway", flag: "🇳🇴", lat: -72.017, lon: 2.533, type: "Station" },
+        { id: "st-17", name: "Vernadsky Research Base", country: "Ukraine", flag: "🇺🇦", lat: -65.245, lon: -64.258, type: "Station" },
+        { id: "st-18", name: "San Martín Base", country: "Argentina", flag: "🇦🇷", lat: -68.13, lon: -67.1, type: "Station" },
+        { id: "st-19", name: "Marambio Base", country: "Argentina", flag: "🇦🇷", lat: -64.233, lon: -56.633, type: "Station" },
+        { id: "st-20", name: "Base Presidente Eduardo Frei", country: "Chile", flag: "🇨🇱", lat: -62.192, lon: -58.979, type: "Station" },
+        { id: "st-21", name: "Esperanza Base", country: "Argentina", flag: "🇦🇷", lat: -63.397, lon: -56.997, type: "Station" },
+        { id: "st-22", name: "Novolazarevskaya Station", country: "Russia", flag: "🇷🇺", lat: -70.767, lon: 11.817, type: "Station" },
+        { id: "st-23", name: "Mirny Station", country: "Russia", flag: "🇷🇺", lat: -66.55, lon: 93.017, type: "Station" },
+        { id: "st-24", name: "Vostok Station", country: "Russia", flag: "🇷🇺", lat: -78.464, lon: 106.837, type: "Station" },
+        { id: "st-25", name: "Progress Station", country: "Russia", flag: "🇷🇺", lat: -69.378, lon: 76.385, type: "Station" },
+        { id: "st-26", name: "King Sejong Station", country: "South Korea", flag: "🇰🇷", lat: -62.224, lon: -58.787, type: "Station" },
+        { id: "st-27", name: "Jang Bogo Station", country: "South Korea", flag: "🇰🇷", lat: -74.624, lon: 164.229, type: "Station" },
+        { id: "st-28", name: "Great Wall Station", country: "China", flag: "🇨🇳", lat: -62.217, lon: -58.963, type: "Station" },
+        { id: "st-29", name: "Taishan Station", country: "China", flag: "🇨🇳", lat: -73.864, lon: 76.974, type: "Station" },
+        { id: "st-30", name: "Kunlun Station", country: "China", flag: "🇨🇳", lat: -80.418, lon: 77.116, type: "Station" },
+        { id: "st-31", name: "Arctowski Station", country: "Poland", flag: "🇵🇱", lat: -62.16, lon: -58.473, type: "Station" },
+        { id: "st-32", name: "Artigas Base", country: "Uruguay", flag: "🇺🇾", lat: -62.185, lon: -58.904, type: "Station" },
+        { id: "st-33", name: "Comandante Ferraz Base", country: "Brazil", flag: "🇧🇷", lat: -62.084, lon: -58.393, type: "Station" },
+        { id: "st-34", name: "Machu Picchu Station", country: "Peru", flag: "🇵🇪", lat: -62.091, lon: -58.471, type: "Station" },
+        { id: "st-35", name: "St. Kliment Ohridski Base", country: "Bulgaria", flag: "🇧🇬", lat: -62.641, lon: -60.365, type: "Station" },
+        { id: "st-36", name: "Juan Carlos I Base", country: "Spain", flag: "🇪🇸", lat: -62.663, lon: -60.389, type: "Station" },
+        { id: "st-37", name: "Gabriel de Castilla Base", country: "Spain", flag: "🇪🇸", lat: -62.977, lon: -60.675, type: "Station" },
+        { id: "st-38", name: "Mario Zucchelli Station", country: "Italy", flag: "🇮🇹", lat: -74.694, lon: 164.12, type: "Station" },
+        { id: "st-39", name: "Scott Base", country: "New Zealand", flag: "🇳🇿", lat: -77.849, lon: 166.756, type: "Station" },
+        { id: "st-40", name: "SANAE IV Station", country: "South Africa", flag: "🇿🇦", lat: -71.673, lon: -2.84, type: "Station" },
+        { id: "st-41", name: "Dumont d'Urville Station", country: "France", flag: "🇫🇷", lat: -66.663, lon: 140.001, type: "Station" },
+        { id: "st-42", name: "Wasa Station", country: "Sweden", flag: "🇸🇪", lat: -73.05, lon: -13.4, type: "Station" },
+        { id: "st-43", name: "Aboa Station", country: "Finland", flag: "🇫🇮", lat: -73.05, lon: -13.417, type: "Station" },
+        { id: "st-44", name: "Tor Station", country: "Norway", flag: "🇳🇴", lat: -71.883, lon: 5.15, type: "Station" },
+        { id: "st-45", name: "Law-Racovita-Negoita Station", country: "Romania/Australia", flag: "🇷🇴", lat: -69.387, lon: 76.381, type: "Station" },
+        { id: "st-46", name: "Jinnah Antarctic Station", country: "Pakistan", flag: "🇵🇰", lat: -70.4, lon: 25.417, type: "Station" },
+      ],
     };
   },
 
-  async calculateRoutes(payload: RouteCalculatePayload): Promise<RouteCalculateResult> {
+  async calculateCustomRoute(payload: RouteCalculatePayload): Promise<RouteCalculateResult | null> {
     try {
       const res = await fetch(`${API_BASE}/routes/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(15000),
       });
       if (res.ok) return await res.json();
-    } catch {}
-    return clientSideCalculateRoutes(payload);
+    } catch (e) {
+      console.error("Route calculation error:", e);
+    }
+    return null;
   },
 
   async getIcebergs(): Promise<Iceberg[]> {
     try {
-      const res = await fetch(`${API_BASE}/icebergs`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/icebergs`, { signal: AbortSignal.timeout(10000) });
       if (res.ok) return await res.json();
     } catch {}
     return baseIcebergs;
   },
 
+  async getCurrentIcebergs(): Promise<Iceberg[]> {
+    try {
+      const res = await fetch(`${API_BASE}/icebergs/current`, { signal: AbortSignal.timeout(30000) });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          console.log(`[API] Loaded ${data.length} real USNIC icebergs`);
+          return data;
+        }
+      }
+      console.error(`[API] Failed to fetch current USNIC icebergs: HTTP ${res.status}`);
+    } catch (e) {
+      console.error("[API] Failed to fetch current USNIC icebergs:", e);
+    }
+    return [];
+  },
+
   async getHazards(): Promise<Hazard[]> {
     try {
-      const res = await fetch(`${API_BASE}/hazards`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/hazards`, { signal: AbortSignal.timeout(10000) });
       if (res.ok) return await res.json();
     } catch {}
     return baseHazards;
@@ -294,7 +404,7 @@ export const apiClient = {
 
   async getEnvironment(): Promise<Environment> {
     try {
-      const res = await fetch(`${API_BASE}/environment`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/environment`, { signal: AbortSignal.timeout(10000) });
       if (res.ok) return await res.json();
     } catch {}
     return baseEnv;
@@ -302,7 +412,7 @@ export const apiClient = {
 
   async getVessel(): Promise<Vessel> {
     try {
-      const res = await fetch(`${API_BASE}/vessels/active`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${API_BASE}/vessels/active`, { signal: AbortSignal.timeout(10000) });
       if (res.ok) return await res.json();
     } catch {}
     return baseVessel;
@@ -314,7 +424,7 @@ export const apiClient = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active_route_id: activeRouteId }),
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(10000),
       });
       if (res.ok) return await res.json();
     } catch {}
@@ -327,10 +437,25 @@ export const apiClient = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scenario, speed, tolerance }),
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(10000),
       });
       if (res.ok) return await res.json();
     } catch {}
+    return null;
+  },
+
+  async predictIcebergMLTrajectory(payload: MLPredictRequest): Promise<MLPredictResponse | null> {
+    try {
+      const res = await fetch(`${API_BASE}/icebergs/ml-predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn("[API] Trajectory prediction failed:", err);
+    }
     return null;
   },
 
@@ -345,7 +470,7 @@ export const apiClient = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(4000),
+        signal: AbortSignal.timeout(15000),
       });
       if (res.ok) return await res.json();
     } catch {}
@@ -364,10 +489,20 @@ export const apiClient = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(4000),
+        signal: AbortSignal.timeout(15000),
       });
       if (res.ok) return await res.json();
     } catch {}
+    return null;
+  },
+
+  async getSeaIcePrediction(): Promise<SeaIcePredictionResponse | null> {
+    try {
+      const res = await fetch(`${API_BASE}/environment/sea-ice`, { signal: AbortSignal.timeout(15000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("[API] Sea-ice fetch failed:", e);
+    }
     return null;
   },
 };

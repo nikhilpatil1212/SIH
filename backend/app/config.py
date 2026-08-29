@@ -8,7 +8,15 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api"
     ENVIRONMENT: str = "DEVELOPMENT"  # "SIMULATION" | "DEVELOPMENT" | "LIVE"
     DATABASE_URL: str = "sqlite:///./polar_nav.db"
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "*"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:8443",
+        "http://127.0.0.1:8443",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "*",
+    ]
     
     DEFAULT_VESSEL_SPEED_KN: float = 14.0
     DEFAULT_FUEL_BURN_PER_DAY_T: float = 16.5

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .api import health, system_status, icebergs, routes
+from .api import health, system_status, icebergs, routes, ml_predict, environment
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -25,6 +25,9 @@ app.include_router(health.router, prefix=settings.API_V1_STR)
 app.include_router(system_status.router, prefix=settings.API_V1_STR)
 app.include_router(icebergs.router, prefix=settings.API_V1_STR)
 app.include_router(routes.router, prefix=settings.API_V1_STR)
+app.include_router(ml_predict.router, prefix=settings.API_V1_STR)
+app.include_router(environment.router, prefix=settings.API_V1_STR)
+
 
 if __name__ == "__main__":
     import uvicorn

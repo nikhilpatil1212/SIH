@@ -38,28 +38,26 @@ export function OperationalApp({ user, onSignOut }: { user: User | null; onSignO
   const meta = META[page];
 
   return (
-    <NavProvider>
-      <div className="flex h-full min-h-0 w-full bg-[#071521] light:bg-[#faf8f5] text-[#eaf6f8] light:text-[#0d2433] transition-colors duration-300">
-        <Sidebar page={page} onNavigate={setPage} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar title={meta.title} subtitle={meta.subtitle} user={user} onSignOut={onSignOut} />
-          <main className="min-h-0 flex-1 overflow-hidden bg-[#071521] light:bg-[#faf8f5] transition-colors duration-300">
-            {page === "dashboard" && <Dashboard onNavigate={setPage} />}
-            {page === "map" && <MapPage onNavigate={setPage} />}
-            {page === "routes" && <Routes onNavigate={setPage} />}
-            {page === "iceberg" && <IcebergPrediction />}
-            {page === "seaice" && <SeaIcePrediction />}
-            {page === "environmental" && <Environmental />}
-            {page === "hazards" && <Hazards />}
-            {page === "rerouting" && <Rerouting />}
-            {page === "whatif" && <WhatIf />}
-            {page === "reports" && <Reports />}
-            {page === "help" && <Help onNavigate={setPage} />}
-            {page === "contact" && <Contact />}
-            {page === "settings" && <Settings />}
-          </main>
-        </div>
+    <div className="flex h-full min-h-0 w-full bg-[#071521] light:bg-[#faf8f5] text-[#eaf6f8] light:text-[#0d2433] transition-colors duration-300">
+      <Sidebar page={page} onNavigate={setPage} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar title={meta.title} subtitle={meta.subtitle} user={user} onSignOut={onSignOut} />
+        <main className="min-h-0 flex-1 overflow-hidden bg-[#071521] light:bg-[#faf8f5] transition-colors duration-300">
+          {page === "dashboard" && <Dashboard onNavigate={setPage} />}
+          {page === "map" && <MapPage onNavigate={setPage} />}
+          {page === "routes" && <Routes onNavigate={setPage} />}
+          {page === "iceberg" && <IcebergPrediction />}
+          {page === "seaice" && <SeaIcePrediction />}
+          {page === "environmental" && <Environmental />}
+          {page === "hazards" && <Hazards />}
+          {page === "rerouting" && <Rerouting />}
+          {page === "whatif" && <WhatIf />}
+          {page === "reports" && <Reports />}
+          {page === "help" && <Help onNavigate={setPage} />}
+          {page === "contact" && <Contact />}
+          {page === "settings" && <Settings />}
+        </main>
       </div>
-    </NavProvider>
+    </div>
   );
 }

@@ -136,3 +136,31 @@ class ReroutingSimulateResponse(BaseModel):
     new_risk_score: int
     routes: List[RouteSchema]
     alert: Dict[str, Any]
+
+class SeaIcePredictionPoint(BaseModel):
+    horizon: str
+    concentration: float
+
+class SeaIceRegionForecast(BaseModel):
+    region: str
+    currentConcentration: float
+    predictions: List[SeaIcePredictionPoint]
+    confidence: float
+    routeImpact: str
+    affectedRoute: str
+    polygon: List[GeoPoint]
+
+class SeaIceHorizonData(BaseModel):
+    horizon: str
+    source_product: str
+    timestamp: str
+    spatial_resolution: str
+    units: str
+    avg_concentration: float
+    min_concentration: float
+    max_concentration: float
+    regions: List[SeaIceRegionForecast]
+
+class SeaIcePredictionResponse(BaseModel):
+    horizons: Dict[str, SeaIceHorizonData]
+

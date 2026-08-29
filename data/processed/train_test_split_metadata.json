@@ -1,0 +1,44 @@
+{
+  "total_samples": 79539,
+  "train_tracks": [
+    "A22A",
+    "A22B",
+    "A23A",
+    "A38B",
+    "A64",
+    "B09B",
+    "B10A",
+    "B22A",
+    "C15",
+    "C19A",
+    "D15A",
+    "UK324"
+  ],
+  "train_track_count": 12,
+  "train_sample_count": 65775,
+  "test_tracks": [
+    "A68A",
+    "B15A",
+    "C16",
+    "D20A"
+  ],
+  "test_track_count": 4,
+  "test_sample_count": 13764,
+  "features": [
+    "latitude",
+    "longitude",
+    "previous_delta_latitude",
+    "previous_delta_longitude",
+    "drift_speed_kmh",
+    "drift_heading_deg",
+    "size_1_nm",
+    "size_2_nm",
+    "sin_doy",
+    "cos_doy",
+    "current_extent"
+  ],
+  "targets": [
+    "next_delta_latitude",
+    "next_delta_longitude"
+  ]
+}

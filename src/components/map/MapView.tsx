@@ -132,6 +132,48 @@ export function MapView({
     mapRef.current.setStyle(mapStyle);
   }, [mapStyle]);
 
+  // Smooth Auto-Focus / Zoom on Selected Iceberg
+  const prevSelectedIcebergRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selectedIcebergId) return;
+
+    if (prevSelectedIcebergRef.current === selectedIcebergId) return;
+    prevSelectedIcebergRef.current = selectedIcebergId;
+
+    const ibg = icebergs.find((i) => i.id === selectedIcebergId);
+    if (!ibg) return;
+
+    if (ibg.predictedPath && ibg.predictedPath.length >= 2) {
+      const lats = ibg.predictedPath.map((p) => p.lat);
+      const lons = ibg.predictedPath.map((p) => p.lon);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLon = Math.min(...lons);
+      const maxLon = Math.max(...lons);
+
+      map.fitBounds(
+        [
+          [minLon - 1.5, minLat - 1.2],
+          [maxLon + 1.5, maxLat + 1.2],
+        ],
+        {
+          padding: 80,
+          maxZoom: 6.8,
+          duration: 1200,
+        }
+      );
+    } else {
+      map.flyTo({
+        center: [ibg.position.lon, ibg.position.lat],
+        zoom: 5.8,
+        duration: 1200,
+        essential: true,
+      });
+    }
+  }, [selectedIcebergId, icebergs]);
+
   // Markers management
   const markersRef = useRef<MapLibreMarker[]>([]);
 
@@ -196,40 +238,98 @@ export function MapView({
       addMarker(st.lon, st.lat, el, popupHtml);
     });
 
-    // C. Icebergs in Sector (with Horizon Interpolation)
+    // C. Icebergs in Sector (with Horizon Interpolation & Trajectory Waypoints)
     if (layers.icebergs) {
       icebergs.forEach((ibg) => {
-        const path = ibg.predictedPath || [{ lat: ibg.position.lat, lon: ibg.position.lon }];
-        const stepIndex = Math.min(path.length - 1, Math.floor(horizonFraction * (path.length - 1)));
-        const targetPt = path[stepIndex] || ibg.position;
-
-        const isHigh = ibg.riskLevel === "high";
         const isSelected = ibg.id === selectedIcebergId;
+        const isHigh = ibg.riskLevel === "high";
 
-        const el = document.createElement("div");
-        el.className = `flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-1.5 py-0.5 rounded border font-mono text-[9px] font-bold shadow-md ${
-          isSelected
-            ? "border-[#55d6e8] bg-[#55d6e8] text-[#071521] shadow-[0_0_12px_#55d6e8] scale-110"
-            : isHigh
-            ? "bg-[#ff5c5c]/20 border-[#ff5c5c] text-[#ff7070] shadow-[0_0_8px_#ff5c5c]"
-            : "bg-[#f5b942]/20 border-[#f5b942] text-[#f5b942]"
-        }`;
-        el.innerHTML = `<span>▲</span><span>${ibg.id}</span>`;
-        el.onclick = (e) => {
-          e.stopPropagation();
-          onSelectIceberg?.(ibg.id);
-        };
+        // If this is the selected iceberg and it has a multi-point predicted trajectory:
+        if (isSelected && ibg.predictedPath && ibg.predictedPath.length >= 4) {
+          const path = ibg.predictedPath;
 
-        const popupHtml = `
-          <div style="font-family: Inter, sans-serif; padding: 4px;">
-            <div style="font-weight:bold; font-size: 12px; color: ${isHigh ? "#ff7070" : "#f5b942"};">
-              ▲ ${ibg.id} (${ibg.riskLevel.toUpperCase()} RISK)
+          let activeIndex = 0;
+          if (horizonFraction <= 0.01) activeIndex = 0;
+          else if (Math.abs(horizonFraction - 0.12) < 0.01) activeIndex = 1;
+          else if (Math.abs(horizonFraction - 0.25) < 0.01) activeIndex = 2;
+          else if (Math.abs(horizonFraction - 0.45) < 0.01) activeIndex = 3;
+          else if (Math.abs(horizonFraction - 0.75) < 0.01) activeIndex = 4;
+          else if (horizonFraction >= 0.99) activeIndex = 5;
+
+          const waypoints = [
+            { pt: path[0] || ibg.position, label: `${ibg.id} (NOW)`, color: "#55d6e8", stepIdx: 0 },
+            { pt: path[3] || path[1] || path[0], label: `${ibg.id} (+24H)`, color: "#10b981", stepIdx: 3 },
+            { pt: path[4] || path[2] || path[0], label: `${ibg.id} (+48H)`, color: "#f59e0b", stepIdx: 4 },
+            { pt: path[5] || path[3] || path[0], label: `${ibg.id} (+72H)`, color: "#ef4444", stepIdx: 5 },
+          ];
+
+          waypoints.forEach((wp) => {
+            const isActive = activeIndex === wp.stepIdx || (activeIndex < 3 && wp.stepIdx === 0 && activeIndex === 0);
+            const el = document.createElement("div");
+            el.className = `flex flex-col items-center cursor-pointer transition-all duration-200 ${
+              isActive ? "z-30 scale-110" : "z-20 scale-95 opacity-90 hover:scale-105"
+            }`;
+
+            const coordText = `${Math.abs(wp.pt.lat).toFixed(4)}°S, ${Math.abs(wp.pt.lon).toFixed(4)}°W`;
+
+            el.innerHTML = `
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border font-mono text-[9px] font-bold shadow-lg backdrop-blur-md ${
+                isActive
+                  ? "border-white bg-[#071521]/95 text-white ring-2 shadow-[0_0_16px_" + wp.color + "]"
+                  : "border-[#1d445c] bg-[#071521]/80 text-[#c8dde3] hover:border-[#55d6e8]"
+              }" style="${isActive ? `border-color: ${wp.color}; ring-color: ${wp.color};` : ""}">
+                <span class="h-2 w-2 rounded-full inline-block ${isActive ? 'animate-pulse' : ''}" style="background-color: ${wp.color}; box-shadow: 0 0 8px ${wp.color}"></span>
+                <span style="color: ${wp.color}">${wp.label}</span>
+              </div>
+              <div class="mt-0.5 px-1 py-0.2 rounded bg-[#030d17]/85 text-[7.5px] font-mono text-[#91aeb9] border border-[#1d445c]/50">
+                ${coordText}
+              </div>
+            `;
+
+            el.onclick = (e) => {
+              e.stopPropagation();
+              onSelectIceberg?.(ibg.id);
+            };
+
+            const popupHtml = `
+              <div style="font-family: Inter, sans-serif; padding: 4px;">
+                <div style="font-weight:bold; font-size: 12px; color: ${wp.color};">
+                  ${wp.label}
+                </div>
+                <div style="font-size: 11px; margin-top: 3px;"><b>Coordinates:</b> ${coordText}</div>
+                <div style="font-size: 10px; margin-top: 2px; color: #91aeb9;">Size: ${ibg.sizeKm} km · Speed: ${(ibg.speedMs * 1.94384).toFixed(1)} kn</div>
+              </div>
+            `;
+
+            addMarker(wp.pt.lon, wp.pt.lat, el, popupHtml);
+          });
+        } else {
+          const el = document.createElement("div");
+          el.className = `flex items-center gap-1 cursor-pointer transition-transform hover:scale-125 px-1.5 py-0.5 rounded border font-mono text-[9px] font-bold shadow-md ${
+            isSelected
+              ? "border-[#55d6e8] bg-[#55d6e8] text-[#071521] shadow-[0_0_12px_#55d6e8] scale-110"
+              : isHigh
+              ? "bg-[#ff5c5c]/20 border-[#ff5c5c] text-[#ff7070] shadow-[0_0_8px_#ff5c5c]"
+              : "bg-[#f5b942]/20 border-[#f5b942] text-[#f5b942]"
+          }`;
+
+          el.innerHTML = `<span>▲</span><span>${ibg.id}</span>`;
+          el.onclick = (e) => {
+            e.stopPropagation();
+            onSelectIceberg?.(ibg.id);
+          };
+
+          const popupHtml = `
+            <div style="font-family: Inter, sans-serif; padding: 4px;">
+              <div style="font-weight:bold; font-size: 12px; color: ${isHigh ? "#ff7070" : "#f5b942"};">
+                ▲ ${ibg.id} (${ibg.riskLevel.toUpperCase()} RISK)
+              </div>
+              <div style="font-size: 11px; margin-top: 3px;"><b>Size:</b> ${ibg.sizeKm} km · <b>Drift:</b> ${(ibg.speedMs * 1.94384).toFixed(1)} kn @ ${ibg.headingDeg}°</div>
+              <div style="font-size: 11px; margin-top: 2px;"><b>POS:</b> ${Math.abs(ibg.position.lat).toFixed(2)}°S, ${Math.abs(ibg.position.lon).toFixed(2)}°W</div>
             </div>
-            <div style="font-size: 11px; margin-top: 3px;"><b>Size:</b> ${ibg.sizeKm} km · <b>Drift:</b> ${(ibg.speedMs * 1.94384).toFixed(1)} kn @ ${ibg.headingDeg}°</div>
-            <div style="font-size: 11px; margin-top: 2px;"><b>POS:</b> ${Math.abs(targetPt.lat).toFixed(2)}°S, ${Math.abs(targetPt.lon).toFixed(2)}°W</div>
-          </div>
-        `;
-        addMarker(targetPt.lon, targetPt.lat, el, popupHtml);
+          `;
+          addMarker(ibg.position.lon, ibg.position.lat, el, popupHtml);
+        }
       });
     }
 
@@ -275,41 +375,12 @@ export function MapView({
     }
   }, [layers, vessel, icebergs, clickedPin, providerId, horizonFraction, selectedIcebergId]);
 
-  // GeoJSON Routes & Iceberg Trajectories
+  // GeoJSON Routes Layer
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     const setupLayers = () => {
-      // Iceberg Trajectories
-      if (icebergs.length > 0 && !map.getSource("iceberg-trajectories-source")) {
-        const trajectoryFeatures = icebergs.map((ibg) => ({
-          type: "Feature" as const,
-          properties: { id: ibg.id, risk: ibg.riskLevel },
-          geometry: {
-            type: "LineString" as const,
-            coordinates: (ibg.predictedPath || [ibg.position]).map((p) => [p.lon, p.lat]),
-          },
-        }));
-
-        map.addSource("iceberg-trajectories-source", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: trajectoryFeatures },
-        });
-
-        map.addLayer({
-          id: "iceberg-trajectories-line",
-          type: "line",
-          source: "iceberg-trajectories-source",
-          paint: {
-            "line-color": ["match", ["get", "risk"], "high", "#ef4444", "medium", "#f59e0b", "#10b981"],
-            "line-width": 2,
-            "line-dasharray": [4, 2],
-            "line-opacity": 0.85,
-          },
-        });
-      }
-
       // Routes Layer
       if (routes.length > 0 && !map.getSource("routes-source")) {
         const routeFeatures = routes.map((r) => ({
@@ -344,7 +415,90 @@ export function MapView({
     } else {
       map.once("style.load", setupLayers);
     }
-  }, [routes, selectedRouteId, providerId, icebergs]);
+  }, [routes, selectedRouteId, providerId]);
+
+  // Dedicated Robust Trajectory Line Layer Management (Direct MapLibre Implementation)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const renderDirectA76CTrajectory = () => {
+      try {
+        if (!map.isStyleLoaded()) {
+          map.once("style.load", renderDirectA76CTrajectory);
+          return;
+        }
+
+        const sourceId = "a76c-direct-trajectory-source";
+        const layerId = "a76c-direct-trajectory-layer";
+
+        // Clean up old layers if present
+        if (map.getLayer("iceberg-trajectory-line")) map.removeLayer("iceberg-trajectory-line");
+        if (map.getLayer("iceberg-trajectory-casing")) map.removeLayer("iceberg-trajectory-casing");
+        if (map.getSource("iceberg-trajectory-source")) map.removeSource("iceberg-trajectory-source");
+
+        if (map.getLayer(layerId)) {
+          map.removeLayer(layerId);
+        }
+        if (map.getSource(sourceId)) {
+          map.removeSource(sourceId);
+        }
+
+        const lineCoordinates: [number, number][] = [
+          [-29.5000, -53.7300],
+          [-29.6453, -53.6545],
+          [-29.7906, -53.5791],
+          [-29.9359, -53.5036],
+        ];
+
+        map.addSource(sourceId, {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: { iceberg: "A76C" },
+            geometry: {
+              type: "LineString",
+              coordinates: lineCoordinates,
+            },
+          },
+        });
+
+        map.addLayer({
+          id: layerId,
+          type: "line",
+          source: sourceId,
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": "#ff00ff",
+            "line-width": 10,
+            "line-opacity": 1.0,
+          },
+        });
+
+        if (typeof (map as any).moveLayer === "function") {
+          (map as any).moveLayer(layerId);
+        }
+      } catch (err) {
+        console.error("Error in renderDirectA76CTrajectory MapView:", err);
+      }
+    };
+
+    if (map.isStyleLoaded()) {
+      renderDirectA76CTrajectory();
+    } else {
+      map.once("style.load", renderDirectA76CTrajectory);
+    }
+    map.on("styledata", renderDirectA76CTrajectory);
+    map.on("load", renderDirectA76CTrajectory);
+
+    return () => {
+      map.off("styledata", renderDirectA76CTrajectory);
+      map.off("load", renderDirectA76CTrajectory);
+    };
+  }, [providerId, selectedIcebergId, icebergs]);
 
   const copyCoordinates = () => {
     if (!clickedPin) return;
