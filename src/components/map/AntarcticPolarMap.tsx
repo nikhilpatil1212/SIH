@@ -137,6 +137,9 @@ export function AntarcticPolarMap({
   const [hoveredEntity, setHoveredEntity] = useState<HoveredEntity>(null);
   const [cursorPos, setCursorPos] = useState<{ lat: number; lon: number; sector: string } | null>(null);
   const [svgPoints, setSvgPoints] = useState<string>("");
+  const [svgRoutes, setSvgRoutes] = useState<
+    { id: string; name: string; color: string; selected: boolean; points: string; type: string }[]
+  >([]);
   const hoverTimeoutRef = useRef<any>(null);
   const coordsRef = useRef<[number, number][]>([]);
 
@@ -165,24 +168,52 @@ export function AntarcticPolarMap({
     ];
   }, [selectedBerg]);
 
-  const updateSvgTrajectory = useCallback(() => {
+  const updateSvgOverlay = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
+
+    // 1. Iceberg Trajectory
     const coords = coordsRef.current;
     if (!coords || coords.length < 2) {
       setSvgPoints("");
-      return;
+    } else {
+      try {
+        const pts = coords
+          .map((c) => {
+            const pt = typeof (map as any).project === "function" ? (map as any).project([c[0], c[1]]) : { x: 0, y: 0 };
+            return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+          })
+          .join(" ");
+        setSvgPoints(pts);
+      } catch {}
     }
-    try {
-      const pts = coords
-        .map((c) => {
-          const pt = typeof (map as any).project === "function" ? (map as any).project([c[0], c[1]]) : { x: 0, y: 0 };
-          return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
-        })
-        .join(" ");
-      setSvgPoints(pts);
-    } catch {}
-  }, []);
+
+    // 2. All Calculated Ship Routes
+    if (!routes || routes.length === 0) {
+      setSvgRoutes([]);
+    } else {
+      try {
+        const projectedRoutes = routes.map((r) => {
+          const coordsList = (r.coordinates || []).filter((c) => c && c.lat != null && c.lon != null);
+          const pts = coordsList
+            .map((c) => {
+              const pt = typeof (map as any).project === "function" ? (map as any).project([c.lon, c.lat]) : { x: 0, y: 0 };
+              return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+            })
+            .join(" ");
+          return {
+            id: r.id,
+            name: r.name,
+            color: r.color || (r.id === "route-b" ? "#10b981" : r.id === "route-a" ? "#ef4444" : "#38bdf8"),
+            selected: r.id === selectedRouteId,
+            points: pts,
+            type: r.type,
+          };
+        });
+        setSvgRoutes(projectedRoutes);
+      } catch {}
+    }
+  }, [routes, selectedRouteId]);
 
   const activeProvider = useMemo(() => {
     return MAP_PROVIDERS.find((p) => p.id === providerId) || MAP_PROVIDERS[0];
@@ -229,11 +260,11 @@ export function AntarcticPolarMap({
     mapRef.current = map;
     (window as any).__MAPLIBRE_MAP__ = map;
 
-    map.on("render", updateSvgTrajectory);
-    map.on("move", updateSvgTrajectory);
-    map.on("zoom", updateSvgTrajectory);
-    map.on("load", updateSvgTrajectory);
-    map.on("style.load", updateSvgTrajectory);
+    map.on("render", updateSvgOverlay);
+    map.on("move", updateSvgOverlay);
+    map.on("zoom", updateSvgOverlay);
+    map.on("load", updateSvgOverlay);
+    map.on("style.load", updateSvgOverlay);
 
     map.on("zoom", () => {
       setCurrentZoom(map.getZoom());
@@ -249,7 +280,7 @@ export function AntarcticPolarMap({
       map.remove();
       mapRef.current = null;
     };
-  }, [updateSvgTrajectory]);
+  }, [updateSvgOverlay]);
 
   // Update Style on Provider Change seamlessly (Only when provider actually changes)
   const prevProviderRef = useRef<string>(providerId);
@@ -271,16 +302,24 @@ export function AntarcticPolarMap({
     }, 100);
   }, [fullscreen]);
 
-  // 2. Auto-Fit Viewport to Selected Route Coordinates
+  // 2. Auto-Fit Viewport to All Calculated Routes & Bounding Box
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !routes || routes.length === 0) return;
 
-    const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
-    if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length < 2) return;
+    const allCoordinates: { lat: number; lon: number }[] = [];
+    routes.forEach((r) => {
+      if (r.coordinates && r.coordinates.length > 0) {
+        allCoordinates.push(...r.coordinates);
+      }
+    });
 
-    const lats = selectedRoute.coordinates.map((c) => c.lat);
-    const lons = selectedRoute.coordinates.map((c) => c.lon);
+    if (allCoordinates.length < 2) return;
+
+    const lats = allCoordinates.map((c) => c.lat).filter((lat) => !isNaN(lat));
+    const lons = allCoordinates.map((c) => c.lon).filter((lon) => !isNaN(lon));
+    if (lats.length === 0 || lons.length === 0) return;
+
     const minLat = Math.min(...lats);
     const maxLat = Math.max(...lats);
     const minLon = Math.min(...lons);
@@ -288,12 +327,12 @@ export function AntarcticPolarMap({
 
     map.fitBounds(
       [
-        [minLon - 2.5, minLat - 2.5],
-        [maxLon + 2.5, maxLat + 2.5],
+        [minLon - 3.0, minLat - 2.5],
+        [maxLon + 3.0, maxLat + 2.5],
       ],
-      { padding: 60, duration: 1000 }
+      { padding: 60, duration: 1200 }
     );
-  }, [selectedRouteId, routes]);
+  }, [routes]);
 
   // 3. Smooth Auto-Focus / Close-Up Inspection Zoom on Selected Iceberg
   const prevSelectedIcebergRef = useRef<string | null>(null);
@@ -561,7 +600,28 @@ export function AntarcticPolarMap({
         addMarker(lon, lat, el);
       });
     }
-  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, activeWaypoints, nav?.predictionsCache]);
+
+    // G. Departure & Destination Markers for Calculated Routes
+    if (routes && routes.length > 0) {
+      const activeRt = routes.find((r) => r.id === selectedRouteId) || routes[0];
+      if (activeRt && activeRt.coordinates && activeRt.coordinates.length >= 2) {
+        const startPt = activeRt.coordinates[0];
+        const destPt = activeRt.coordinates[activeRt.coordinates.length - 1];
+
+        // Departure Marker
+        const startEl = document.createElement("div");
+        startEl.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[#10b981] bg-[#071927]/95 shadow-[0_0_12px_#10b981]/50 font-mono text-[10px] font-bold text-white cursor-pointer hover:scale-110 transition-transform";
+        startEl.innerHTML = `<span class="h-2 w-2 rounded-full bg-[#10b981] animate-ping"></span><span>⚓ DEPARTURE</span>`;
+        addMarker(startPt.lon, startPt.lat, startEl);
+
+        // Destination Marker
+        const destEl = document.createElement("div");
+        destEl.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[#f5b942] bg-[#071927]/95 shadow-[0_0_12px_#f5b942]/50 font-mono text-[10px] font-bold text-white cursor-pointer hover:scale-110 transition-transform";
+        destEl.innerHTML = `<span class="h-2 w-2 rounded-full bg-[#f5b942] animate-pulse"></span><span>🏁 DESTINATION</span>`;
+        addMarker(destPt.lon, destPt.lat, destEl);
+      }
+    }
+  }, [layers, vessel, icebergs, providerId, currentZoom, horizonFraction, selectedIcebergId, activeWaypoints, nav?.predictionsCache, routes, selectedRouteId]);
 
   // GeoJSON Line & Polygon Layers
   useEffect(() => {
@@ -639,19 +699,28 @@ export function AntarcticPolarMap({
         }
       }
 
-      // 2. Active Navigation Routes Layer (Prominently Highlight Selected Route, Subdue Alternatives)
+      // 2. Active Navigation Routes Layer (All Calculated Ship Routes Rendered Simultaneously)
       if (routes.length > 0) {
         const routeFeatures = routes.map((r) => ({
           type: "Feature" as const,
-          properties: { id: r.id, name: r.name, color: r.color, selected: r.id === selectedRouteId },
+          properties: {
+            id: r.id,
+            name: r.name,
+            color: r.color || (r.id === "route-b" ? "#10b981" : r.id === "route-a" ? "#ef4444" : "#38bdf8"),
+            selected: r.id === selectedRouteId,
+            type: r.type,
+          },
           geometry: {
             type: "LineString" as const,
-            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
+            coordinates: (r.coordinates || [])
+              .filter((w) => w && w.lat != null && w.lon != null && !isNaN(w.lat) && !isNaN(w.lon))
+              .map((w) => [w.lon, w.lat]),
           },
         }));
 
-        if (map.getSource("routes-source")) {
-          (map.getSource("routes-source") as GeoJSONSource).setData({
+        const existingRouteSource = map.getSource("routes-source") as GeoJSONSource | undefined;
+        if (existingRouteSource) {
+          existingRouteSource.setData({
             type: "FeatureCollection",
             features: routeFeatures,
           });
@@ -661,19 +730,35 @@ export function AntarcticPolarMap({
             data: { type: "FeatureCollection", features: routeFeatures },
           });
 
+          // Distinct dark casing for high contrast
+          map.addLayer({
+            id: "routes-line-casing",
+            type: "line",
+            source: "routes-source",
+            paint: {
+              "line-color": "#030d17",
+              "line-width": ["case", ["get", "selected"], 9.0, 5.0],
+              "line-opacity": 0.85,
+            },
+          });
+
+          // Vibrant colored route lines
           map.addLayer({
             id: "routes-line",
             type: "line",
             source: "routes-source",
+            layout: {
+              "line-cap": "round",
+              "line-join": "round",
+            },
             paint: {
               "line-color": ["get", "color"],
-              "line-width": ["case", ["get", "selected"], 5.0, 2.2],
-              "line-opacity": ["case", ["get", "selected"], 1.0, 0.45],
+              "line-width": ["case", ["get", "selected"], 6.0, 3.5],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.75],
             },
           });
         }
       }
-
     };
 
     if (map.isStyleLoaded()) {
@@ -779,12 +864,12 @@ export function AntarcticPolarMap({
       map.once("style.load", renderTrajectory);
     }
     map.on("load", renderTrajectory);
-    updateSvgTrajectory();
+    updateSvgOverlay();
 
     return () => {
       map.off("load", renderTrajectory);
     };
-  }, [selectedTrajectoryCoords, providerId, selectedBerg, updateSvgTrajectory]);
+  }, [selectedTrajectoryCoords, providerId, selectedBerg, updateSvgOverlay]);
 
   return (
     <div
@@ -901,6 +986,47 @@ export function AntarcticPolarMap({
               fill="none"
               style={{ filter: "drop-shadow(0 0 6px #00e5ff)" }}
             />
+          </svg>
+        )}
+
+        {/* All Calculated Ship Routes SVG Overlay (All 3 Routes Rendered Simultaneously) */}
+        {svgRoutes.length > 0 && (
+          <svg
+            className="absolute inset-0 h-full w-full pointer-events-none z-10 overflow-visible"
+            style={{ width: "100%", height: "100%" }}
+          >
+            {/* Unselected routes first */}
+            {svgRoutes
+              .filter((r) => !r.selected)
+              .map((r) => (
+                <polyline
+                  key={r.id}
+                  points={r.points}
+                  stroke={r.color}
+                  strokeWidth="3.5"
+                  strokeDasharray={r.type === "fastest" ? "8, 5" : r.type === "fuel" ? "4, 4" : undefined}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeOpacity="0.75"
+                  fill="none"
+                />
+              ))}
+            {/* Selected highlighted route on top with glow */}
+            {svgRoutes
+              .filter((r) => r.selected)
+              .map((r) => (
+                <polyline
+                  key={r.id}
+                  points={r.points}
+                  stroke={r.color}
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeOpacity="1"
+                  fill="none"
+                  style={{ filter: `drop-shadow(0 0 8px ${r.color})` }}
+                />
+              ))}
           </svg>
         )}
 

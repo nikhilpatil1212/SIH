@@ -417,38 +417,69 @@ export function MapView({
     }
   }, [layers, vessel, icebergs, clickedPin, providerId, horizonFraction, selectedIcebergId]);
 
-  // GeoJSON Routes Layer
+  // GeoJSON Routes Layer (All Calculated Routes Rendered Simultaneously)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     const setupLayers = () => {
-      // Routes Layer
-      if (routes.length > 0 && !map.getSource("routes-source")) {
+      if (routes.length > 0) {
         const routeFeatures = routes.map((r) => ({
           type: "Feature" as const,
-          properties: { id: r.id, name: r.name, selected: r.id === selectedRouteId, color: r.color },
+          properties: {
+            id: r.id,
+            name: r.name,
+            selected: r.id === selectedRouteId,
+            color: r.color || (r.id === "route-b" ? "#10b981" : r.id === "route-a" ? "#ef4444" : "#38bdf8"),
+            type: r.type,
+          },
           geometry: {
             type: "LineString" as const,
-            coordinates: r.coordinates.map((w) => [w.lon, w.lat]),
+            coordinates: (r.coordinates || [])
+              .filter((w) => w && w.lat != null && w.lon != null && !isNaN(w.lat) && !isNaN(w.lon))
+              .map((w) => [w.lon, w.lat]),
           },
         }));
 
-        map.addSource("routes-source", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: routeFeatures },
-        });
+        const existingSource = map.getSource("routes-source") as any;
+        if (existingSource) {
+          existingSource.setData({
+            type: "FeatureCollection",
+            features: routeFeatures,
+          });
+        } else {
+          map.addSource("routes-source", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: routeFeatures },
+          });
 
-        map.addLayer({
-          id: "routes-line",
-          type: "line",
-          source: "routes-source",
-          paint: {
-            "line-color": ["get", "color"],
-            "line-width": ["case", ["get", "selected"], 4, 2.5],
-            "line-opacity": 0.95,
-          },
-        });
+          // Casing for contrast
+          map.addLayer({
+            id: "routes-line-casing",
+            type: "line",
+            source: "routes-source",
+            paint: {
+              "line-color": "#030d17",
+              "line-width": ["case", ["get", "selected"], 9.0, 5.0],
+              "line-opacity": 0.85,
+            },
+          });
+
+          map.addLayer({
+            id: "routes-line",
+            type: "line",
+            source: "routes-source",
+            layout: {
+              "line-cap": "round",
+              "line-join": "round",
+            },
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": ["case", ["get", "selected"], 6.0, 3.5],
+              "line-opacity": ["case", ["get", "selected"], 1.0, 0.75],
+            },
+          });
+        }
       }
     };
 
