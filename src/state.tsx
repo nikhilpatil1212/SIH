@@ -8,7 +8,7 @@ import {
 } from "react";
 import type { LayerState } from "./components/map/MapView";
 import { alerts as baseAlerts, icebergs as baseIcebergs, routes as baseRoutes } from "./data/mock";
-import type { AlertItem, Iceberg, Route, SeaIcePredictionResponse } from "./data/types";
+import type { AlertItem, Hazard, Iceberg, Route, SeaIcePredictionResponse } from "./data/types";
 import apiClient, {
   clientSideCalculateRoutes,
   type RouteCalculatePayload,

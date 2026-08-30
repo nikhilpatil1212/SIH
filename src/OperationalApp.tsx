@@ -33,15 +33,33 @@ const META: Record<PageId, { title: string; subtitle: string }> = {
   settings: { title: "Platform Settings & Theme", subtitle: "Telemetry refresh intervals, unit preferences & display customization" },
 };
 
-export function OperationalApp({ user, onSignOut }: { user: User | null; onSignOut: () => void }) {
+import { AlertAdminModal } from "./components/alerts/AlertAdminModal";
+
+export function OperationalApp({
+  user,
+  onSignOut,
+  onOpenAdmin,
+}: {
+  user: User | null;
+  onSignOut: () => void;
+  onOpenAdmin?: () => void;
+}) {
   const [page, setPage] = useState<PageId>("dashboard");
+  const [showAlertModal, setShowAlertModal] = useState(false);
   const meta = META[page];
 
   return (
     <div className="flex h-full min-h-0 w-full bg-[#071521] light:bg-[#faf8f5] text-[#eaf6f8] light:text-[#0d2433] transition-colors duration-300">
       <Sidebar page={page} onNavigate={setPage} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar title={meta.title} subtitle={meta.subtitle} user={user} onSignOut={onSignOut} />
+        <TopBar
+          title={meta.title}
+          subtitle={meta.subtitle}
+          user={user}
+          onSignOut={onSignOut}
+          onAlertAdmin={() => setShowAlertModal(true)}
+          onOpenAdmin={onOpenAdmin}
+        />
         <main className="min-h-0 flex-1 overflow-hidden bg-[#071521] light:bg-[#faf8f5] transition-colors duration-300">
           {page === "dashboard" && <Dashboard onNavigate={setPage} />}
           {page === "map" && <MapPage onNavigate={setPage} />}
@@ -58,6 +76,13 @@ export function OperationalApp({ user, onSignOut }: { user: User | null; onSignO
           {page === "settings" && <Settings />}
         </main>
       </div>
+
+      {showAlertModal && (
+        <AlertAdminModal
+          user={user}
+          onClose={() => setShowAlertModal(false)}
+        />
+      )}
     </div>
   );
 }

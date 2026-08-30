@@ -9,6 +9,7 @@ import {
 import { ArrowLeft, CheckCircle2, Lock, Mail, Shield, User as UserIcon } from "lucide-react";
 import { mockSignIn, type User, type UserRole } from "../data/auth";
 import { ThemeToggle, useTheme } from "../theme";
+import apiClient from "../api/client";
 
 export type AuthView = "user-login" | "signup" | "admin-login" | "forgot";
 
@@ -159,16 +160,36 @@ function UserLogin({
   onHome: () => void;
   onSignedIn: (u: User) => void;
 }) {
-  const [email, setEmail] = useState("researcher@example.org");
+  const [email, setEmail] = useState("user@antarctica.com");
+  const [password, setPassword] = useState("User@123");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const u = mockSignIn(email);
-    if (!u || u.role === "Admin") return setError("No matching user account found. Try researcher@example.org.");
-    onSignedIn(u);
+    try {
+      setLoading(true);
+      setError("");
+      // Real backend authentication
+      const res = await apiClient.auth.login(email.trim(), password);
+      localStorage.setItem("dhruva_auth_token", res.access_token);
+      
+      const authUser: User = {
+        id: res.user.id,
+        name: res.user.name,
+        email: res.user.email,
+        role: res.user.role === "ADMIN" ? "Admin" : "Researcher",
+        organization: res.user.organization || "NCPOR Expedition",
+      };
+      
+      onSignedIn(authUser);
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials. Please verify your email and password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -180,10 +201,10 @@ function UserLogin({
 
       <form onSubmit={submit} className="mt-7 space-y-4">
         <Field label="Email address">
-          <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="you@organisation.org" required />
+          <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} placeholder="user@antarctica.com" required />
         </Field>
         <Field label="Password">
-          <Input type="password" defaultValue="demo" placeholder="••••••••" required />
+          <Input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} placeholder="••••••••" required />
         </Field>
         <div className="flex items-center justify-between">
           <label className={`flex cursor-pointer items-center gap-2 text-[12px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
@@ -199,20 +220,31 @@ function UserLogin({
         </div>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Access Console</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={loading}>
+          {loading ? "Authenticating..." : "Access Console"}
+        </PrimaryBtn>
       </form>
 
-      <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-        {"Don't have an account? "}
+      <div className="mt-4 flex items-center justify-between text-[13px]">
+        <button
+          onClick={() => onView("admin-login")}
+          className={`font-semibold hover:underline ${isDark ? "text-[#55d6e8]" : "text-[#0f768e]"}`}
+        >
+          Administrator login →
+        </button>
         <button
           onClick={() => onView("signup")}
-          className={`font-bold hover:underline ${isDark ? "text-[#55d6e8]" : "text-[#0f768e]"}`}
+          className={`font-semibold hover:underline ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}
         >
-          Sign up
+          Create account
         </button>
-      </p>
+      </div>
 
-      <DemoNote>Prototype auth — any password accepted. Try researcher@example.org or operator@example.org.</DemoNote>
+      <DemoNote>
+        <div className="font-bold mb-1">Demo Credentials:</div>
+        <div><b>User:</b> user@antarctica.com / User@123 (Role: USER)</div>
+        <div><b>Admin:</b> admin@antarctica.com / Admin@123 (Role: ADMIN)</div>
+      </DemoNote>
     </Shell>
   );
 }
@@ -221,15 +253,37 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
   const [done, setDone] = useState(false);
   const [role, setRole] = useState<UserRole>("Researcher");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    if (f.get("password") !== f.get("confirm")) return setError("Passwords do not match.");
-    setError("");
-    setDone(true);
+    const password = String(f.get("password") || "");
+    const confirm = String(f.get("confirm") || "");
+    const name = String(f.get("name") || "");
+    const email = String(f.get("email") || "");
+    const org = String(f.get("org") || "");
+
+    if (password !== confirm) return setError("Passwords do not match.");
+
+    try {
+      setSubmitting(true);
+      setError("");
+      await apiClient.auth.register({
+        name,
+        email,
+        password,
+        organization: org,
+        role: "USER",
+      });
+      setDone(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to create account");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (done)
@@ -241,7 +295,7 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
           </div>
           <h1 className="text-[26px] font-bold tracking-tight">Account created successfully</h1>
           <p className={`mt-2 text-[14px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
-            Your prototype account is ready. Sign in to explore the <span className="font-semibold">Dhruv Sarthi</span> console.
+            Your account is ready. Sign in to access the <span className="font-semibold">Dhruv Sarthi</span> console.
           </p>
           <div className="mt-7">
             <PrimaryBtn onClick={() => onView("user-login")}>Continue to login</PrimaryBtn>
@@ -297,7 +351,9 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
         </Field>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Register Account</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={submitting}>
+          {submitting ? "Creating Account..." : "Register Account"}
+        </PrimaryBtn>
       </form>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
@@ -309,8 +365,6 @@ function SignUp({ onView, onHome }: { onView: (v: AuthView) => void; onHome: () 
           Sign in
         </button>
       </p>
-
-      <DemoNote>Demonstration build — no actual credentials stored.</DemoNote>
     </Shell>
   );
 }
@@ -324,16 +378,38 @@ function AdminLogin({
   onHome: () => void;
   onAdminIn: (u: User) => void;
 }) {
-  const [email, setEmail] = useState("admin@example.org");
+  const [email, setEmail] = useState("admin@antarctica.com");
+  const [password, setPassword] = useState("Admin@123");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const u = mockSignIn(email);
-    if (!u || u.role !== "Admin") return setError("Administrator credentials not recognised.");
-    onAdminIn(u);
+    try {
+      setLoading(true);
+      setError("");
+      const res = await apiClient.auth.login(email.trim(), password);
+      if (res.user.role !== "ADMIN") {
+        throw new Error("This account does not have Administrator privileges. Please use User Login.");
+      }
+      localStorage.setItem("dhruva_auth_token", res.access_token);
+      
+      const adminUser: User = {
+        id: res.user.id,
+        name: res.user.name,
+        email: res.user.email,
+        role: "Admin",
+        organization: res.user.organization || "NCPOR Polar Operations Directorate",
+      };
+      
+      onAdminIn(adminUser);
+    } catch (err: any) {
+      setError(err.message || "Administrator credentials not recognised.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -341,12 +417,12 @@ function AdminLogin({
       <div
         className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 ${
           isDark
-            ? "border-[#1d445c] bg-[#0d2433] text-[#8ccfe0]"
-            : "border-[#dfd8cc] bg-[#f2ece0] text-[#0f768e]"
+            ? "border-[#ef4444]/40 bg-[#ef4444]/10 text-[#ef4444]"
+            : "border-[#ef4444]/40 bg-[#fee2e2] text-[#991b1b]"
         }`}
       >
         <Shield size={13} />
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">Administrator Access</span>
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">Fleet Administrator Access</span>
       </div>
 
       <h1 className="text-[28px] font-bold tracking-tight">Admin sign in</h1>
@@ -355,18 +431,17 @@ function AdminLogin({
       </p>
 
       <form onSubmit={submit} className="mt-7 space-y-4">
-        <Field label="Admin ID">
-          <Input defaultValue="ADM-001" required />
-        </Field>
-        <Field label="Email address">
+        <Field label="Administrator Email">
           <Input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required />
         </Field>
-        <Field label="Password">
-          <Input type="password" defaultValue="demo" placeholder="••••••••" required />
+        <Field label="Admin Password">
+          <Input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} required />
         </Field>
 
         {error && <p className="text-[12px] text-[#ef4444] font-medium">{error}</p>}
-        <PrimaryBtn type="submit">Access Admin Console</PrimaryBtn>
+        <PrimaryBtn type="submit" disabled={loading}>
+          {loading ? "Verifying Root Credentials..." : "Access Admin Hub"}
+        </PrimaryBtn>
       </form>
 
       <p className={`mt-5 text-center text-[13px] ${isDark ? "text-[#91aeb9]" : "text-[#4a6878]"}`}>
@@ -379,7 +454,11 @@ function AdminLogin({
         </button>
       </p>
 
-      <DemoNote>Prototype access — use admin@example.org with any password.</DemoNote>
+      <DemoNote>
+        <div className="font-bold mb-1">Admin Demo Credentials:</div>
+        <div><b>Email:</b> admin@antarctica.com</div>
+        <div><b>Password:</b> Admin@123</div>
+      </DemoNote>
     </Shell>
   );
 }

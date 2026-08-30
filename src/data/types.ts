@@ -200,3 +200,130 @@ export interface SeaIcePredictionResponse {
   horizons: Record<Horizon, SeaIceHorizonData>;
 }
 
+export interface SeaIceRegionItem {
+  region: string;
+  current_sic: number;
+  sic_min: number;
+  sic_max: number;
+  spatial_coverage: number;
+  valid_grid_cells: number;
+  forecast: {
+    "1d": number;
+    "3d": number;
+    "7d": number;
+    "14d": number;
+    "30d": number;
+    [key: string]: number;
+  };
+  change_7d: number;
+  confidence: number;
+  risk: "LOW" | "MODERATE" | "HIGH" | "VERY HIGH" | string;
+  data_source: string;
+  last_updated: string;
+}
+
+export interface SeaIceTableResponse {
+  observation_timestamp: string;
+  data_source: string;
+  regions_monitored: number;
+  regions: SeaIceRegionItem[];
+}
+
+export interface AdminStats {
+  total_users: number;
+  active_users: number;
+  total_trips: number;
+  active_trips: number;
+  pending_feedback: number;
+  open_help_alerts: number;
+  iceberg_records: number;
+  latest_weather_update: string;
+  latest_sea_ice_update: string;
+}
+
+export interface UserItem {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: "ADMIN" | "USER" | string;
+  status: "ACTIVE" | "INACTIVE" | string;
+  organization?: string;
+  created_at?: string;
+  last_login?: string;
+}
+
+export interface TravelItem {
+  id: string;
+  user_id?: string;
+  user_name?: string;
+  ship_name: string;
+  travel_id: string;
+  departure_time: string;
+  estimated_arrival_time: string;
+  required_time?: string;
+  destination: string;
+  latitude: number;
+  longitude: number;
+  departure_location: string;
+  departure_latitude: number;
+  departure_longitude: number;
+  status: "IN_TRANSIT" | "SCHEDULED" | "ARRIVED" | "ANCHORED" | "DELAYED" | string;
+  updated_at?: string;
+}
+
+export interface FeedbackItem {
+  id: string;
+  user_id?: string;
+  user_name: string;
+  user_email?: string;
+  rating: number;
+  feedback: string;
+  category: string;
+  status: "PENDING" | "REVIEWED" | string;
+  submitted_at: string;
+}
+
+export interface HelpAlertItem {
+  id: string;
+  user_id?: string;
+  user_name: string;
+  message: string;
+  latitude: number;
+  longitude: number;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | string;
+  status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED" | string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface IcebergTableItem {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  size_km: number;
+  movement_speed_kn: number;
+  movement_heading_deg: number;
+  risk_level: "LOW" | "MEDIUM" | "HIGH" | string;
+  confidence: number;
+  source: string;
+  last_updated: string;
+}
+
+export interface WeatherTableItem {
+  id: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  temperature_c: number;
+  wind_speed_kn: number;
+  wind_direction_deg: number;
+  visibility_km: number;
+  pressure_hpa: number;
+  conditions: string;
+  source: string;
+  observation_time: string;
+}
+
+

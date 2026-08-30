@@ -544,6 +544,318 @@ export const apiClient = {
     }
     return null;
   },
+
+  // ---- Extended Platform & Admin APIs ----
+  getAuthHeaders(): Record<string, string> {
+    const token = typeof window !== "undefined" ? localStorage.getItem("dhruva_auth_token") : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
+
+  auth: {
+    async login(email: string, password: string) {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Login failed" }));
+        throw new Error(err.detail || "Invalid login credentials");
+      }
+      return await res.json();
+    },
+
+    async register(data: { name: string; email: string; password: string; phone?: string; role?: string; organization?: string }) {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Registration failed" }));
+        throw new Error(err.detail || "Registration failed");
+      }
+      return await res.json();
+    },
+
+    async getMe() {
+      const headers = apiClient.getAuthHeaders();
+      const res = await fetch(`${API_BASE}/auth/me`, { headers });
+      if (!res.ok) return null;
+      return await res.json();
+    },
+  },
+
+  admin: {
+    async getStats() {
+      const res = await fetch(`${API_BASE}/admin/stats`, { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) throw new Error("Failed to fetch admin stats");
+      return await res.json();
+    },
+
+    async getUsers(search?: string, role?: string, status?: string) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (role) params.append("role", role);
+      if (status) params.append("status", status);
+      const res = await fetch(`${API_BASE}/users?${params.toString()}`, {
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return await res.json();
+    },
+
+    async createUser(data: any) {
+      const res = await fetch(`${API_BASE}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Failed to create user" }));
+        throw new Error(err.detail || "Failed to create user");
+      }
+      return await res.json();
+    },
+
+    async updateUser(id: string, data: any) {
+      const res = await fetch(`${API_BASE}/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      return await res.json();
+    },
+
+    async deleteUser(id: string) {
+      const res = await fetch(`${API_BASE}/users/${id}`, {
+        method: "DELETE",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete user");
+      return await res.json();
+    },
+  },
+
+  travel: {
+    async getRecords(search?: string, status?: string) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+      const res = await fetch(`${API_BASE}/travel?${params.toString()}`, {
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async createRecord(data: any) {
+      const res = await fetch(`${API_BASE}/travel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to create travel record");
+      return await res.json();
+    },
+
+    async updateRecord(id: string, data: any) {
+      const res = await fetch(`${API_BASE}/travel/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update travel record");
+      return await res.json();
+    },
+
+    async deleteRecord(id: string) {
+      const res = await fetch(`${API_BASE}/travel/${id}`, {
+        method: "DELETE",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete travel record");
+      return await res.json();
+    },
+  },
+
+  feedback: {
+    async getList(search?: string, status?: string) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+      const res = await fetch(`${API_BASE}/feedback?${params.toString()}`, {
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async submit(data: { user_name?: string; user_email?: string; rating: number; feedback: string; category?: string }) {
+      const res = await fetch(`${API_BASE}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to submit feedback");
+      return await res.json();
+    },
+
+    async updateStatus(id: string, status: string) {
+      const res = await fetch(`${API_BASE}/feedback/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update feedback");
+      return await res.json();
+    },
+
+    async delete(id: string) {
+      const res = await fetch(`${API_BASE}/feedback/${id}`, {
+        method: "DELETE",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete feedback");
+      return await res.json();
+    },
+  },
+
+  alerts: {
+    async getAlerts(status?: string, severity?: string) {
+      const params = new URLSearchParams();
+      if (status) params.append("status", status);
+      if (severity) params.append("severity", severity);
+      const res = await fetch(`${API_BASE}/alerts?${params.toString()}`, {
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async createAlert(data: { message: string; latitude: number; longitude: number; severity?: string; user_name?: string }) {
+      const res = await fetch(`${API_BASE}/alerts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to send alert to admin");
+      return await res.json();
+    },
+
+    async updateStatus(id: string, status: string) {
+      const res = await fetch(`${API_BASE}/alerts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update alert status");
+      return await res.json();
+    },
+  },
+
+  adminIcebergs: {
+    async getList(search?: string, risk?: string) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (risk) params.append("risk", risk);
+      const res = await fetch(`${API_BASE}/admin/icebergs?${params.toString()}`);
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async create(data: any) {
+      const res = await fetch(`${API_BASE}/admin/icebergs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to create iceberg record");
+      return await res.json();
+    },
+
+    async update(id: string, data: any) {
+      const res = await fetch(`${API_BASE}/admin/icebergs/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update iceberg record");
+      return await res.json();
+    },
+
+    async delete(id: string) {
+      const res = await fetch(`${API_BASE}/admin/icebergs/${id}`, {
+        method: "DELETE",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete iceberg record");
+      return await res.json();
+    },
+  },
+
+  adminWeather: {
+    async getList(search?: string) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      const res = await fetch(`${API_BASE}/admin/weather?${params.toString()}`);
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async create(data: any) {
+      const res = await fetch(`${API_BASE}/admin/weather`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to create weather record");
+      return await res.json();
+    },
+
+    async update(id: string, data: any) {
+      const res = await fetch(`${API_BASE}/admin/weather/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...apiClient.getAuthHeaders() },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update weather record");
+      return await res.json();
+    },
+
+    async delete(id: string) {
+      const res = await fetch(`${API_BASE}/admin/weather/${id}`, {
+        method: "DELETE",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete weather record");
+      return await res.json();
+    },
+  },
+
+  seaIce: {
+    async getTable() {
+      const res = await fetch(`${API_BASE}/sea-ice/regions`, { signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error("Failed to fetch 15-region sea-ice table");
+      return await res.json();
+    },
+
+    async getHistory(region: string) {
+      const res = await fetch(`${API_BASE}/sea-ice/history/${encodeURIComponent(region)}`);
+      if (!res.ok) return [];
+      return await res.json();
+    },
+
+    async refresh() {
+      const res = await fetch(`${API_BASE}/sea-ice/refresh`, {
+        method: "POST",
+        headers: apiClient.getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to refresh sea-ice ingestion");
+      return await res.json();
+    },
+  },
 };
 
 export default apiClient;

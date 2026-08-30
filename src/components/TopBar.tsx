@@ -11,11 +11,15 @@ export function TopBar({
   subtitle,
   user,
   onSignOut,
+  onAlertAdmin,
+  onOpenAdmin,
 }: {
   title: string;
   subtitle: string;
   user?: User | null;
   onSignOut?: () => void;
+  onAlertAdmin?: () => void;
+  onOpenAdmin?: () => void;
 }) {
   const [backendStatus, setBackendStatus] = useState<"connecting" | "online" | "offline">("connecting");
 
@@ -81,6 +85,26 @@ export function TopBar({
           <span className="text-[10px] font-mono text-[#91aeb9] light:text-[#5a7686]">UTC</span>
           <span className="font-mono text-[11px] font-bold text-[#55d6e8] light:text-[#0f768e]">{systemMeta.utc}</span>
         </div>
+
+        {/* 🚨 Emergency ALERT ADMIN Button */}
+        <button
+          onClick={onAlertAdmin}
+          className="flex items-center gap-1.5 rounded-lg bg-[#ef4444] px-3 py-1.5 text-[11.5px] font-bold text-white shadow-md shadow-[#ef4444]/30 hover:bg-[#dc2626] transition-all hover:scale-105"
+          title="Send Immediate Distress / Hazard Alert to Mission Admin"
+        >
+          <span>🚨</span>
+          <span className="font-extrabold tracking-wide">ALERT ADMIN</span>
+        </button>
+
+        {onOpenAdmin && (
+          <button
+            onClick={onOpenAdmin}
+            className="hidden sm:flex items-center gap-1 rounded-lg border border-[#55d6e8]/40 bg-[#55d6e8]/10 px-2.5 py-1 text-[11px] font-bold text-[#55d6e8] hover:bg-[#55d6e8]/20 transition-colors"
+            title="Open Administrator Console"
+          >
+            <span>Admin Hub →</span>
+          </button>
+        )}
 
         <div className="h-6 w-px bg-[#1d445c]/60 light:bg-[#d8d0c2]" />
 
