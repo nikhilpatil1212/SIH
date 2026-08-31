@@ -259,7 +259,7 @@ export const routes: Route[] = [
     id: "route-b",
     name: "Route B",
     type: "safest",
-    color: "#10b981",
+    color: "#0284c7",
     coordinates: [
       p(160, 250, -64.2, -54.3),
       p(300, 200, -64, -45),

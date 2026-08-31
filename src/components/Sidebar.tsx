@@ -131,8 +131,8 @@ export function Sidebar({ page, onNavigate }: { page: PageId; onNavigate: (p: Pa
         <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#91aeb9] light:text-[#4a6878]">
           <Activity size={12} /> System Status
         </div>
-        <div className="mb-2 flex items-center gap-2 text-[12px] font-medium text-[#10b981]">
-          <StatusDot color="#10b981" pulse /> Live Telemetry
+        <div className="mb-2 flex items-center gap-2 text-[12px] font-medium text-[#0284c7] light:text-[#0369a1]">
+          <StatusDot color="#0284c7" pulse /> Live Telemetry
         </div>
         <div className="text-[10px] uppercase tracking-wide text-[#91aeb9] light:text-[#6a8494]">Last Updated</div>
         <div className="font-mono text-[11px] text-[#c8dde3] light:text-[#0d2433]">{systemMeta.lastUpdated}</div>

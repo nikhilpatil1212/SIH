@@ -15,10 +15,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dhruva-theme") as Theme | null;
-      if (saved === "dark" || saved === "light") return saved;
-      return "dark"; // Default to modern polar dark mode
+      if (saved === "light") return "light";
+      localStorage.setItem("dhruva-theme", "light");
+      return "light";
     }
-    return "dark";
+    return "light";
   });
 
   const setTheme = (t: Theme) => {

@@ -66,7 +66,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
       { label: "Tracked Icebergs", value: `${totalCount}`, accent: "#8ccfe0", tag: "USNIC FEED" },
       { label: "Active Collision Hazards", value: `${activeHazardsCount}`, accent: "#ff5c5c", tag: "IMPACT WARNING" },
       { label: "Polar Pack Ice", value: "35%", accent: "#55d6e8", tag: "SAT RADAR" },
-      { label: "Voyage Risk Index", value: `${selectedRoute?.riskScore || 32}/100`, accent: (selectedRoute?.riskScore || 32) > 60 ? "#ff5c5c" : "#10b981", tag: "SAFE CORRIDOR" },
+      { label: "Voyage Risk Index", value: `${selectedRoute?.riskScore || 32}/100`, accent: (selectedRoute?.riskScore || 32) > 60 ? "#ff5c5c" : "#0284c7", tag: "SAFE CORRIDOR" },
       { label: "High-Risk Bergs", value: `${highRiskCount}`, accent: "#f59e0b", tag: "ML ENSEMBLE" },
     ];
   }, [nav.icebergs, nav.hazards, selectedRoute]);
@@ -154,8 +154,8 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                     <span className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
                       Operational Polar Chart
                     </span>
-                    <span className="flex items-center gap-1 rounded bg-[#46d7a1]/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#46d7a1] light:text-[#059669]">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#46d7a1] light:bg-[#059669]" />
+                    <span className="flex items-center gap-1 rounded bg-[#0284c7]/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#0284c7] light:text-[#0369a1]">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#0284c7] light:bg-[#0369a1]" />
                       AIS LIVE
                     </span>
                   </div>

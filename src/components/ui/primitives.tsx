@@ -3,8 +3,8 @@ import type { RiskLevel, Severity } from "../../data/types";
 
 // Shared low-level UI building blocks used across every panel and page.
 export const RISK_COLORS: Record<RiskLevel | "ok", string> = {
-  low: "#10b981",
-  ok: "#10b981",
+  low: "#0284c7",
+  ok: "#0284c7",
   medium: "#f59e0b",
   high: "#ef4444",
 };
@@ -31,13 +31,13 @@ export function Card({
         // Dark theme styles
         "border-[#1d445c]/70 bg-[#132f40]/70",
         // Light theme styles
-        "light:border-[#e2d8c7] light:bg-[#ffffff]/90 light:shadow-sm",
+        "light:border-[#cbd5e1] light:bg-[#ffffff] light:shadow-sm",
         className,
       )}
     >
       {title && (
-        <header className="flex items-center justify-between gap-2 border-b border-[#1d445c]/60 light:border-[#e8e0d2] px-3.5 py-2.5">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#91aeb9] light:text-[#4a6878]">
+        <header className="flex items-center justify-between gap-2 border-b border-[#1d445c]/60 light:border-[#e2e8f0] px-3.5 py-2.5">
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#91aeb9] light:text-[#1e293b]">
             {title}
           </h3>
           {action}
@@ -102,36 +102,36 @@ export function Metric({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#91aeb9] light:text-[#5a7686]">
+      <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#91aeb9] light:text-[#334155]">
         {label}
       </span>
-      <span className="font-mono text-[15px] font-semibold tnum text-[#eaf6f8] light:text-[#0d2433]" style={{ color: accent }}>
+      <span className="font-mono text-[15px] font-bold tnum text-[#eaf6f8] light:text-[#090d16]" style={{ color: accent }}>
         {value}
-        {unit && <span className="ml-1 text-[11px] font-normal text-[#91aeb9] light:text-[#78909e]">{unit}</span>}
+        {unit && <span className="ml-1 text-[11px] font-medium text-[#91aeb9] light:text-[#475569]">{unit}</span>}
       </span>
     </div>
   );
 }
 
 export const SEVERITY_COLORS: Record<Severity, string> = {
-  info: "#55d6e8",
+  info: "#0284c7",
   warning: "#f5b942",
   critical: "#ff5c5c",
 };
 
 export function RiskMeter({ score }: { score: number }) {
-  const color = score >= 66 ? "#ef4444" : score >= 40 ? "#f59e0b" : "#10b981";
+  const color = score >= 66 ? "#ef4444" : score >= 40 ? "#f59e0b" : "#0284c7";
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#0d2433] light:bg-[#e4dcce]">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#0d2433] light:bg-[#e2e8f0]">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${score}%`, backgroundColor: color }}
         />
       </div>
-      <span className="font-mono text-[12px] font-semibold tnum" style={{ color }}>
+      <span className="font-mono text-[12px] font-bold tnum" style={{ color }}>
         {score}
-        <span className="text-[#91aeb9] light:text-[#78909e]">/100</span>
+        <span className="text-[#91aeb9] light:text-[#475569]">/100</span>
       </span>
     </div>
   );

@@ -26,5 +26,8 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+*.db
+backend/*.db
+
 
 

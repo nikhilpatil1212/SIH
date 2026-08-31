@@ -54,7 +54,7 @@ export function TopBar({
         <div
           className={`flex items-center gap-2 rounded-full border px-3 py-1 transition-colors ${
             backendStatus === "online"
-              ? "border-[#10b981]/40 bg-[#10b981]/15 text-[#10b981] light:border-[#10b981]/50 light:text-[#059669]"
+              ? "border-[#0284c7]/40 bg-[#0284c7]/15 text-[#0284c7] light:border-[#0284c7]/50 light:text-[#0369a1]"
               : backendStatus === "connecting"
               ? "border-[#f5b942]/40 bg-[#f5b942]/15 text-[#f5b942] light:border-[#d97706]/50 light:text-[#d97706]"
               : "border-[#ef4444]/40 bg-[#ef4444]/15 text-[#ef4444] light:border-[#dc2626]/50 light:text-[#dc2626]"

@@ -2,6 +2,9 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
 @import 'tailwindcss';
 
+@custom-variant light (&:where(.light, .light *));
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -34,7 +37,27 @@
   --color-cream-muted: #4a6878;
 }
 
-:root {
+:root,
+:root.light,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-app: #f8fafc;
+  --bg-header: #ffffff;
+  --bg-sidebar: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.98);
+  --bg-card-solid: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --border-app: #cbd5e1;
+  --border-hover: #0284c7;
+  --text-primary: #090d16;
+  --text-secondary: #1e293b;
+  --text-muted: #334155;
+  --accent-cyan: #0284c7;
+  --accent-ice: #0369a1;
+}
+
+:root.dark,
+[data-theme='dark'] {
   color-scheme: dark;
   --bg-app: #071521;
   --bg-header: #0d2433;
@@ -51,22 +74,79 @@
   --accent-ice: #8ccfe0;
 }
 
-:root.light,
-[data-theme='light'] {
-  color-scheme: light;
-  --bg-app: #faf8f5;
-  --bg-header: #f2ece0;
-  --bg-sidebar: #f5efe3;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-card-solid: #ffffff;
-  --bg-subtle: #f0e9dc;
-  --border-app: #e2d8c7;
-  --border-hover: #0f768e;
-  --text-primary: #0d2433;
-  --text-secondary: #4a6878;
-  --text-muted: #78909e;
-  --accent-cyan: #0f768e;
-  --accent-ice: #2b7c92;
+/* Global Light Theme Overrides - High Contrast & Crisp Typography */
+html.light,
+html:not(.dark),
+body.light,
+body:not(.dark) {
+  background-color: #f8fafc !important;
+  color: #090d16 !important;
+  font-weight: 500;
+}
+
+html.light [class*="bg-[#071521]"],
+html.light [class*="bg-[#071927]"],
+html.light [class*="bg-[#050d17]"],
+html.light [class*="bg-[#0c2333]"] {
+  background-color: #ffffff !important;
+  color: #090d16 !important;
+}
+
+html.light [class*="bg-[#0d2433]"],
+html.light [class*="bg-[#132f40]"] {
+  background-color: #f8fafc !important;
+  color: #090d16 !important;
+}
+
+html.light [class*="border-[#1d445c]"],
+html.light [class*="border-[#1d445c]/"] {
+  border-color: #cbd5e1 !important;
+}
+
+html.light [class*="text-[#eaf6f8]"] {
+  color: #090d16 !important;
+  font-weight: 600 !important;
+}
+
+html.light [class*="text-[#91aeb9]"],
+html.light [class*="text-[#8ccfe0]"],
+html.light [class*="text-[#cbe5ee]"],
+html.light [class*="text-[#c8dde3]"],
+html.light [class*="text-[#5a7686]"],
+html.light [class*="text-[#78909e]"],
+html.light [class*="text-[#4a6878]"],
+html.light [class*="text-[#5f7d89]"] {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+/* Remap green badges/elements to high-contrast Ocean Blue in Light Mode */
+html.light [class*="text-[#10b981]"],
+html.light [class*="text-[#46d7a1]"],
+html.light [class*="text-[#059669]"],
+html.light [class*="text-[#22c55e]"] {
+  color: #0284c7 !important;
+  font-weight: 600 !important;
+}
+
+html.light [class*="bg-[#10b981]"],
+html.light [class*="bg-[#46d7a1]"],
+html.light [class*="bg-[#22c55e]"] {
+  background-color: #0284c7 !important;
+}
+
+html.light [class*="bg-[#10b981]/10"],
+html.light [class*="bg-[#10b981]/15"],
+html.light [class*="bg-[#10b981]/20"],
+html.light [class*="bg-[#46d7a1]/15"],
+html.light [class*="bg-[#46d7a1]/20"] {
+  background-color: rgba(2, 132, 199, 0.12) !important;
+}
+
+html.light [class*="border-[#10b981]"],
+html.light [class*="border-[#46d7a1]"],
+html.light [class*="border-[#10b981]/"] {
+  border-color: rgba(2, 132, 199, 0.4) !important;
 }
 
 html,

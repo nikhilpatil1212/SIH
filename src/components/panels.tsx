@@ -49,7 +49,7 @@ export function RouteComparison({
                     </span>
                   </div>
                   {recommended && (
-                    <span className="rounded-sm bg-[#10b981]/20 border border-[#10b981]/50 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[#10b981]">
+                    <span className="rounded-sm bg-[#0284c7]/20 border border-[#0284c7]/50 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[#0284c7] light:text-[#0369a1]">
                       ★ RECOMMENDED
                     </span>
                   )}
@@ -65,19 +65,19 @@ export function RouteComparison({
                 <div className="mt-2.5 grid grid-cols-3 gap-1 rounded bg-[#071521]/70 light:bg-[#ede5d8]/70 p-2 font-mono text-[9px] border border-[#1d445c]/40">
                   <div>
                     <span className="text-[#91aeb9] light:text-[#5a7686] block">ICEBERG CLEARANCE</span>
-                    <span className={cx("font-bold", (r.minimumIcebergClearanceKm ?? 30) >= (r.icebergSafetyBufferKm ?? 20) ? "text-[#10b981]" : "text-[#ef4444]")}>
+                    <span className={cx("font-bold", (r.minimumIcebergClearanceKm ?? 30) >= (r.icebergSafetyBufferKm ?? 20) ? "text-[#0284c7] light:text-[#0369a1]" : "text-[#ef4444]")}>
                       {r.minimumIcebergClearanceKm !== undefined ? `${r.minimumIcebergClearanceKm} km` : "Safe (Standoff)"}
                     </span>
                   </div>
                   <div>
                     <span className="text-[#91aeb9] light:text-[#5a7686] block">LAND CROSSING</span>
-                    <span className={cx("font-bold", r.landCollision ? "text-[#ef4444]" : "text-[#10b981]")}>
+                    <span className={cx("font-bold", r.landCollision ? "text-[#ef4444]" : "text-[#0284c7] light:text-[#0369a1]")}>
                       {r.landCollision ? "COLLISION ❌" : "ZERO (Ocean) ✓"}
                     </span>
                   </div>
                   <div>
                     <span className="text-[#91aeb9] light:text-[#5a7686] block">PHYSICAL SAFETY</span>
-                    <span className={cx("font-bold uppercase", r.safe !== false ? "text-[#10b981]" : "text-[#ef4444]")}>
+                    <span className={cx("font-bold uppercase", r.safe !== false ? "text-[#0284c7] light:text-[#0369a1]" : "text-[#ef4444]")}>
                       {r.safe !== false ? "100% SAFE ✓" : "UNSAFE ❌"}
                     </span>
                   </div>
@@ -91,19 +91,19 @@ export function RouteComparison({
 
               {/* Requirement 6: "WHY?" Section beneath recommended route */}
               {recommended && (
-                <div className="mt-3 rounded border border-[#10b981]/30 bg-[#10b981]/10 p-2.5 text-left font-mono">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#10b981]">
+                <div className="mt-3 rounded border border-[#0284c7]/30 bg-[#0284c7]/10 p-2.5 text-left font-mono">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#0284c7] light:text-[#0369a1]">
                     <CheckCircle2 size={12} />
                     <span>WHY RECOMMENDED?</span>
                   </div>
                   <ul className="mt-1.5 space-y-1 text-[10px] text-[#cbe5ee] light:text-[#2d4a57]">
-                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                    <li className="flex items-center gap-1.5 text-[#0284c7] light:text-[#0369a1]">
                       <span>✓</span> <span>Lower iceberg encounter probability (↓ 41%)</span>
                     </li>
-                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                    <li className="flex items-center gap-1.5 text-[#0284c7] light:text-[#0369a1]">
                       <span>✓</span> <span>Lower sea-ice concentration (28% vs 64%)</span>
                     </li>
-                    <li className="flex items-center gap-1.5 text-[#10b981]">
+                    <li className="flex items-center gap-1.5 text-[#0284c7] light:text-[#0369a1]">
                       <span>✓</span> <span>Avoids A76C / iceberg interception corridor</span>
                     </li>
 
@@ -131,19 +131,19 @@ export function AIRouteRecommendationCard({
       <div className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#10b981]/20 text-[#10b981] font-bold text-[11px] border border-[#10b981]/40">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0284c7]/20 text-[#0284c7] light:text-[#0369a1] font-bold text-[11px] border border-[#0284c7]/40">
               <Sparkles size={14} />
             </span>
             <div>
               <div className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
                 {recommendedRoute.name}
               </div>
-              <div className="font-mono text-[9.5px] uppercase font-semibold text-[#10b981]">
+              <div className="font-mono text-[9.5px] uppercase font-semibold text-[#0284c7] light:text-[#0369a1]">
                 ● SYSTEM RECOMMENDED
               </div>
             </div>
           </div>
-          <span className="rounded bg-[#10b981]/15 border border-[#10b981]/40 px-2 py-0.5 font-mono text-[10px] font-bold text-[#10b981]">
+          <span className="rounded bg-[#0284c7]/15 border border-[#0284c7]/40 px-2 py-0.5 font-mono text-[10px] font-bold text-[#0284c7] light:text-[#0369a1]">
             91% CONFIDENCE
           </span>
         </div>
@@ -151,11 +151,11 @@ export function AIRouteRecommendationCard({
         <div className="mt-3 grid grid-cols-3 gap-2 border-y border-[#1d445c]/50 light:border-[#e2d8c7] py-2 font-mono text-[10.5px]">
           <div>
             <div className="text-[8.5px] uppercase text-[#91aeb9]">Collision Risk</div>
-            <div className="font-bold text-[#10b981]">↓ 41%</div>
+            <div className="font-bold text-[#0284c7] light:text-[#0369a1]">↓ 41%</div>
           </div>
           <div>
             <div className="text-[8.5px] uppercase text-[#91aeb9]">Sea-Ice Risk</div>
-            <div className="font-bold text-[#10b981]">↓ 28%</div>
+            <div className="font-bold text-[#0284c7] light:text-[#0369a1]">↓ 28%</div>
           </div>
           <div>
             <div className="text-[8.5px] uppercase text-[#91aeb9]">ETA</div>
@@ -175,15 +175,15 @@ export function AIRouteRecommendationCard({
           <div className="mt-2.5 flex flex-col gap-1.5 border-t border-[#1d445c]/40 pt-2 font-mono text-[10px] animate-in fade-in">
             <div className="flex justify-between">
               <span className="text-[#91aeb9]">Iceberg Encounter Prob.:</span>
-              <span className="font-bold text-[#10b981]">Low (12%)</span>
+              <span className="font-bold text-[#0284c7] light:text-[#0369a1]">Low (12%)</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#91aeb9]">Pack-Ice Concentration:</span>
-              <span className="font-bold text-[#10b981]">28% (Marginal)</span>
+              <span className="font-bold text-[#0284c7] light:text-[#0369a1]">28% (Marginal)</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#91aeb9]">Collision Risk Index:</span>
-              <span className="font-bold text-[#10b981]">32 / 100</span>
+              <span className="font-bold text-[#0284c7] light:text-[#0369a1]">32 / 100</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#91aeb9]">Estimated Fuel Burn:</span>
