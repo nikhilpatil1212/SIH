@@ -26,6 +26,8 @@ import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
 import { hazards as mockHazards } from "../../data/mock";
 import { useOptionalNav, type OperationalWaypoint } from "../../state";
+import { constrainTrajectoryToOcean } from "../../utils/landMask";
+
 
 import {
   MAP_PROVIDERS,
@@ -85,7 +87,11 @@ export type HoveredEntity =
   | { type: "station"; data: ResearchStation }
   | { type: "gateway"; data: typeof GATEWAY_PORTS[0] }
   | { type: "hazard"; data: Hazard }
+  | { type: "waypoint"; data: any; index: number }
+  | null;
+
 const EMPTY_ROUTES: Route[] = [];
+
 const EMPTY_ICEBERGS: Iceberg[] = [];
 
 export function AntarcticPolarMap({
@@ -161,13 +167,16 @@ export function AntarcticPolarMap({
     const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
     const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
 
-    return [
-      [selectedBerg.position.lon, selectedBerg.position.lat],
-      [selectedBerg.position.lon + dlon, selectedBerg.position.lat + dlat],
-      [selectedBerg.position.lon + dlon * 2, selectedBerg.position.lat + dlat * 2],
-      [selectedBerg.position.lon + dlon * 3, selectedBerg.position.lat + dlat * 3],
+    const rawFallback = [
+      { lat: selectedBerg.position.lat, lon: selectedBerg.position.lon },
+      { lat: selectedBerg.position.lat + dlat, lon: selectedBerg.position.lon + dlon },
+      { lat: selectedBerg.position.lat + dlat * 2, lon: selectedBerg.position.lon + dlon * 2 },
+      { lat: selectedBerg.position.lat + dlat * 3, lon: selectedBerg.position.lon + dlon * 3 },
     ];
+    const { path: validFallback } = constrainTrajectoryToOcean(rawFallback);
+    return validFallback.map((p) => [p.lon, p.lat]);
   }, [selectedBerg]);
+
 
   const updateSvgOverlay = useCallback(() => {
     const map = mapRef.current;
@@ -483,7 +492,7 @@ export function AntarcticPolarMap({
           const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
           const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
 
-          path = [
+          const rawFallback = [
             ibg.position,
             { x: 500, y: 500, lat: ibg.position.lat + dlat * (6 / 24), lon: ibg.position.lon + dlon * (6 / 24) },
             { x: 500, y: 500, lat: ibg.position.lat + dlat * (12 / 24), lon: ibg.position.lon + dlon * (12 / 24) },
@@ -491,7 +500,9 @@ export function AntarcticPolarMap({
             { x: 500, y: 500, lat: ibg.position.lat + dlat * 2, lon: ibg.position.lon + dlon * 2 },
             { x: 500, y: 500, lat: ibg.position.lat + dlat * 3, lon: ibg.position.lon + dlon * 3 },
           ];
+          path = constrainTrajectoryToOcean(rawFallback).path;
         }
+
 
         if (isSelected && path && path.length >= 4) {
           let activeIndex = 0;

@@ -22,6 +22,14 @@ export function TopBar({
   onOpenAdmin?: () => void;
 }) {
   const [backendStatus, setBackendStatus] = useState<"connecting" | "online" | "offline">("connecting");
+  const [utcTime, setUtcTime] = useState<string>(new Date().toISOString().replace("T", " ").substring(0, 19) + " UTC");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setUtcTime(new Date().toISOString().replace("T", " ").substring(0, 19) + " UTC");
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -50,6 +58,18 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-3">
+        {/* USNIC Observation & Data Age Badge */}
+        <div
+          className="hidden md:flex items-center gap-1.5 rounded-md border border-[#1d445c]/60 bg-[#071521]/70 light:border-[#d8d0c2] light:bg-[#eae2d4] px-2.5 py-1 text-[10.5px] font-mono"
+          title="Authoritative U.S. National Ice Center (USNIC) Weekly Antarctic Iceberg Observation"
+        >
+          <span className="text-[#91aeb9] light:text-[#5a7686]">USNIC Obs:</span>
+          <span className="font-bold text-[#55d6e8] light:text-[#0f768e]">27 Aug 2026</span>
+          <span className="rounded bg-amber-500/15 px-1 py-0.2 text-[9px] font-semibold text-amber-400 light:text-amber-700">
+            Age: 4.0d
+          </span>
+        </div>
+
         {/* Real Backend Status Indicator */}
         <div
           className={`flex items-center gap-2 rounded-full border px-3 py-1 transition-colors ${
@@ -80,11 +100,12 @@ export function TopBar({
           </span>
         </div>
 
-        {/* UTC Time Badge */}
+        {/* Real-Time Ticking UTC Time Badge */}
         <div className="hidden sm:flex items-center gap-1.5 rounded-md border border-[#1d445c]/60 bg-[#071521]/70 light:border-[#d8d0c2] light:bg-[#eae2d4] px-2.5 py-1">
-          <span className="text-[10px] font-mono text-[#91aeb9] light:text-[#5a7686]">UTC</span>
-          <span className="font-mono text-[11px] font-bold text-[#55d6e8] light:text-[#0f768e]">{systemMeta.utc}</span>
+          <span className="text-[10px] font-mono text-[#91aeb9] light:text-[#5a7686]">LIVE UTC</span>
+          <span className="font-mono text-[11px] font-bold text-[#55d6e8] light:text-[#0f768e]">{utcTime}</span>
         </div>
+
 
         {/* 🚨 Emergency ALERT ADMIN Button */}
         <button

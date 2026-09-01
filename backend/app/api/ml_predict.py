@@ -106,10 +106,16 @@ class MLPredictResponse(BaseModel):
     predicted_latitude: float
     predicted_longitude: float
 
+    raw_predicted_latitude: Optional[float] = None
+    raw_predicted_longitude: Optional[float] = None
+    prediction_constrained: bool = False
+    constraint_reason: Optional[str] = None
+
     displacement_km: float
 
     # Feature echo for transparency
     features_used: dict
+
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -217,23 +223,27 @@ def predict_ml_trajectory(req: MLPredictRequest):
             detail="Model returned NaN or Inf prediction. Please check input features.",
         )
 
-    # ── 7. Convert deltas → absolute predicted coordinates ────────────────────
-    pred_lat = req.latitude + pred_delta_lat
-    pred_lon = _wrap_longitude(req.longitude + pred_delta_lon)
+    # ── 7. Convert deltas → absolute raw predicted coordinates ────────────────
+    raw_pred_lat = req.latitude + pred_delta_lat
+    raw_pred_lon = _wrap_longitude(req.longitude + pred_delta_lon)
+    raw_pred_lat = max(-90.0, min(90.0, raw_pred_lat))
 
-    # Clamp latitude to valid range
-    pred_lat = max(-90.0, min(90.0, pred_lat))
+    # ── 8. Apply Geographic Land/Ocean Constraint ──────────────────────────────
+    from ..navigation.land_mask import constrain_trajectory_point, is_point_on_land
+    pred_lat, pred_lon, is_constrained = constrain_trajectory_point(
+        req.latitude, req.longitude, raw_pred_lat, raw_pred_lon
+    )
 
-    # ── 8. Compute displacement ────────────────────────────────────────────────
+    # ── 9. Compute displacement ────────────────────────────────────────────────
     displacement_km = _haversine_km(req.latitude, req.longitude, pred_lat, pred_lon)
 
     logger.info(
-        "ML Prediction | iceberg=%s | current=(%.4f, %.4f) | predicted=(%.4f, %.4f) | "
-        "delta=(%.4f, %.4f) | displacement=%.2f km",
+        "ML Prediction | iceberg=%s | current=(%.4f, %.4f) | raw=(%.4f, %.4f) | "
+        "constrained=(%.4f, %.4f, flag=%s) | displacement=%.2f km",
         req.iceberg_id or "?",
         req.latitude, req.longitude,
-        pred_lat, pred_lon,
-        pred_delta_lat, pred_delta_lon,
+        raw_pred_lat, raw_pred_lon,
+        pred_lat, pred_lon, is_constrained,
         displacement_km,
     )
 
@@ -243,10 +253,15 @@ def predict_ml_trajectory(req: MLPredictRequest):
         prediction_horizon="24 hours",
         current_latitude=req.latitude,
         current_longitude=req.longitude,
-        predicted_delta_latitude=round(pred_delta_lat, 6),
-        predicted_delta_longitude=round(pred_delta_lon, 6),
+        predicted_delta_latitude=round(pred_lat - req.latitude, 6),
+        predicted_delta_longitude=round(_wrap_longitude(pred_lon - req.longitude), 6),
         predicted_latitude=round(pred_lat, 6),
         predicted_longitude=round(pred_lon, 6),
+        raw_predicted_latitude=round(raw_pred_lat, 6),
+        raw_predicted_longitude=round(raw_pred_lon, 6),
+        prediction_constrained=is_constrained,
+        constraint_reason="LAND_INTERSECTION" if is_constrained else None,
         displacement_km=round(displacement_km, 2),
         features_used=feature_values,
     )
+

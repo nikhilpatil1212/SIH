@@ -30,17 +30,32 @@ export interface Iceberg {
   id: string;
   position: GeoPoint;
   observedAt: string;
+  observationTimestamp?: string;
+  dataAgeDays?: number;
+  updateFrequency?: string;
+  source?: string;
+  sourceStatus?: string;
   speedMs: number;
   headingDeg: number;
   riskLevel: RiskLevel;
   /** predicted trajectory sampled forward in time */
   predictedPath: GeoPoint[];
+  /** raw unconstrained prediction trajectory before land mask validation */
+  rawPredictedPath?: GeoPoint[];
+  /** baseline constant-velocity forecast for comparison */
+  baselineForecast?: GeoPoint[];
+  /** true if raw trajectory was geographically constrained along ocean coastline */
+  predictionConstrained?: boolean;
+  /** reason for constraint e.g. LAND_INTERSECTION */
+  constraintReason?: string;
   /** half-width (canvas units) of the uncertainty corridor per predicted point */
   uncertainty: number[];
+
   confidence: number;
   sizeKm: number;
   lengthNm?: number;
   widthNm?: number;
+  areaSqNm?: number;
   region?: string;
   hasKinematics?: boolean;
   previous_delta_latitude?: number;
@@ -48,10 +63,13 @@ export interface Iceberg {
   metadata?: {
     source: string;
     last_update: string;
-    fetched_at: string;
     data_frequency: string;
+    tracking_criteria?: string;
+    observation_type?: string;
+    forecast_horizon?: string;
   };
 }
+
 
 export type RouteType = "fastest" | "safest" | "fuel";
 

@@ -151,3 +151,59 @@ class SeaIceRegionData(Base):
     risk_level = Column(String(32), default="MODERATE")  # "LOW" | "MODERATE" | "HIGH" | "VERY HIGH"
     data_source = Column(String(128), default="NOAA / NSIDC CDR Daily Analysis")
     updated_at = Column(DateTime, default=utcnow, index=True)
+
+
+class IcebergObservation(Base):
+    """Authoritative historical and latest observations from U.S. National Ice Center (USNIC)."""
+    __tablename__ = "iceberg_observations"
+
+    id = Column(String(64), primary_key=True, index=True)
+    iceberg_id = Column(String(64), nullable=False, index=True)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    length_nm = Column(Float, default=5.0)
+    width_nm = Column(Float, default=2.5)
+    area_sq_nm = Column(Float, nullable=True)
+    area_sq_km = Column(Float, nullable=True)
+    region = Column(String(128), nullable=True)
+    observation_timestamp = Column(DateTime, nullable=False, index=True)
+    source = Column(String(128), default="U.S. National Ice Center (USNIC)")
+    ingested_at = Column(DateTime, default=utcnow, index=True)
+
+
+class IcebergForecast(Base):
+    """Multi-horizon 72-hour AI and physics forward trajectory projections."""
+    __tablename__ = "iceberg_forecasts"
+
+    id = Column(String(64), primary_key=True, index=True)
+    iceberg_id = Column(String(64), nullable=False, index=True)
+    forecast_generated_at = Column(DateTime, default=utcnow, index=True)
+    forecast_timestamp = Column(DateTime, nullable=False, index=True)
+    forecast_horizon_hours = Column(Integer, nullable=False)  # 6, 12, 18, 24, 36, 48, 60, 72
+    predicted_latitude = Column(Float, nullable=False)
+    predicted_longitude = Column(Float, nullable=False)
+    raw_predicted_latitude = Column(Float, nullable=True)
+    raw_predicted_longitude = Column(Float, nullable=True)
+    uncertainty_km = Column(Float, default=5.0)
+    model_version = Column(String(64), default="RandomForest_Wagner_v1.0")
+    input_observation_timestamp = Column(DateTime, nullable=True)
+    prediction_constrained = Column(Boolean, default=False)
+    constraint_reason = Column(String(64), nullable=True)
+
+
+class ModelValidationMetric(Base):
+    """Historical validation metrics comparing ML predictions against subsequent USNIC observations and baselines."""
+    __tablename__ = "model_validation_metrics"
+
+    id = Column(String(64), primary_key=True, index=True)
+    iceberg_id = Column(String(64), nullable=False, index=True)
+    forecast_id = Column(String(64), nullable=True)
+    forecast_horizon_hours = Column(Integer, nullable=False)
+    predicted_latitude = Column(Float, nullable=False)
+    predicted_longitude = Column(Float, nullable=False)
+    actual_latitude = Column(Float, nullable=False)
+    actual_longitude = Column(Float, nullable=False)
+    positional_error_km = Column(Float, nullable=False)
+    baseline_error_km = Column(Float, nullable=False)  # Constant velocity / persistence baseline
+    evaluated_at = Column(DateTime, default=utcnow, index=True)
+

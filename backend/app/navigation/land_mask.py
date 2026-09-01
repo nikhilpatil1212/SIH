@@ -29,8 +29,9 @@ COASTAL_STATION_APPROACH: Dict[str, Tuple[float, float, float]] = {
     "syowa": (-69.00, 39.58, 35.0),
     "davis": (-68.58, 77.97, 35.0),
     "mawson": (-67.60, 62.87, 35.0),
-    "casey": (-66.28, 110.53, 35.0),
+    "casey": (-66.28, 110.53, 45.0),
     "dumond_durville": (-66.66, 140.00, 35.0),
+
     "zongshan": (-69.37, 76.37, 35.0),
     # Additional fairway corridor navigation coordinates for enclosed port basins
     "beagle_channel_mid": (-55.05, -67.20, 30.0),
@@ -214,6 +215,118 @@ def is_near_registered_station(lat: float, lon: float) -> bool:
     return False
 
 
+
+# High-resolution Antarctic Continental Coastline Boundary (lon, northernmost continental latitude)
+ANTARCTIC_COASTLINE_TABLE: List[Tuple[float, float]] = [
+    (-180.0, -78.0),
+    (-175.0, -78.4),
+    (-170.0, -78.5),
+    (-165.0, -78.2),
+    (-160.0, -77.8),
+    (-155.0, -77.2),
+    (-150.0, -76.2),
+    (-145.0, -75.8),
+    (-140.0, -75.2),
+    (-135.0, -74.8),
+    (-130.0, -74.2),
+    (-125.0, -73.8),
+    (-120.0, -73.5),
+    (-115.0, -73.8),
+    (-110.0, -74.2),
+    (-105.0, -74.8),
+    (-100.0, -73.2),
+    (-95.0, -72.6),
+    (-90.0, -72.8),
+    (-85.0, -73.2),
+    (-80.0, -73.5),
+    (-75.0, -73.0),
+    (-72.0, -71.2),
+    (-70.0, -69.0),
+    (-68.0, -67.2),
+    (-66.0, -65.5),
+    (-64.0, -64.2),
+    (-63.0, -63.8),
+    (-60.0, -63.3),  # Prime Head / Trinity Peninsula
+    (-57.0, -63.2),  # Tip of Peninsula
+    (-55.0, -64.2),
+    (-58.0, -65.5),
+    (-60.0, -68.0),
+    (-61.0, -71.0),
+    (-62.0, -74.0),
+    (-55.0, -77.5),
+    (-50.0, -78.2),
+    (-45.0, -78.0),
+    (-40.0, -77.5),
+    (-35.0, -76.5),
+    (-30.0, -75.8),
+    (-25.0, -74.5),
+    (-20.0, -73.2),
+    (-15.0, -72.0),
+    (-10.0, -70.8),
+    (-5.0, -70.5),
+    (0.0, -70.2),
+    (5.0, -70.0),
+    (10.0, -70.2),
+    (15.0, -70.5),
+    (20.0, -70.6),
+    (25.0, -70.4),
+    (30.0, -69.8),
+    (35.0, -69.2),
+    (40.0, -68.6),
+    (45.0, -67.4),
+    (50.0, -66.8),   # Cape Ann / Enderby Land
+    (55.0, -66.2),
+    (60.0, -67.0),
+    (65.0, -67.4),
+    (70.0, -68.2),
+    (73.0, -69.6),   # Amery Ice Shelf / Prydz Bay
+    (76.0, -69.2),
+    (80.0, -68.0),
+    (85.0, -66.4),
+    (90.0, -66.2),
+    (95.0, -65.8),
+    (100.0, -65.4),
+    (105.0, -65.8),
+    (110.0, -66.3),
+    (115.0, -66.2),
+    (120.0, -65.6),
+
+    (125.0, -65.8),
+    (130.0, -66.0),
+    (135.0, -66.2),
+    (140.0, -66.4),
+    (145.0, -66.8),
+    (150.0, -67.8),
+    (155.0, -68.6),
+    (160.0, -69.8),
+    (165.0, -71.2),
+    (170.0, -72.4),
+    (175.0, -74.8),
+    (180.0, -78.0),
+]
+
+
+def wrap_lon(lon: float) -> float:
+    return (((lon + 180.0) % 360.0) + 360.0) % 360.0 - 180.0
+
+
+def get_antarctic_coastline_lat(lon: float) -> float:
+    """Get the northernmost latitude of the Antarctic continent at given longitude."""
+    wlon = wrap_lon(lon)
+    for i in range(len(ANTARCTIC_COASTLINE_TABLE) - 1):
+        l1, lat1 = ANTARCTIC_COASTLINE_TABLE[i]
+        l2, lat2 = ANTARCTIC_COASTLINE_TABLE[i + 1]
+        if l1 <= wlon <= l2:
+            frac = (wlon - l1) / (l2 - l1) if l2 != l1 else 0.0
+            return lat1 + frac * (lat2 - lat1)
+    return -70.0
+
+
+def is_ocean_coordinate(lat: float, lon: float) -> bool:
+    """Return True if (lat, lon) is in valid ocean water (including sea ice), False if on land."""
+    return not is_point_on_land(lat, lon)
+
+
 def is_point_on_land(lat: float, lon: float) -> bool:
     """Determine if a geographic point (lat, lon) is located on impassable land."""
     # Exemption for designated port/station approaches
@@ -239,7 +352,13 @@ def is_point_on_land(lat: float, lon: float) -> bool:
     if point_in_polygon(lat, lon, NEW_ZEALAND_POLYGON):
         return True
 
-    # 3. Inland polar ice sheet cap (below 80°S is strictly continental ice sheet)
+    # 3. High-resolution Antarctic Continental Coastline Check
+    if lat <= -60.0:
+        coast_lat = get_antarctic_coastline_lat(lon)
+        if lat <= (coast_lat - 0.02):
+            return True
+
+    # 4. Inland polar ice sheet cap (below 80°S is strictly continental ice sheet)
     if lat < -80.0:
         return True
 
@@ -254,11 +373,92 @@ def does_segment_cross_land(lat1: float, lon1: float, lat2: float, lon2: float, 
         approx_km = math.sqrt(dlat * dlat + dlon * dlon)
         num_samples = max(8, int(approx_km / 35.0))
 
-    for i in range(1, num_samples):
+    for i in range(0, num_samples + 1):
         fraction = i / float(num_samples)
         sample_lat = lat1 + fraction * (lat2 - lat1)
-        sample_lon = lon1 + fraction * (lon2 - lon1)
+        sample_lon = wrap_lon(lon1 + fraction * (lon2 - lon1))
         if is_point_on_land(sample_lat, sample_lon):
             return True
             
     return False
+
+
+def constrain_trajectory_point(
+    prev_lat: float,
+    prev_lon: float,
+    raw_target_lat: float,
+    raw_target_lon: float,
+) -> Tuple[float, float, bool]:
+    """Constrain a single trajectory forward step so it remains in valid ocean."""
+    from ..physics.geodesy import haversine_distance_km, initial_bearing_degrees, destination_point
+    
+    # Check if raw target is already ocean-valid and segment is clear
+    if not is_point_on_land(raw_target_lat, raw_target_lon) and not does_segment_cross_land(prev_lat, prev_lon, raw_target_lat, raw_target_lon, 8):
+        return raw_target_lat, raw_target_lon, False
+
+    dist_km = max(1.0, haversine_distance_km(prev_lat, prev_lon, raw_target_lat, raw_target_lon))
+    raw_bearing = initial_bearing_degrees(prev_lat, prev_lon, raw_target_lat, raw_target_lon)
+
+    # Search angular deflections (preferring coastal alongshore deflection into open water)
+    for angle_offset in range(15, 180, 15):
+        for sign in [-1, 1]:
+            test_bearing = (raw_bearing + sign * angle_offset) % 360.0
+            test_lat, test_lon = destination_point(prev_lat, prev_lon, test_bearing, dist_km)
+            
+            if not is_point_on_land(test_lat, test_lon) and not does_segment_cross_land(prev_lat, prev_lon, test_lat, test_lon, 6):
+                return round(test_lat, 5), round(test_lon, 5), True
+
+    # Fallback: project northward / seaward off the local coastline with 15km clearance
+    coast_lat = get_antarctic_coastline_lat(prev_lon)
+    safe_lat = max(prev_lat + 0.05, coast_lat + 0.15)
+    return round(safe_lat, 5), round(prev_lon, 5), True
+
+
+def constrain_trajectory_to_ocean(raw_points: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], bool, Optional[str]]:
+    """Constrain an entire sequential list of trajectory points to valid ocean positions."""
+    if not raw_points:
+        return [], False, None
+
+    was_constrained = False
+    result_points: List[Dict[str, Any]] = []
+
+    # Step 0: Ensure origin point is in ocean
+    p0 = raw_points[0]
+    p0_lat = p0.get("latitude", p0.get("lat", 0.0))
+    p0_lon = p0.get("longitude", p0.get("lon", 0.0))
+    
+    if is_point_on_land(p0_lat, p0_lon):
+        coast_lat = get_antarctic_coastline_lat(p0_lon)
+        p0_lat = coast_lat + 0.08
+        was_constrained = True
+
+    p0_copy = dict(p0)
+    if "latitude" in p0_copy: p0_copy["latitude"] = round(p0_lat, 5)
+    if "lat" in p0_copy: p0_copy["lat"] = round(p0_lat, 5)
+    if "longitude" in p0_copy: p0_copy["longitude"] = round(p0_lon, 5)
+    if "lon" in p0_copy: p0_copy["lon"] = round(p0_lon, 5)
+    result_points.append(p0_copy)
+
+    # Step 1..N
+    for i in range(1, len(raw_points)):
+        raw_pt = raw_points[i]
+        prev_pt = result_points[i - 1]
+        
+        prev_lat = prev_pt.get("latitude", prev_pt.get("lat", 0.0))
+        prev_lon = prev_pt.get("longitude", prev_pt.get("lon", 0.0))
+        target_lat = raw_pt.get("latitude", raw_pt.get("lat", 0.0))
+        target_lon = raw_pt.get("longitude", raw_pt.get("lon", 0.0))
+
+        c_lat, c_lon, step_constrained = constrain_trajectory_point(prev_lat, prev_lon, target_lat, target_lon)
+        if step_constrained:
+            was_constrained = True
+
+        pt_copy = dict(raw_pt)
+        if "latitude" in pt_copy: pt_copy["latitude"] = c_lat
+        if "lat" in pt_copy: pt_copy["lat"] = c_lat
+        if "longitude" in pt_copy: pt_copy["longitude"] = c_lon
+        if "lon" in pt_copy: pt_copy["lon"] = c_lon
+        result_points.append(pt_copy)
+
+    return result_points, was_constrained, "LAND_INTERSECTION" if was_constrained else None
+

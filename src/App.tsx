@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Landing, type LandingTarget } from "./landing/Landing";
-import { AuthFlow, AdminDashboard, type AuthView } from "./auth/Auth";
+import { AuthFlow, type AuthView } from "./auth/Auth";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import { OperationalApp } from "./OperationalApp";
 import { ThemeProvider } from "./theme";
 import { NavProvider } from "./state";
@@ -32,7 +33,6 @@ export default function App() {
           />
         )}
 
-
         {screen === "auth" && (
           <AuthFlow
             view={authView}
@@ -40,26 +40,43 @@ export default function App() {
             onHome={() => setScreen("landing")}
             onSignedIn={(u) => {
               setUser(u);
-              setScreen("app");
+              if (u.role === "Admin") {
+                setScreen("admin");
+              } else {
+                setScreen("app");
+              }
             }}
             onAdminIn={(u) => {
               setUser(u);
-              setScreen("app");
+              setScreen("admin");
             }}
           />
         )}
 
-        {screen === "admin" && user && (
+        {screen === "admin" && (
           <AdminDashboard
-            user={user}
+            user={user || {
+              id: "adm-001",
+              name: "Commander Rajesh Sharma",
+              email: "admin@ncpor.res.in",
+              organization: "NCPOR Mission Control",
+              role: "Admin",
+            }}
             onSignOut={signOut}
             onOpenConsole={() => setScreen("app")}
           />
         )}
 
-        {screen === "app" && <OperationalApp user={user} onSignOut={signOut} />}
 
+        {screen === "app" && (
+          <OperationalApp
+            user={user}
+            onSignOut={signOut}
+            onOpenAdmin={() => setScreen("admin")}
+          />
+        )}
       </NavProvider>
     </ThemeProvider>
   );
 }
+

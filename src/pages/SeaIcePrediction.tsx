@@ -76,8 +76,9 @@ export function SeaIcePrediction() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1d445c]/40 pb-3">
         <div>
           <h1 className="text-[20px] font-bold tracking-tight">Antarctic Sea-Ice Intelligence</h1>
-          <p className="text-[12px] text-[#91aeb9]">Real-time regional concentrations, multi-horizon ML forecasts and satellite observation grids.</p>
+          <p className="text-[12px] text-[#91aeb9]">Regional satellite concentration grids, daily observations, and multi-horizon regional ML forecasts.</p>
         </div>
+
         <div className="flex items-center gap-1.5 rounded-lg border border-[#1d445c] bg-[#0d2433] p-1">
           <button
             onClick={() => setDisplayMode("table")}

@@ -7,6 +7,8 @@ import { RISK_COLORS, cx } from "../ui/primitives";
 import { useTheme } from "../../theme";
 import { MAP_PROVIDERS, type MapTileProviderId, getSectorName, RESEARCH_STATIONS } from "../../data/polarMapData";
 import { hazards as mockHazards, vessel } from "../../data/mock";
+import { constrainTrajectoryToOcean } from "../../utils/landMask";
+
 
 export interface LayerState {
   icebergs: boolean;
@@ -279,7 +281,7 @@ export function MapView({
           const dlat = (dist_24h_km * Math.cos(heading_rad)) / 111.32;
           const dlon = (dist_24h_km * Math.sin(heading_rad)) / (111.32 * Math.max(0.1, Math.cos(lat_rad)));
 
-          path = [
+          const rawFallback = [
             ibg.position,
             { x: 500, y: 500, lat: ibg.position.lat + dlat * (6 / 24), lon: ibg.position.lon + dlon * (6 / 24) },
             { x: 500, y: 500, lat: ibg.position.lat + dlat * (12 / 24), lon: ibg.position.lon + dlon * (12 / 24) },
@@ -287,7 +289,9 @@ export function MapView({
             { x: 500, y: 500, lat: ibg.position.lat + dlat * 2, lon: ibg.position.lon + dlon * 2 },
             { x: 500, y: 500, lat: ibg.position.lat + dlat * 3, lon: ibg.position.lon + dlon * 3 },
           ];
+          path = constrainTrajectoryToOcean(rawFallback).path;
         }
+
 
         if (isSelected && path && path.length >= 4) {
           let activeIndex = 0;

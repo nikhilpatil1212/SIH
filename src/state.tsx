@@ -16,6 +16,7 @@ import apiClient, {
   type MLPredictRequest,
   type MLPredictResponse,
 } from "./api/client";
+import { constrainTrajectoryToOcean } from "./utils/landMask";
 import {
   NavContext,
   useNav,
@@ -171,7 +172,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
         lon: +wrapLon(ibg.position.lon + dlon * t).toFixed(5),
       });
 
-      const newPath = [
+      const rawPath = [
         getPt(0),       // 0h (NOW)
         getPt(6 / 24),  // 6h
         getPt(12 / 24), // 12h
@@ -180,15 +181,31 @@ export function NavProvider({ children }: { children: ReactNode }) {
         getPt(72 / 24), // 72h (Forecast)
       ];
 
+      // Geographically constrain the trajectory to ocean coordinates
+      const constraintResult = constrainTrajectoryToOcean(rawPath);
+      const newPath = constraintResult.path;
+
       setIcebergs((prevList) =>
-        prevList.map((item) => (item.id === ibg.id ? { ...item, predictedPath: newPath } : item))
+        prevList.map((item) =>
+          item.id === ibg.id
+            ? {
+                ...item,
+                predictedPath: newPath,
+                rawPredictedPath: rawPath,
+                predictionConstrained: constraintResult.constrained,
+                constraintReason: constraintResult.reason,
+              }
+            : item
+        )
       );
 
+      // Use the ocean-valid 24h coordinates for prediction cache
+      const valid24h = newPath[3] || { lat: predLat, lon: predLon };
       setPredictionsCache((prev) => ({
         ...prev,
         [ibg.id]: {
-          lat: predLat,
-          lon: predLon,
+          lat: valid24h.lat,
+          lon: valid24h.lon,
           displacement_km: dispKm,
         },
       }));
@@ -201,38 +218,97 @@ export function NavProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
-    const loadIcebergs = async () => {
-      try {
-        const data = await apiClient.getCurrentIcebergs();
-        if (data && data.length > 0) {
-          setIcebergs(data);
-          setSelectedIceberg((prev) => {
-            if (prev && data.some((i) => i.id === prev)) return prev;
-            const defaultBerg = data.find((i) => i.hasKinematics) || data[0];
-            return defaultBerg ? defaultBerg.id : "A76C";
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load current USNIC icebergs:", err);
+  const loadIcebergs = useCallback(async () => {
+    try {
+      const data = await apiClient.getCurrentIcebergs();
+      if (data && data.length > 0) {
+        const sanitizedData = data.map((ibg) => {
+          if (ibg.predictedPath && ibg.predictedPath.length > 0) {
+            const res = constrainTrajectoryToOcean(ibg.predictedPath);
+            return {
+              ...ibg,
+              predictedPath: res.path,
+              rawPredictedPath: ibg.predictedPath,
+              predictionConstrained: res.constrained,
+              constraintReason: res.reason,
+            };
+          }
+          return ibg;
+        });
+        setIcebergs(sanitizedData);
+        setSelectedIceberg((prev) => {
+          if (prev && sanitizedData.some((i) => i.id === prev)) return prev;
+          const defaultBerg = sanitizedData.find((i) => i.hasKinematics) || sanitizedData[0];
+          return defaultBerg ? defaultBerg.id : "A76C";
+        });
       }
-    };
-    loadIcebergs();
+    } catch (err) {
+      console.error("Failed to load current USNIC icebergs:", err);
+    }
+  }, []);
+
+  const loadSeaIce = useCallback(async () => {
+    try {
+      const data = await apiClient.getSeaIcePrediction();
+      if (data) {
+        setSeaIcePrediction(data);
+      }
+    } catch (err) {
+      console.error("Failed to load real sea-ice data:", err);
+    }
   }, []);
 
   useEffect(() => {
-    const loadSeaIce = async () => {
+    loadIcebergs();
+    loadSeaIce();
+  }, [loadIcebergs, loadSeaIce]);
+
+  // Real-Time WebSocket state synchronization
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: any = null;
+
+    const connectWebSocket = () => {
       try {
-        const data = await apiClient.getSeaIcePrediction();
-        if (data) {
-          setSeaIcePrediction(data);
-        }
+        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsHost = window.location.hostname || "localhost";
+        const wsPort = "8000";
+        ws = new WebSocket(`${wsProtocol}//${wsHost}:${wsPort}/ws`);
+
+        ws.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload.type === "ICEBERGS_UPDATED") {
+              console.log("[WebSocket] New USNIC observations detected by backend. Refreshing iceberg state...");
+              loadIcebergs();
+            } else if (payload.type === "SEA_ICE_UPDATED") {
+              console.log("[WebSocket] New sea ice satellite observations detected. Refreshing sea ice state...");
+              loadSeaIce();
+            }
+          } catch (e) {
+            console.error("Error parsing WebSocket message:", e);
+          }
+        };
+
+        ws.onerror = () => {
+          if (ws) ws.close();
+        };
+
+        ws.onclose = () => {
+          reconnectTimeout = setTimeout(connectWebSocket, 15000);
+        };
       } catch (err) {
-        console.error("Failed to load real sea-ice data:", err);
+        console.warn("WebSocket connection unavailable; continuing with standard polling.");
       }
     };
-    loadSeaIce();
-  }, []);
+
+    connectWebSocket();
+
+    return () => {
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (ws) ws.close();
+    };
+  }, [loadIcebergs, loadSeaIce]);
 
   useEffect(() => {
     if (selectedIcebergId) {
@@ -242,7 +318,6 @@ export function NavProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [selectedIcebergId, fetchPrediction, predictionsCache, icebergs]);
-
 
   const [whyRecommended, setWhyRecommended] = useState<string[]>([
     "Lower iceberg encounter probability (↓ 41% vs direct)",

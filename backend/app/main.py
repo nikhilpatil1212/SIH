@@ -49,20 +49,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from .services.iceberg_scheduler import start_iceberg_scheduler, stop_iceberg_scheduler
+from .services.usnic_service import ingest_usnic_dataset
+
 # Startup event for seeding initial database data and running sea-ice ingestion
 @app.on_event("startup")
-def on_startup():
+async def on_startup():
     db = SessionLocal()
     try:
         logging.info("[*] Seeding default database accounts and initial records...")
         seed_default_database_data(db)
         logging.info("[*] Ingesting and aggregating initial 15-region sea-ice data...")
         aggregate_and_ingest_sea_ice_data(db)
+        logging.info("[*] Ingesting authoritative USNIC Antarctic iceberg observations...")
+        ingest_usnic_dataset(db, force=False)
         logging.info("[+] Startup initialization completed successfully.")
     except Exception as e:
         logging.error(f"[!] Startup initialization error: {e}")
     finally:
         db.close()
+    
+    # Start polite 6-hour background sync scheduler
+    start_iceberg_scheduler()
+
+@app.on_event("shutdown")
+def on_shutdown():
+    stop_iceberg_scheduler()
+
 
 # Core endpoints (existing routes preserved)
 app.include_router(health.router)  # /health

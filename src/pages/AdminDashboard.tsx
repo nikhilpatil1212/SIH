@@ -32,7 +32,9 @@ import type {
 import type { User } from "../data/auth";
 import { ThemeToggle, useTheme } from "../theme";
 import { SeaIceTable } from "../components/seaice/SeaIceTable";
+import { DataSourcesPanel } from "../components/DataSourcesPanel";
 import { useRealtime } from "../hooks/useRealtime";
+
 
 type AdminTab = "overview" | "users" | "travel" | "alerts" | "feedback" | "icebergs" | "weather" | "seaice";
 
@@ -350,12 +352,18 @@ export function AdminDashboard({
               ))}
             </div>
 
+            {/* Data Governance & Open Source Provenance Panel */}
+            <div className="pt-2">
+              <DataSourcesPanel />
+            </div>
+
             {/* Quick Access Sea-Ice Overview */}
             <div className="pt-2">
               <SeaIceTable />
             </div>
           </div>
         )}
+
 
         {/* ===================== TAB: USER MANAGEMENT ===================== */}
         {tab === "users" && (

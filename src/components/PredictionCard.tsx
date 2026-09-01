@@ -74,17 +74,18 @@ export function PredictionCard({ iceberg }: { iceberg?: Iceberg | null }) {
         ) : (
           <>
             <div className="mb-3 border-b border-[#1d445c]/30 pb-2.5">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">
-                24-Hour Trajectory Prediction
+              <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-[#91aeb9] light:text-[#5a7686]">
+                <span>Latest USNIC Observation & Forecast</span>
+                <span className="text-[#55d6e8] light:text-[#0e7490]">72h Multi-Horizon</span>
               </div>
               <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 font-mono text-[11.5px]">
                 <div>
-                  <span className="block text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase">Current Position</span>
+                  <span className="block text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase">Observed Position</span>
                   <span className="text-[#eaf6f8] light:text-[#0d2433]">Lat: {Math.abs(curLat).toFixed(4)}°S</span>
                   <span className="block text-[#eaf6f8] light:text-[#0d2433]">Lon: {Math.abs(curLon).toFixed(4)}°W</span>
                 </div>
                 <div>
-                  <span className="block text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase">Predicted Position</span>
+                  <span className="block text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase">T+24h ML Prediction</span>
                   {hasRealPred && realPred ? (
                     <>
                       <span className="text-[#55d6e8] light:text-[#0f768e] font-semibold">Lat: {Math.abs(realPred.lat).toFixed(4)}°S</span>
@@ -100,15 +101,22 @@ export function PredictionCard({ iceberg }: { iceberg?: Iceberg | null }) {
               </div>
               <div className="mt-2.5 flex items-center justify-between">
                 <div>
-                  <span className="text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase font-mono block">Predicted Movement</span>
+                  <span className="text-[8.5px] text-[#91aeb9] light:text-[#5a7686] uppercase font-mono block">Predicted 24h Displacement</span>
                   <span className="font-mono text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">
                     {hasRealPred && realPred ? `${realPred.displacement_km.toFixed(2)} km` : "Calculated on-the-fly"}
                   </span>
                 </div>
                 {hasRealPred && (
-                  <span className="rounded bg-[#10b981]/15 px-1.5 py-0.5 text-[8.5px] font-semibold text-[#10b981] uppercase tracking-wider">
-                    Prediction successful
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {iceberg.predictionConstrained && (
+                      <span className="rounded bg-[#0284c7]/20 border border-[#0284c7]/40 px-1.5 py-0.5 text-[8px] font-mono font-bold text-[#0284c7] light:text-[#0369a1] uppercase tracking-wider">
+                        LAND-CONSTRAINED
+                      </span>
+                    )}
+                    <span className="rounded bg-[#10b981]/15 px-1.5 py-0.5 text-[8.5px] font-semibold text-[#10b981] uppercase tracking-wider">
+                      Prediction successful
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -117,8 +125,9 @@ export function PredictionCard({ iceberg }: { iceberg?: Iceberg | null }) {
               <Metric label="ID" value={iceberg.id} accent="#55d6e8" />
               <Metric label="Current Speed" value={iceberg.speedMs || 0.22} unit="m/s" />
               <Metric label="Heading" value={`${iceberg.headingDeg || 300}°`} />
-              <Metric label="Forecast Horizon" value="T+24h (ML)" />
+              <Metric label="Forecast Horizon" value="72h (Multi-Horizon)" />
             </div>
+
 
             <div className="mt-3 overflow-hidden rounded-md border border-[#1d445c]/50 bg-[#071a26] light:border-[#e2d8c7] light:bg-[#f6f0e4]">
               <svg viewBox="0 0 200 120" className="h-28 w-full">

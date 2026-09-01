@@ -144,11 +144,20 @@ class HybridForecaster:
         if regime != PhysicalRegime.FREE_DRIFT.value:
             dom_forcing = regime
 
-        curr_lat, curr_lon = origin_lat, origin_lon
+        from ..navigation.land_mask import constrain_trajectory_point
+        prev_w_lat, prev_w_lon = origin_lat, origin_lon
+        any_constrained = False
+
         for h in horizons:
             step_days = h / 24.0
             step_dist_km = hybrid_speed_km_day * step_days
-            pred_lat, pred_lon = destination_point(origin_lat, origin_lon, hybrid_bearing_deg, step_dist_km)
+            raw_lat, raw_lon = destination_point(origin_lat, origin_lon, hybrid_bearing_deg, step_dist_km)
+
+            # Apply geographic land/ocean constraint
+            pred_lat, pred_lon, is_c = constrain_trajectory_point(prev_w_lat, prev_w_lon, raw_lat, raw_lon)
+            if is_c:
+                any_constrained = True
+            prev_w_lat, prev_w_lon = pred_lat, pred_lon
 
             unc = UncertaintyEstimator.estimate_uncertainty(
                 horizon_hours=h,
@@ -176,6 +185,7 @@ class HybridForecaster:
                 dominant_forcing=dom_forcing,
             )
             waypoints.append(wp)
+
 
         # 5. Generate AI Decision Support Explanation
         unc_24 = waypoints[0].uncertainty_radius_km if waypoints else 8.5

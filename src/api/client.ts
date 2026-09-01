@@ -91,9 +91,14 @@ export interface MLPredictResponse {
   predicted_delta_longitude: number;
   predicted_latitude: number;
   predicted_longitude: number;
+  raw_predicted_latitude?: number;
+  raw_predicted_longitude?: number;
+  prediction_constrained?: boolean;
+  constraint_reason?: string;
   displacement_km: number;
   features_used: Record<string, any>;
 }
+
 
 // Great-Circle Distance Calculation
 export function haversineDistanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
