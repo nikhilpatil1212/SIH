@@ -65,13 +65,13 @@ def get_current_canonical_icebergs() -> List[Dict[str, Any]]:
 
 ICEBERGS_DATA: List[Dict[str, Any]] = get_current_canonical_icebergs()
 
-# Active & Predicted Hazards derived from real iceberg data
+# Active & Predicted Hazards derived strictly from real iceberg and observational data
 def get_canonical_hazards() -> List[Dict[str, Any]]:
     hazards_list = []
     bergs = ICEBERGS_DATA if ICEBERGS_DATA else get_current_canonical_icebergs()
     high_and_med = [b for b in bergs if b.get("riskLevel") in ("high", "medium")]
     
-    for idx, b in enumerate(high_and_med[:5]):
+    for idx, b in enumerate(high_and_med):
         p = b.get("position", {})
         lat = p.get("lat", -65.0)
         lon = p.get("lon", -40.0)
@@ -84,46 +84,15 @@ def get_canonical_hazards() -> List[Dict[str, Any]]:
             "location": f"{lat_str} {lon_str}",
             "severity": b.get("riskLevel", "high"),
             "predictedTime": f"+{12 + idx * 6}h",
-            "confidence": b.get("confidence", 85),
+            "confidence": b.get("confidence", 88.0),
             "affectedRoute": "Route A" if idx % 2 == 0 else "Route B",
             "status": "active" if idx < 2 else "predicted"
         })
         
-    hazards_list.extend([
-        {
-            "id": "SI-E-01",
-            "type": "Sea-Ice",
-            "location": "68.2°S 29.5°W",
-            "severity": "medium",
-            "predictedTime": "+18h",
-            "confidence": 84.0,
-            "affectedRoute": "Route A",
-            "status": "active"
-        },
-        {
-            "id": "WX-04",
-            "type": "Weather",
-            "location": "63.5°S 41.0°W",
-            "severity": "medium",
-            "predictedTime": "+36h",
-            "confidence": 78.0,
-            "affectedRoute": "Route B",
-            "status": "predicted"
-        },
-        {
-            "id": "VIS-02",
-            "type": "Visibility",
-            "location": "70.1°S 12.0°E",
-            "severity": "low",
-            "predictedTime": "+48h",
-            "confidence": 72.0,
-            "affectedRoute": "Route C",
-            "status": "predicted"
-        }
-    ])
     return hazards_list
 
 HAZARDS_DATA: List[Dict[str, Any]] = get_canonical_hazards()
+
 
 
 # Metocean Environmental Baseline

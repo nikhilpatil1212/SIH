@@ -50,8 +50,9 @@ export function OperationalApp({
 
   return (
     <div className="flex h-full min-h-0 w-full bg-[#071521] light:bg-[#faf8f5] text-[#eaf6f8] light:text-[#0d2433] transition-colors duration-300">
-      <Sidebar page={page} onNavigate={setPage} />
+      <Sidebar page={page} onNavigate={setPage} user={user} onSignOut={onSignOut} />
       <div className="flex min-w-0 flex-1 flex-col">
+
         <TopBar
           title={meta.title}
           subtitle={meta.subtitle}

@@ -122,8 +122,34 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
       {/* 1. Left Column: Route Planning Console */}
       <div className="flex flex-col gap-3">
         {/* Route Planning Parameter Console */}
-        <Card title="Passage Planning & Route Synthesis">
+        <Card
+          title="Passage Planning & Route Synthesis"
+          action={
+            <div className="flex items-center gap-1 rounded border border-[#1d445c] bg-[#071521] p-0.5 font-mono text-[10px]">
+              <span className="px-1 text-[9px] text-[#91aeb9]">UNIT:</span>
+              <button
+                onClick={() => nav.setDistanceUnit("NM")}
+                className={cx(
+                  "rounded px-1.5 py-0.5 font-bold uppercase transition-colors",
+                  nav.distanceUnit === "NM" ? "bg-[#55d6e8] text-[#071521]" : "text-[#91aeb9]"
+                )}
+              >
+                NM
+              </button>
+              <button
+                onClick={() => nav.setDistanceUnit("KM")}
+                className={cx(
+                  "rounded px-1.5 py-0.5 font-bold uppercase transition-colors",
+                  nav.distanceUnit === "KM" ? "bg-[#55d6e8] text-[#071521]" : "text-[#91aeb9]"
+                )}
+              >
+                KM
+              </button>
+            </div>
+          }
+        >
           <div className="flex flex-col gap-3.5 p-3.5 font-mono text-[11px]">
+
             {/* Vessel Selector */}
             <div>
               <label className="mb-1 block font-bold text-[#91aeb9] light:text-[#5a7686]">
@@ -472,11 +498,12 @@ export function Routes({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
 
           {/* Voyage Telemetry & Physical Clearance Breakdown */}
           <div className="grid grid-cols-2 gap-3 border-t border-[#1d445c]/50 light:border-[#e8e0d2] p-4 md:grid-cols-4 font-mono">
-            <Metric label="Geodesic Distance" value={route.distanceNm.toLocaleString()} unit="nm" />
+            <Metric label="Geodesic Distance" value={nav.formatDistance(route.distanceNm)} />
             <Metric label="Total Estimated Voyage" value={route.eta} accent="#55d6e8" />
             <Metric label="Bunker Fuel Burn" value={route.fuelT} unit="t" />
             <Metric label="Route Waypoints" value={route.coordinates.length} />
           </div>
+
 
           {/* Physical Safety & Navigational Clearance Status Card */}
           <div className="border-t border-[#1d445c]/50 bg-[#061623]/80 p-3.5 font-mono text-[11px]">

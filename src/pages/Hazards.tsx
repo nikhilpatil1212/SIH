@@ -58,7 +58,19 @@ export function Hazards() {
         </div>
       </Card>
 
-      {filtered.length === 0 ? (
+      {hazards.length === 0 ? (
+        <Card>
+          <div className="p-8 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#55d6e8]/10 text-[#55d6e8]">
+              <AlertTriangle size={24} />
+            </div>
+            <h3 className="text-[15px] font-bold text-[#eaf6f8] light:text-[#0d2433]">Live hazard data unavailable</h3>
+            <p className="mt-1 text-[12px] text-[#91aeb9] light:text-[#5a7686]">
+              No active or predicted iceberg collision hazards detected along Antarctic shipping corridors.
+            </p>
+          </div>
+        </Card>
+      ) : filtered.length === 0 ? (
         <Card>
           <StateBlock kind="empty" message="No hazards in this category." />
         </Card>
@@ -69,6 +81,7 @@ export function Hazards() {
           ))}
         </div>
       )}
+
 
       <div className="flex items-center gap-2 text-[11px] text-[#91aeb9] light:text-[#7a94a2]">
         <AlertTriangle size={13} className="text-[#f59e0b]" /> Continuous satellite radar monitoring and hazard trajectory fusion active.

@@ -441,17 +441,22 @@ export const apiClient = {
   async getHazards(): Promise<Hazard[]> {
     try {
       const res = await fetch(`${API_BASE}/hazards`, { signal: AbortSignal.timeout(10000) });
-      if (res.ok) return await res.json();
-    } catch {}
-    return baseHazards;
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      }
+    } catch (e) {
+      console.warn("[API] Hazard fetch failed:", e);
+    }
+    return [];
   },
 
-  async getEnvironment(): Promise<Environment> {
+  async getEnvironment(): Promise<Environment | null> {
     try {
       const res = await fetch(`${API_BASE}/environment`, { signal: AbortSignal.timeout(10000) });
       if (res.ok) return await res.json();
     } catch {}
-    return baseEnv;
+    return null;
   },
 
   async getVessel(): Promise<Vessel> {
@@ -549,6 +554,28 @@ export const apiClient = {
     }
     return null;
   },
+
+  async getSeaIceGeoJson(): Promise<any | null> {
+    try {
+      const res = await fetch(`${API_BASE}/sea-ice/geojson`, { signal: AbortSignal.timeout(15000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("[API] Sea-ice GeoJSON fetch failed:", e);
+    }
+    return null;
+  },
+
+  async getRegionalEnvironment(region?: string): Promise<any> {
+    try {
+      const url = region ? `${API_BASE}/environment/regional/${encodeURIComponent(region)}` : `${API_BASE}/environment/regions`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("[API] Regional environment fetch failed:", e);
+    }
+    return region ? null : [];
+  },
+
 
   // ---- Extended Platform & Admin APIs ----
   getAuthHeaders(): Record<string, string> {

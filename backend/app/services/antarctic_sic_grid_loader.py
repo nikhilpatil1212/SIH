@@ -34,17 +34,24 @@ Y_MIN = -3950000.0
 R_EARTH = 6378137.0
 K0 = 0.9727  # Scale factor at standard parallel 70°S
 
-# Authoritative 15 Antarctic Sector Geographic Coordinate Extents
+# Authoritative 15 Antarctic Sector Geographic Coordinate Extents and Canonical Polygons
 ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
     {
         "name": "Weddell Sea",
         "lat_min": -78.0, "lat_max": -60.0, "lon_min": -60.0, "lon_max": -20.0,
         "centroid": {"lat": -69.0, "lon": -40.0},
         "polygon": [
-            {"lat": -60.0, "lon": -60.0},
-            {"lat": -60.0, "lon": -20.0},
-            {"lat": -78.0, "lon": -20.0},
-            {"lat": -78.0, "lon": -60.0},
+            {"lat": -60.0, "lon": -55.0},
+            {"lat": -60.0, "lon": -35.0},
+            {"lat": -61.5, "lon": -25.0},
+            {"lat": -65.0, "lon": -20.0},
+            {"lat": -72.0, "lon": -20.0},
+            {"lat": -77.5, "lon": -35.0},
+            {"lat": -78.0, "lon": -50.0},
+            {"lat": -75.0, "lon": -60.0},
+            {"lat": -65.0, "lon": -60.0},
+            {"lat": -62.0, "lon": -57.0},
+            {"lat": -60.0, "lon": -55.0},
         ]
     },
     {
@@ -53,10 +60,17 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -75.0, "lon": 175.0},
         "polygon": [
             {"lat": -65.0, "lon": 160.0},
-            {"lat": -65.0, "lon": 180.0},
-            {"lat": -65.0, "lon": -150.0},
-            {"lat": -85.0, "lon": -150.0},
-            {"lat": -85.0, "lon": 160.0},
+            {"lat": -65.0, "lon": 175.0},
+            {"lat": -66.0, "lon": -175.0},
+            {"lat": -67.0, "lon": -155.0},
+            {"lat": -72.0, "lon": -150.0},
+            {"lat": -78.5, "lon": -160.0},
+            {"lat": -83.0, "lon": -170.0},
+            {"lat": -85.0, "lon": 175.0},
+            {"lat": -82.0, "lon": 165.0},
+            {"lat": -74.0, "lon": 162.0},
+            {"lat": -68.0, "lon": 160.0},
+            {"lat": -65.0, "lon": 160.0},
         ]
     },
     {
@@ -65,9 +79,13 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -72.0, "lon": -115.0},
         "polygon": [
             {"lat": -67.0, "lon": -135.0},
-            {"lat": -67.0, "lon": -100.0},
-            {"lat": -75.0, "lon": -100.0},
-            {"lat": -75.0, "lon": -135.0},
+            {"lat": -67.0, "lon": -118.0},
+            {"lat": -68.0, "lon": -102.0},
+            {"lat": -71.5, "lon": -100.0},
+            {"lat": -74.5, "lon": -105.0},
+            {"lat": -75.0, "lon": -120.0},
+            {"lat": -74.0, "lon": -135.0},
+            {"lat": -67.0, "lon": -135.0},
         ]
     },
     {
@@ -76,9 +94,13 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -70.5, "lon": -85.0},
         "polygon": [
             {"lat": -66.0, "lon": -100.0},
-            {"lat": -66.0, "lon": -70.0},
-            {"lat": -74.0, "lon": -70.0},
-            {"lat": -74.0, "lon": -100.0},
+            {"lat": -66.0, "lon": -85.0},
+            {"lat": -67.5, "lon": -72.0},
+            {"lat": -71.0, "lon": -70.0},
+            {"lat": -73.5, "lon": -75.0},
+            {"lat": -74.0, "lon": -90.0},
+            {"lat": -72.5, "lon": -100.0},
+            {"lat": -66.0, "lon": -100.0},
         ]
     },
     {
@@ -86,10 +108,15 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "lat_min": -62.0, "lat_max": -53.0, "lon_min": -65.0, "lon_max": -30.0,
         "centroid": {"lat": -57.5, "lon": -48.0},
         "polygon": [
-            {"lat": -53.0, "lon": -65.0},
-            {"lat": -53.0, "lon": -30.0},
-            {"lat": -62.0, "lon": -30.0},
-            {"lat": -62.0, "lon": -65.0},
+            {"lat": -53.0, "lon": -62.0},
+            {"lat": -53.0, "lon": -40.0},
+            {"lat": -55.0, "lon": -32.0},
+            {"lat": -59.0, "lon": -30.0},
+            {"lat": -62.0, "lon": -38.0},
+            {"lat": -62.0, "lon": -55.0},
+            {"lat": -59.5, "lon": -65.0},
+            {"lat": -55.5, "lon": -65.0},
+            {"lat": -53.0, "lon": -62.0},
         ]
     },
     {
@@ -98,9 +125,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -68.5, "lon": 74.0},
         "polygon": [
             {"lat": -66.0, "lon": 68.0},
-            {"lat": -66.0, "lon": 80.0},
-            {"lat": -70.0, "lon": 80.0},
-            {"lat": -70.0, "lon": 68.0},
+            {"lat": -66.0, "lon": 78.0},
+            {"lat": -67.5, "lon": 80.0},
+            {"lat": -69.5, "lon": 78.0},
+            {"lat": -70.0, "lon": 73.0},
+            {"lat": -69.0, "lon": 68.0},
+            {"lat": -66.0, "lon": 68.0},
         ]
     },
     {
@@ -109,9 +139,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -65.5, "lon": 90.0},
         "polygon": [
             {"lat": -63.0, "lon": 82.0},
-            {"lat": -63.0, "lon": 96.0},
-            {"lat": -67.0, "lon": 96.0},
-            {"lat": -67.0, "lon": 82.0},
+            {"lat": -63.0, "lon": 94.0},
+            {"lat": -65.0, "lon": 96.0},
+            {"lat": -66.8, "lon": 93.0},
+            {"lat": -67.0, "lon": 85.0},
+            {"lat": -65.5, "lon": 82.0},
+            {"lat": -63.0, "lon": 82.0},
         ]
     },
     {
@@ -120,9 +153,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -65.0, "lon": 65.0},
         "polygon": [
             {"lat": -62.0, "lon": 55.0},
-            {"lat": -62.0, "lon": 75.0},
-            {"lat": -68.0, "lon": 75.0},
-            {"lat": -68.0, "lon": 55.0},
+            {"lat": -62.0, "lon": 72.0},
+            {"lat": -64.5, "lon": 75.0},
+            {"lat": -67.5, "lon": 70.0},
+            {"lat": -68.0, "lon": 60.0},
+            {"lat": -66.0, "lon": 55.0},
+            {"lat": -62.0, "lon": 55.0},
         ]
     },
     {
@@ -131,9 +167,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -65.0, "lon": 105.0},
         "polygon": [
             {"lat": -62.0, "lon": 96.0},
-            {"lat": -62.0, "lon": 113.0},
-            {"lat": -67.0, "lon": 113.0},
-            {"lat": -67.0, "lon": 96.0},
+            {"lat": -62.0, "lon": 110.0},
+            {"lat": -64.5, "lon": 113.0},
+            {"lat": -66.5, "lon": 108.0},
+            {"lat": -67.0, "lon": 100.0},
+            {"lat": -65.0, "lon": 96.0},
+            {"lat": -62.0, "lon": 96.0},
         ]
     },
     {
@@ -142,9 +181,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -65.0, "lon": 40.0},
         "polygon": [
             {"lat": -62.0, "lon": 30.0},
-            {"lat": -62.0, "lon": 50.0},
-            {"lat": -68.0, "lon": 50.0},
-            {"lat": -68.0, "lon": 30.0},
+            {"lat": -62.0, "lon": 48.0},
+            {"lat": -64.5, "lon": 50.0},
+            {"lat": -67.5, "lon": 45.0},
+            {"lat": -68.0, "lon": 35.0},
+            {"lat": -66.0, "lon": 30.0},
+            {"lat": -62.0, "lon": 30.0},
         ]
     },
     {
@@ -153,9 +195,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -68.0, "lon": 160.0},
         "polygon": [
             {"lat": -65.0, "lon": 145.0},
-            {"lat": -65.0, "lon": 170.0},
-            {"lat": -72.0, "lon": 170.0},
-            {"lat": -72.0, "lon": 145.0},
+            {"lat": -65.0, "lon": 168.0},
+            {"lat": -68.0, "lon": 170.0},
+            {"lat": -71.5, "lon": 165.0},
+            {"lat": -72.0, "lon": 150.0},
+            {"lat": -69.0, "lon": 145.0},
+            {"lat": -65.0, "lon": 145.0},
         ]
     },
     {
@@ -164,9 +209,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -67.0, "lon": 24.0},
         "polygon": [
             {"lat": -63.0, "lon": 14.0},
-            {"lat": -63.0, "lon": 34.0},
-            {"lat": -70.0, "lon": 34.0},
-            {"lat": -70.0, "lon": 14.0},
+            {"lat": -63.0, "lon": 32.0},
+            {"lat": -65.5, "lon": 34.0},
+            {"lat": -69.5, "lon": 30.0},
+            {"lat": -70.0, "lon": 20.0},
+            {"lat": -68.0, "lon": 14.0},
+            {"lat": -63.0, "lon": 14.0},
         ]
     },
     {
@@ -175,9 +223,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -67.5, "lon": 7.0},
         "polygon": [
             {"lat": -64.0, "lon": 0.0},
-            {"lat": -64.0, "lon": 14.0},
-            {"lat": -71.0, "lon": 14.0},
-            {"lat": -71.0, "lon": 0.0},
+            {"lat": -64.0, "lon": 13.0},
+            {"lat": -66.5, "lon": 14.0},
+            {"lat": -70.5, "lon": 11.0},
+            {"lat": -71.0, "lon": 3.0},
+            {"lat": -68.5, "lon": 0.0},
+            {"lat": -64.0, "lon": 0.0},
         ]
     },
     {
@@ -186,9 +237,12 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "centroid": {"lat": -68.5, "lon": -10.0},
         "polygon": [
             {"lat": -65.0, "lon": -20.0},
-            {"lat": -65.0, "lon": 0.0},
-            {"lat": -72.0, "lon": 0.0},
-            {"lat": -72.0, "lon": -20.0},
+            {"lat": -65.0, "lon": -2.0},
+            {"lat": -67.5, "lon": 0.0},
+            {"lat": -71.5, "lon": -4.0},
+            {"lat": -72.0, "lon": -15.0},
+            {"lat": -69.0, "lon": -20.0},
+            {"lat": -65.0, "lon": -20.0},
         ]
     },
     {
@@ -196,10 +250,14 @@ ANTARCTIC_SPATIAL_SECTORS: List[Dict[str, Any]] = [
         "lat_min": -70.0, "lat_max": -62.0, "lon_min": -72.0, "lon_max": -55.0,
         "centroid": {"lat": -66.0, "lon": -64.0},
         "polygon": [
-            {"lat": -62.0, "lon": -72.0},
-            {"lat": -62.0, "lon": -55.0},
-            {"lat": -70.0, "lon": -55.0},
-            {"lat": -70.0, "lon": -72.0},
+            {"lat": -62.0, "lon": -60.0},
+            {"lat": -63.5, "lon": -55.0},
+            {"lat": -67.0, "lon": -58.0},
+            {"lat": -70.0, "lon": -62.0},
+            {"lat": -70.0, "lon": -70.0},
+            {"lat": -67.0, "lon": -72.0},
+            {"lat": -64.0, "lon": -66.0},
+            {"lat": -62.0, "lon": -60.0},
         ]
     }
 ]

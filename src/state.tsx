@@ -45,38 +45,56 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [recommendedRouteId, setRecommended] = useState("route-b");
   const [selectedIcebergId, setSelectedIceberg] = useState<string | null>("A76C");
   const [rerouted, setRerouted] = useState(false);
+  const [hasActiveRoute, setHasActiveRoute] = useState(false);
+  const [distanceUnit, setDistanceUnit] = useState<"NM" | "KM">("NM");
   const [isCalculating, setIsCalculating] = useState(false);
   const [activeBoundingBox, setActiveBoundingBox] = useState<BoundingBox | null>(null);
   
-  const [activeStartPoint, setActiveStartPoint] = useState<NamedPoint | null>({
-    lat: -33.92,
-    lon: 18.42,
-    name: "Port of Cape Town",
-  });
-  
-  const [activeDestinationPoint, setActiveDestinationPoint] = useState<NamedPoint | null>({
-    lat: -70.77,
-    lon: 11.73,
-    name: "Maitri Station (India)",
-  });
+  const [activeStartPoint, setActiveStartPoint] = useState<NamedPoint | null>(null);
+  const [activeDestinationPoint, setActiveDestinationPoint] = useState<NamedPoint | null>(null);
 
   const [waypoints, setWaypoints] = useState<OperationalWaypoint[]>([]);
-  const [baseTravelHours, setBaseTravelHours] = useState(177);
+  const [baseTravelHours, setBaseTravelHours] = useState(0);
   const [totalBreakHours, setTotalBreakHours] = useState(0);
-  const [totalVoyageHours, setTotalVoyageHours] = useState(177);
+  const [totalVoyageHours, setTotalVoyageHours] = useState(0);
 
   const [predictionLoading, setPredictionLoading] = useState<boolean>(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
   const [predictionsCache, setPredictionsCache] = useState<Record<string, { lat: number; lon: number; displacement_km: number }>>({});
 
   const [seaIcePrediction, setSeaIcePrediction] = useState<SeaIcePredictionResponse | null>(null);
+  const [seaIceGeoJson, setSeaIceGeoJson] = useState<any | null>(null);
+  const [regionalEnvironment, setRegionalEnvironment] = useState<any[]>([]);
   const fetchingRef = useRef<Record<string, boolean>>({});
 
-  // Canonical hazards derived dynamically from active real icebergs
+  const toggleDistanceUnit = useCallback(() => {
+    setDistanceUnit((prev) => (prev === "NM" ? "KM" : "NM"));
+  }, []);
+
+  const formatDistance = useCallback(
+    (distNm?: number | null) => {
+      if (distNm == null || isNaN(distNm)) return "N/A";
+      if (distanceUnit === "KM") {
+        return `${Math.round(distNm * 1.852)} KM`;
+      }
+      return `${Math.round(distNm)} NM`;
+    },
+    [distanceUnit],
+  );
+
+  const clearActiveRoute = useCallback(() => {
+    setHasActiveRoute(false);
+    setActiveStartPoint(null);
+    setActiveDestinationPoint(null);
+    setWaypoints([]);
+    setActiveBoundingBox(null);
+  }, []);
+
+  // Canonical hazards derived dynamically ONLY from genuine tracked icebergs (No fabricated weather/ice entries)
   const hazards = useMemo<Hazard[]>(() => {
     const list: Hazard[] = [];
     const highAndMed = icebergs.filter((b) => b.riskLevel === "high" || b.riskLevel === "medium");
-    highAndMed.slice(0, 6).forEach((b, idx) => {
+    highAndMed.forEach((b, idx) => {
       const lat = b.position?.lat ?? -65.0;
       const lon = b.position?.lon ?? -40.0;
       const latStr = `${Math.abs(lat).toFixed(1)}°${lat < 0 ? "S" : "N"}`;
@@ -87,19 +105,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
         location: `${latStr} ${lonStr}`,
         severity: (b.riskLevel as "high" | "medium" | "low") || "high",
         predictedTime: `+${12 + idx * 6}h`,
-        confidence: b.confidence ?? 85,
+        confidence: b.confidence ?? 88,
         affectedRoute: idx % 2 === 0 ? "Route A" : "Route B",
         status: idx < 2 ? "active" : "predicted",
       });
     });
-    // Add standard environmental contact baselines
-    list.push(
-      { id: "SI-E-01", type: "Sea-Ice", location: "68.2°S 29.5°W", severity: "medium", predictedTime: "+18h", confidence: 84, affectedRoute: "Route A", status: "active" },
-      { id: "WX-04", type: "Weather", location: "63.5°S 41.0°W", severity: "medium", predictedTime: "+36h", confidence: 78, affectedRoute: "Route B", status: "predicted" },
-      { id: "VIS-02", type: "Visibility", location: "70.1°S 12.0°E", severity: "low", predictedTime: "+48h", confidence: 72, affectedRoute: "Route C", status: "predicted" },
-    );
     return list;
   }, [icebergs]);
+
 
   const fetchPrediction = useCallback(async (ibg: Iceberg) => {
     if (!ibg || !ibg.position || fetchingRef.current[ibg.id]) return;
@@ -249,10 +262,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
   const loadSeaIce = useCallback(async () => {
     try {
-      const data = await apiClient.getSeaIcePrediction();
-      if (data) {
-        setSeaIcePrediction(data);
-      }
+      const [data, geojson, env] = await Promise.all([
+        apiClient.getSeaIcePrediction(),
+        apiClient.getSeaIceGeoJson(),
+        apiClient.getRegionalEnvironment(),
+      ]);
+      if (data) setSeaIcePrediction(data);
+      if (geojson) setSeaIceGeoJson(geojson);
+      if (env) setRegionalEnvironment(env);
     } catch (err) {
       console.error("Failed to load real sea-ice data:", err);
     }
@@ -363,6 +380,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       setBaseTravelHours(result.baseTravelHours);
       setTotalBreakHours(result.totalBreakHours);
       setTotalVoyageHours(result.totalVoyageHours);
+      setHasActiveRoute(true);
     } catch (err) {
       console.error("Route calculation failed, applying physical geodesic fallback:", err);
       const fallbackResult = clientSideCalculateRoutes(payload);
@@ -376,6 +394,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       setBaseTravelHours(fallbackResult.baseTravelHours);
       setTotalBreakHours(fallbackResult.totalBreakHours);
       setTotalVoyageHours(fallbackResult.totalVoyageHours);
+      setHasActiveRoute(true);
     } finally {
       setIsCalculating(false);
     }
@@ -423,9 +442,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setRecommended("route-b");
     setSelectedIceberg("A76C");
     setRerouted(false);
+    setHasActiveRoute(false);
+    setActiveStartPoint(null);
+    setActiveDestinationPoint(null);
     setActiveBoundingBox(null);
     setWaypoints([]);
     setTotalBreakHours(0);
+    setBaseTravelHours(0);
+    setTotalVoyageHours(0);
   }, []);
 
   const value = useMemo(
@@ -441,6 +465,8 @@ export function NavProvider({ children }: { children: ReactNode }) {
       selectedUsnicIcebergId: selectedIcebergId,
       layers,
       rerouted,
+      hasActiveRoute,
+      distanceUnit,
       activeBoundingBox,
       activeStartPoint,
       activeDestinationPoint,
@@ -454,15 +480,21 @@ export function NavProvider({ children }: { children: ReactNode }) {
       predictionError,
       predictionsCache,
       seaIcePrediction,
+      seaIceGeoJson,
+      regionalEnvironment,
       setSelectedRoute,
       setSelectedIceberg,
       setSelectedUsnicIcebergId: setSelectedIceberg,
       toggleLayer,
+      toggleDistanceUnit,
+      setDistanceUnit,
+      formatDistance,
       addWaypoint,
       removeWaypoint,
       updateWaypoint,
       simulateObservation,
       calculateNewRoutes,
+      clearActiveRoute,
       setActiveBoundingBox,
       reset,
     }),
@@ -476,6 +508,8 @@ export function NavProvider({ children }: { children: ReactNode }) {
       selectedIcebergId,
       layers,
       rerouted,
+      hasActiveRoute,
+      distanceUnit,
       activeBoundingBox,
       activeStartPoint,
       activeDestinationPoint,
@@ -489,14 +523,19 @@ export function NavProvider({ children }: { children: ReactNode }) {
       predictionError,
       predictionsCache,
       seaIcePrediction,
+      seaIceGeoJson,
+      regionalEnvironment,
       setSelectedRoute,
       setSelectedIceberg,
       toggleLayer,
+      toggleDistanceUnit,
+      formatDistance,
       addWaypoint,
       removeWaypoint,
       updateWaypoint,
       simulateObservation,
       calculateNewRoutes,
+      clearActiveRoute,
       setActiveBoundingBox,
       reset,
     ],
@@ -504,3 +543,4 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
   return <NavContext.Provider value={value}>{children}</NavContext.Provider>;
 }
+

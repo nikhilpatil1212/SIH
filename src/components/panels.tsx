@@ -3,6 +3,8 @@ import { Anchor, CheckCircle2, ChevronDown, ChevronUp, Compass, Droplet, Eye, Sh
 import type { AlertItem, Environment, RiskFactor, Route, Vessel } from "../data/types";
 import { Card, Chip, Metric, RiskMeter, SEVERITY_COLORS, StatusDot, cx } from "./ui/primitives";
 
+import { useOptionalNav } from "../state";
+
 const ROUTE_TAG: Record<Route["type"], string> = {
   fastest: "FASTEST",
   safest: "SAFEST",
@@ -20,6 +22,8 @@ export function RouteComparison({
   recommendedId: string;
   onSelect: (id: string) => void;
 }) {
+  const nav = useOptionalNav();
+
   return (
     <Card title="Route Comparison">
       <div className="flex flex-col gap-2 p-2.5">
@@ -56,10 +60,11 @@ export function RouteComparison({
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
-                  <Metric label="Distance" value={r.distanceNm.toLocaleString()} unit="nm" />
+                  <Metric label="Distance" value={nav ? nav.formatDistance(r.distanceNm) : `${r.distanceNm.toLocaleString()} nm`} />
                   <Metric label="ETA" value={r.eta} />
                   <Metric label="Fuel" value={r.fuelT} unit="t" />
                 </div>
+
 
                 {/* Physical Safety & Iceberg Clearance Telemetry */}
                 <div className="mt-2.5 grid grid-cols-3 gap-1 rounded bg-[#071521]/70 light:bg-[#ede5d8]/70 p-2 font-mono text-[9px] border border-[#1d445c]/40">

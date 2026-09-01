@@ -37,6 +37,8 @@ export interface NavState {
 
   layers: LayerState;
   rerouted: boolean;
+  hasActiveRoute: boolean;
+  distanceUnit: "NM" | "KM";
   activeBoundingBox: BoundingBox | null;
   activeStartPoint: NamedPoint | null;
   activeDestinationPoint: NamedPoint | null;
@@ -50,15 +52,21 @@ export interface NavState {
   predictionError: string | null;
   predictionsCache: Record<string, { lat: number; lon: number; displacement_km: number }>;
   seaIcePrediction: SeaIcePredictionResponse | null;
+  seaIceGeoJson: any;
+  regionalEnvironment: any[];
   setSelectedRoute: (id: string) => void;
   setSelectedIceberg: (id: string) => void;
   setSelectedUsnicIcebergId: (id: string | null) => void;
   toggleLayer: (k: keyof LayerState) => void;
+  toggleDistanceUnit: () => void;
+  setDistanceUnit: (unit: "NM" | "KM") => void;
+  formatDistance: (distNm?: number | null) => string;
   addWaypoint: (wp: Omit<OperationalWaypoint, "id">) => void;
   removeWaypoint: (id: string) => void;
   updateWaypoint: (id: string, updates: Partial<OperationalWaypoint>) => void;
   simulateObservation: () => Promise<void>;
   calculateNewRoutes: (payload: RouteCalculatePayload) => Promise<void>;
+  clearActiveRoute: () => void;
   setActiveBoundingBox: (bbox: BoundingBox | null) => void;
   reset: () => void;
 }
@@ -74,3 +82,4 @@ export function useNav(): NavState {
   if (!ctx) throw new Error("useNav must be used within NavProvider");
   return ctx;
 }
+

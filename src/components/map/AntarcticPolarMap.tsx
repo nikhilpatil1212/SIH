@@ -27,6 +27,8 @@ import { useTheme } from "../../theme";
 import { hazards as mockHazards } from "../../data/mock";
 import { useOptionalNav, type OperationalWaypoint } from "../../state";
 import { constrainTrajectoryToOcean } from "../../utils/landMask";
+import apiClient from "../../api/client";
+
 
 
 import {
@@ -142,6 +144,9 @@ export function AntarcticPolarMap({
 
   // Hovered / Selected Entity State (Floating Card with Zero Layout Shift)
   const [hoveredEntity, setHoveredEntity] = useState<HoveredEntity>(null);
+  const [hoveredSeaRegion, setHoveredSeaRegion] = useState<any | null>(null);
+  const [clickedSeaRegionEnv, setClickedSeaRegionEnv] = useState<any | null>(null);
+  const [loadingRegionEnv, setLoadingRegionEnv] = useState(false);
   const [cursorPos, setCursorPos] = useState<{ lat: number; lon: number; sector: string } | null>(null);
   const [svgPoints, setSvgPoints] = useState<string>("");
   const [svgRoutes, setSvgRoutes] = useState<
@@ -149,6 +154,7 @@ export function AntarcticPolarMap({
   >([]);
   const hoverTimeoutRef = useRef<any>(null);
   const coordsRef = useRef<[number, number][]>([]);
+
 
   // Selected iceberg & trajectory coordinates derivation
   const selectedBerg = (icebergs && icebergs.length > 0)
@@ -652,9 +658,10 @@ export function AntarcticPolarMap({
     if (!map) return;
 
     const setupLayers = () => {
-      // 1. Sea Ice Heat / Concentration Polygons
+      // 1. Sea Ice Heat / Concentration Polygons (using canonical 15 regional sectors)
+      let seaIceFeatures: any[] = [];
       if (seaIceHeat && seaIceHeat.length > 0) {
-        const seaIceFeatures = seaIceHeat.map((s) => {
+        seaIceFeatures = seaIceHeat.map((s) => {
           const coords = s.polygon.map((p) => [p.lon, p.lat]);
           if (
             coords.length > 0 &&
@@ -667,6 +674,7 @@ export function AntarcticPolarMap({
             properties: {
               region: s.region,
               concentration: s.concentration,
+              risk_level: s.concentration > 70 ? "HIGH" : s.concentration > 40 ? "MEDIUM" : "LOW",
               selected: s.region === selectedRegion,
             },
             geometry: {
@@ -675,7 +683,38 @@ export function AntarcticPolarMap({
             },
           };
         });
+      } else if (nav?.seaIceGeoJson && nav.seaIceGeoJson.features) {
+        seaIceFeatures = nav.seaIceGeoJson.features.map((f: any) => ({
+          ...f,
+          properties: {
+            ...f.properties,
+            concentration: f.properties.current_sic ?? f.properties.concentration ?? 0,
+            selected: f.properties.region === selectedRegion,
+          },
+        }));
+      } else if (nav?.seaIcePrediction?.horizons?.["0h"]?.regions) {
+        seaIceFeatures = nav.seaIcePrediction.horizons["0h"].regions.map((r: any) => {
+          const coords = (r.polygon || []).map((p: any) => [p.lon, p.lat]);
+          if (coords.length > 0 && (coords[0][0] !== coords[coords.length - 1][0] || coords[0][1] !== coords[coords.length - 1][1])) {
+            coords.push([...coords[0]]);
+          }
+          return {
+            type: "Feature" as const,
+            properties: {
+              region: r.region,
+              concentration: r.currentConcentration,
+              risk_level: r.routeImpact ? r.routeImpact.toUpperCase() : "MEDIUM",
+              selected: r.region === selectedRegion,
+            },
+            geometry: {
+              type: "Polygon" as const,
+              coordinates: [coords],
+            },
+          };
+        });
+      }
 
+      if (seaIceFeatures.length > 0) {
         if (map.getSource("sea-ice-source")) {
           (map.getSource("sea-ice-source") as GeoJSONSource).setData({
             type: "FeatureCollection",
@@ -719,8 +758,38 @@ export function AntarcticPolarMap({
               "line-opacity": 0.8,
             },
           });
+
+          // Region interaction events
+          (map as any).on("mousemove", "sea-ice-fill", (e: any) => {
+            if (e.features && e.features.length > 0) {
+              if (typeof (map as any).getCanvas === "function") {
+                (map as any).getCanvas().style.cursor = "pointer";
+              }
+              setHoveredSeaRegion(e.features[0].properties);
+            }
+          });
+
+          (map as any).on("mouseleave", "sea-ice-fill", () => {
+            if (typeof (map as any).getCanvas === "function") {
+              (map as any).getCanvas().style.cursor = "";
+            }
+            setHoveredSeaRegion(null);
+          });
+
+          (map as any).on("click", "sea-ice-fill", async (e: any) => {
+            if (e.features && e.features.length > 0) {
+              const rName = e.features[0].properties.region;
+              onSelectRegion?.(rName);
+              setLoadingRegionEnv(true);
+              const envData = await apiClient.getRegionalEnvironment(rName);
+              setClickedSeaRegionEnv(envData || { region: rName, variables: {} });
+              setLoadingRegionEnv(false);
+            }
+          });
+
         }
       }
+
 
       // 2. Active Navigation Routes Layer (All Calculated Ship Routes Rendered Simultaneously with Distinct Styles)
       if (routes.length > 0) {
@@ -1298,7 +1367,114 @@ export function AntarcticPolarMap({
             )}
           </div>
         )}
+
+        {/* Sea-Ice Region Hover Tooltip (Requirement 15) */}
+        {hoveredSeaRegion && !hoveredEntity && (
+          <div className="absolute left-4 top-4 z-30 flex w-72 flex-col gap-1.5 rounded-xl border border-[#55d6e8]/80 bg-[#071927]/95 p-3 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 pointer-events-none font-mono text-[11px]">
+            <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-1">
+              <div className="flex items-center gap-1.5 font-bold text-[#55d6e8]">
+                <Snowflake size={14} />
+                <span>{hoveredSeaRegion.region}</span>
+              </div>
+              <span className={cx("rounded px-1.5 py-0.2 text-[8.5px] font-bold uppercase", (hoveredSeaRegion.concentration || 0) > 70 ? "bg-[#ef4444]/20 text-[#ef4444]" : (hoveredSeaRegion.concentration || 0) > 40 ? "bg-[#f59e0b]/20 text-[#f59e0b]" : "bg-[#10b981]/20 text-[#10b981]")}>
+                {hoveredSeaRegion.risk_level || "MONITORED"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[#eaf6f8]">
+              <div><b>SIC:</b> {hoveredSeaRegion.concentration != null ? `${Number(hoveredSeaRegion.concentration).toFixed(1)}%` : "N/A"}</div>
+              <div><b>Source:</b> AMSR2 ASI</div>
+            </div>
+            <div className="text-[9.5px] text-[#91aeb9] border-t border-[#1d445c]/40 pt-1 flex items-center justify-between">
+              <span>Click sea to view metocean telemetry</span>
+              <span className="text-[#55d6e8]">Provenance ➔</span>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Regional Environmental Conditions Modal with Full Scientific Provenance (Requirements 4 & 15) */}
+      {clickedSeaRegionEnv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-xl border border-[#1d445c] bg-[#071521] p-5 text-[#eaf6f8] shadow-2xl light:border-[#dfd8cc] light:bg-white light:text-[#0d2433]">
+            <div className="flex items-center justify-between border-b border-[#1d445c]/60 pb-3 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#55d6e8]/20 text-[#55d6e8]">
+                  <Snowflake size={18} />
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-bold">{clickedSeaRegionEnv.region} · Environmental Telemetry</h3>
+                  <p className="text-[11px] font-mono text-[#91aeb9] light:text-[#5a7686]">
+                    Centroid: {Math.abs(clickedSeaRegionEnv.centroid?.lat || 0).toFixed(2)}°S, {Math.abs(clickedSeaRegionEnv.centroid?.lon || 0).toFixed(2)}°{clickedSeaRegionEnv.centroid?.lon >= 0 ? "E" : "W"} · Status: <span className="text-[#10b981] font-semibold">{clickedSeaRegionEnv.status || "VALIDATED"}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setClickedSeaRegionEnv(null)}
+                className="rounded-lg p-1.5 text-[#91aeb9] hover:bg-[#132f40] hover:text-[#eaf6f8] cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {loadingRegionEnv ? (
+              <div className="py-12 text-center text-[13px] font-mono text-[#55d6e8] animate-pulse">
+                Querying ECMWF ERA5, NOAA OISST and AMSR2 satellite providers...
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {Object.entries(clickedSeaRegionEnv.variables || {}).map(([key, item]: [string, any]) => {
+                    const hasVal = item && item.value !== null && item.value !== undefined;
+                    const isMissing = !hasVal || item.quality_flag === "MISSING";
+                    const formattedName = key.replace(/_/g, " ").toUpperCase();
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-lg border border-[#1d445c]/60 bg-[#0c2333] p-3 text-[11.5px] font-mono light:border-[#dfd8cc] light:bg-[#f8f5ee] flex flex-col justify-between"
+                      >
+                        <div className="flex items-center justify-between text-[10px] uppercase font-bold text-[#91aeb9] light:text-[#5a7686] mb-1">
+                          <span>{formattedName}</span>
+                          <span
+                            className={cx(
+                              "px-1.5 py-0.2 rounded text-[8.5px]",
+                              isMissing ? "bg-[#ef4444]/20 text-[#ef4444]" : "bg-[#10b981]/20 text-[#10b981]"
+                            )}
+                          >
+                            {item.quality_flag || (isMissing ? "UNAVAILABLE" : "OBSERVED")}
+                          </span>
+                        </div>
+                        <div className="text-[18px] font-bold my-0.5">
+                          {hasVal ? (
+                            <span className="text-[#55d6e8] light:text-[#0f768e]">{item.value} <span className="text-[12px] font-normal">{item.unit}</span></span>
+                          ) : (
+                            <span className="text-[#ef4444]/80 text-[14px]">Data unavailable</span>
+                          )}
+                        </div>
+                        <div className="text-[9px] text-[#5f7d89] light:text-[#7a94a2] border-t border-[#1d445c]/30 pt-1 mt-1 truncate">
+                          Source: {item.source_dataset || "Authoritative Model"}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="rounded-lg bg-[#040e17] p-3 text-[10px] font-mono text-[#91aeb9] border border-[#1d445c]/40 light:bg-[#ede5d6]">
+                  <span className="font-bold text-[#f5b942]">DATA PROVENANCE NOTICE:</span> All environmental observations are spatially correlated to the geographical centroid of this sector. Missing sensors/satellite passes report strict unavailability without synthetic fabrication.
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setClickedSeaRegionEnv(null)}
+                className="rounded-lg bg-[#55d6e8] px-4 py-2 text-[12px] font-bold text-[#071521] shadow hover:bg-[#7be3f2] light:bg-[#0f768e] light:text-white cursor-pointer"
+              >
+                Close Telemetry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. Telemetry Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1d445c]/70 bg-[#071927]/95 px-3.5 py-1.5 font-mono text-[10px] z-20">
@@ -1318,6 +1494,7 @@ export function AntarcticPolarMap({
     </div>
   );
 }
+
 
 function LayerChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (

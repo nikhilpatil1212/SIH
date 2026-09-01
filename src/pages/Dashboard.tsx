@@ -10,6 +10,7 @@ import {
   Navigation,
   Plus,
   RotateCcw,
+  Route as RouteIcon,
   ShieldAlert,
   Ship,
   Snowflake,
@@ -30,21 +31,8 @@ import {
 } from "../components/panels";
 import { Card, cx } from "../components/ui/primitives";
 import { environment, riskFactorsByRoute, vessel } from "../data/mock";
-import { dashboardKpis } from "../data/phase2";
-import type { Horizon } from "../data/types";
 import { useNav } from "../state";
 import type { PageId } from "../components/Sidebar";
-
-const HORIZON_FRACTIONS: Record<Horizon, number> = {
-  "0h": 0.001,
-  "6h": 0.12,
-  "12h": 0.25,
-  "24h": 0.45,
-  "48h": 0.75,
-  "72h": 1,
-};
-
-const FORECAST_HORIZONS: Horizon[] = ["0h", "12h", "24h", "48h", "72h"];
 
 export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) {
   const nav = useNav();
@@ -53,7 +41,6 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
   const selectedIceberg = nav.icebergs.find((i) => i.id === nav.selectedIcebergId) ?? nav.icebergs[0];
 
   const [viewMode, setViewMode] = useState<"polar" | "tactical">("polar");
-  const [horizon, setHorizon] = useState<Horizon>("0h");
   const [zoom, setZoom] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
   const [activeKpiFilter, setActiveKpiFilter] = useState<string | null>(null);
@@ -62,14 +49,15 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
     const totalCount = nav.icebergs.length;
     const highRiskCount = nav.icebergs.filter((i) => i.riskLevel === "high").length;
     const activeHazardsCount = nav.hazards.filter((h) => h.status === "active").length;
+    const currentRoute = nav.hasActiveRoute ? selectedRoute : null;
     return [
       { label: "Tracked Icebergs", value: `${totalCount}`, accent: "#8ccfe0", tag: "USNIC FEED" },
       { label: "Active Collision Hazards", value: `${activeHazardsCount}`, accent: "#ff5c5c", tag: "IMPACT WARNING" },
       { label: "Polar Pack Ice", value: "35%", accent: "#55d6e8", tag: "SAT RADAR" },
-      { label: "Voyage Risk Index", value: `${selectedRoute?.riskScore || 32}/100`, accent: (selectedRoute?.riskScore || 32) > 60 ? "#ff5c5c" : "#0284c7", tag: "SAFE CORRIDOR" },
+      { label: "Voyage Risk Index", value: currentRoute ? `${currentRoute.riskScore || 32}/100` : "STANDBY", accent: currentRoute && (currentRoute.riskScore || 32) > 60 ? "#ff5c5c" : "#0284c7", tag: "SAFE CORRIDOR" },
       { label: "High-Risk Bergs", value: `${highRiskCount}`, accent: "#f59e0b", tag: "ML ENSEMBLE" },
     ];
-  }, [nav.icebergs, nav.hazards, selectedRoute]);
+  }, [nav.icebergs, nav.hazards, nav.hasActiveRoute, selectedRoute]);
 
   const [layers, setLayers] = useState<LayerState>({
     icebergs: true,
@@ -77,14 +65,6 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
     currents: true,
     weather: false,
   });
-
-  const toggleLayer = (key: keyof LayerState) => {
-    setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleZoom = (delta: number) => {
-    setZoom((z) => Math.max(0.8, Math.min(2.5, +(z + delta).toFixed(2))));
-  };
 
   const handleKpiClick = (label: string) => {
     setActiveKpiFilter(label === activeKpiFilter ? null : label);
@@ -131,7 +111,6 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
         })}
       </div>
 
-
       {/* 2. Main Content Grid */}
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_360px]">
         {/* Left Column: Interactive Polar/Tactical Map & Environmental Intelligence */}
@@ -160,31 +139,46 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                     </span>
                   </div>
                   <div className="font-mono text-[10px] text-[#91aeb9] light:text-[#5a7686]">
-                    Active Corridor: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span> (Recommended: {recommendedRoute.name})
+                    {nav.hasActiveRoute ? (
+                      <>
+                        Active Corridor: <span className="font-semibold text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name}</span> (Recommended: {recommendedRoute.name})
+                      </>
+                    ) : (
+                      <span>No active route selected · Enter passage plan</span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Controls: Horizon Selector & Mode Toggles */}
+              {/* Controls: Distance Unit Toggle & Map Mode Toggles */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
+                {/* Distance Unit Toggle (NM / KM) */}
+                <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <span className="px-1.5 font-mono text-[9px] font-semibold uppercase text-[#91aeb9] light:text-[#5a7686]">
-                    HORIZON:
+                    UNIT:
                   </span>
-                  {FORECAST_HORIZONS.map((h) => (
-                    <button
-                      key={h}
-                      onClick={() => setHorizon(h)}
-                      className={cx(
-                        "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
-                        horizon === h
-                          ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
-                          : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
-                      )}
-                    >
-                      {h === "0h" ? "NOW" : `+${h}`}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => nav.setDistanceUnit("NM")}
+                    className={cx(
+                      "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
+                      nav.distanceUnit === "NM"
+                        ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
+                        : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
+                    )}
+                  >
+                    NM
+                  </button>
+                  <button
+                    onClick={() => nav.setDistanceUnit("KM")}
+                    className={cx(
+                      "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
+                      nav.distanceUnit === "KM"
+                        ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
+                        : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
+                    )}
+                  >
+                    KM
+                  </button>
                 </div>
 
                 <div className="flex items-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
@@ -220,13 +214,12 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
             <div className="relative flex-1 min-h-0 overflow-hidden bg-[#050d17]">
               {viewMode === "polar" ? (
                 <AntarcticPolarMap
-                  routes={nav.routes}
+                  routes={nav.hasActiveRoute ? nav.routes : []}
                   selectedRouteId={nav.selectedRouteId}
                   onSelectRoute={nav.setSelectedRoute}
                   icebergs={nav.icebergs}
                   selectedIcebergId={nav.selectedIcebergId}
                   onSelectIceberg={nav.setSelectedIceberg}
-                  horizonFraction={HORIZON_FRACTIONS[horizon]}
                   vessel={{
                     name: vessel.name,
                     position: { lat: vessel.position.lat, lon: vessel.position.lon },
@@ -240,7 +233,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                 />
               ) : (
                 <MapView
-                  routes={nav.routes}
+                  routes={nav.hasActiveRoute ? nav.routes : []}
                   icebergs={nav.icebergs}
                   selectedRouteId={nav.selectedRouteId}
                   onSelectRoute={nav.setSelectedRoute}
@@ -248,7 +241,6 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                   onSelectIceberg={nav.setSelectedIceberg}
                   layers={layers}
                   zoom={zoom}
-                  horizonFraction={HORIZON_FRACTIONS[horizon]}
                 />
               )}
             </div>
@@ -264,9 +256,15 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[#91aeb9] light:text-[#5a7686]">
-                  Active Corridor: <b className="text-[#eaf6f8] light:text-[#0d2433]">{selectedRoute.name}</b> ({selectedRoute.distanceNm} nm · {selectedRoute.eta})
-                </span>
+                {nav.hasActiveRoute ? (
+                  <span className="text-[#91aeb9] light:text-[#5a7686]">
+                    Active Corridor: <b className="text-[#eaf6f8] light:text-[#0d2433]">{selectedRoute.name}</b> ({nav.formatDistance(selectedRoute.distanceNm)} · {selectedRoute.eta})
+                  </span>
+                ) : (
+                  <span className="text-[#91aeb9] light:text-[#5a7686]">
+                    Status: <b className="text-[#f5b942]">Awaiting Passage Plan</b>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -280,16 +278,45 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
 
         {/* Right Column: AI Decision Support & Operational Panels */}
         <div className="flex min-w-0 flex-col gap-3">
-          <AIRouteRecommendationCard recommendedRoute={recommendedRoute} />
-          <RouteComparison
-            routes={nav.routes}
-            selectedId={nav.selectedRouteId}
-            recommendedId={nav.recommendedRouteId}
-            onSelect={nav.setSelectedRoute}
-          />
-          <VesselCard vessel={vessel} />
-          <RiskFactors factors={riskFactorsByRoute[nav.selectedRouteId]} routeName={selectedRoute.name} />
-          <AlertsPanel alerts={nav.alerts} />
+          {nav.hasActiveRoute ? (
+            <>
+              <AIRouteRecommendationCard recommendedRoute={recommendedRoute} />
+              <RouteComparison
+                routes={nav.routes}
+                selectedId={nav.selectedRouteId}
+                recommendedId={nav.recommendedRouteId}
+                onSelect={nav.setSelectedRoute}
+              />
+              <VesselCard vessel={vessel} />
+              <RiskFactors factors={riskFactorsByRoute[nav.selectedRouteId]} routeName={selectedRoute.name} />
+              <AlertsPanel alerts={nav.alerts} />
+            </>
+          ) : (
+            <>
+              {/* Clean Initial State for Dashboard Right Panel */}
+              <div className="rounded-xl border border-[#1d445c]/80 bg-[#0c2333]/90 light:border-[#e2d8c7] light:bg-white p-5 shadow-lg flex flex-col gap-4 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#55d6e8]/15 text-[#55d6e8] light:bg-[#0f768e]/15 light:text-[#0f768e]">
+                  <RouteIcon size={24} />
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-bold uppercase tracking-wider text-[#eaf6f8] light:text-[#0d2433]">
+                    NO ACTIVE ROUTE
+                  </h3>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#91aeb9] light:text-[#5a7686]">
+                    Enter departure and destination in Route Planning to calculate an optimized Antarctic navigation route.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigate?.("routes")}
+                  className="mx-auto flex items-center justify-center gap-2 rounded-lg bg-[#55d6e8] px-5 py-2.5 font-mono text-[12px] font-bold text-[#071521] shadow hover:bg-[#7be3f2] light:bg-[#0f768e] light:text-white transition-all cursor-pointer"
+                >
+                  <Navigation size={14} /> Calculate Passage Route
+                </button>
+              </div>
+              <VesselCard vessel={vessel} />
+              <AlertsPanel alerts={nav.alerts} />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -297,3 +324,4 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
 }
 
 export default Dashboard;
+

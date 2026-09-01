@@ -77,12 +77,12 @@ export function AdminDashboard({
   const [filterStatus, setFilterStatus] = useState("ALL");
 
   // Modal Dialogs state
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [showAddTripModal, setShowAddTripModal] = useState(false);
   const [editingTrip, setEditingTrip] = useState<TravelItem | null>(null);
   const [showAddIcebergModal, setShowAddIcebergModal] = useState(false);
   const [showAddWeatherModal, setShowAddWeatherModal] = useState(false);
+
 
   // Fetch verified stats from backend
   const loadStats = useCallback(async () => {
@@ -372,16 +372,11 @@ export function AdminDashboard({
               <div>
                 <h2 className="text-[20px] font-bold tracking-tight">User Management</h2>
                 <p className={`text-[12px] ${isDark ? "text-[#91aeb9]" : "text-[#5a7686]"}`}>
-                  Full CRUD access control, password modification, and role assignment.
+                  User directory, status monitoring, access control, and role assignment.
                 </p>
               </div>
-              <button
-                onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-1.5 rounded-lg bg-[#55d6e8] px-3.5 py-2 text-[12px] font-bold text-[#071521] shadow hover:bg-[#7be3f2]"
-              >
-                <Plus size={14} /> Add User
-              </button>
             </div>
+
 
             {/* Search Bar */}
             <div className="flex items-center gap-3">
@@ -837,18 +832,6 @@ export function AdminDashboard({
         )}
       </main>
 
-      {/* ===================== MODAL: ADD USER ===================== */}
-      {showAddUserModal && (
-        <AddUserModal
-          onClose={() => setShowAddUserModal(false)}
-          onSuccess={() => {
-            setShowAddUserModal(false);
-            apiClient.admin.getUsers().then(setUsersList);
-            loadStats();
-          }}
-        />
-      )}
-
       {/* ===================== MODAL: EDIT USER ===================== */}
       {editingUser && (
         <EditUserModal
@@ -876,137 +859,6 @@ export function AdminDashboard({
   );
 }
 
-function AddUserModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("USER");
-  const [status, setStatus] = useState("ACTIVE");
-  const [org, setOrg] = useState("NCPOR / MoES");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setSubmitting(true);
-      setError("");
-      await apiClient.admin.createUser({
-        name,
-        email,
-        phone,
-        password,
-        role,
-        status,
-        organization: org,
-      });
-      onSuccess();
-    } catch (err: any) {
-      setError(err.message || "Failed to create user");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className={`w-full max-w-md rounded-xl border p-6 shadow-2xl ${
-        isDark ? "border-[#1d445c] bg-[#071521] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-      }`}>
-        <div className="flex items-center justify-between border-b pb-3 mb-4 border-[#1d445c]/40">
-          <h3 className="text-[17px] font-bold">Add New User</h3>
-          <button onClick={onClose}><X size={18} /></button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Full Name</label>
-            <input
-              required
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-              className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-              }`}
-            />
-          </div>
-          <div>
-            <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-              className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-              }`}
-            />
-          </div>
-          <div>
-            <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Phone</label>
-            <input
-              value={phone}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-              className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-              }`}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Role</label>
-              <select
-                value={role}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRole(e.target.value)}
-                className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                  isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-                }`}
-              >
-                <option value="USER">USER</option>
-                <option value="ADMIN">ADMIN</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatus(e.target.value)}
-                className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                  isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-                }`}
-              >
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="INACTIVE">INACTIVE</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-[12px] font-semibold text-[#91aeb9] mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-              className={`w-full rounded-lg border p-2 text-[13px] outline-none ${
-                isDark ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]" : "border-[#dfd8cc] bg-white text-[#0d2433]"
-              }`}
-            />
-          </div>
-          {error && <p className="text-[12px] text-[#ef4444]">{error}</p>}
-          <div className="flex justify-end gap-2 pt-3">
-            <button type="button" onClick={onClose} className="rounded-lg border px-4 py-1.5 text-[12px]">Cancel</button>
-            <button type="submit" disabled={submitting} className="rounded-lg bg-[#55d6e8] px-4 py-1.5 text-[12px] font-bold text-[#071521]">
-              {submitting ? "Saving..." : "Create User"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 function EditUserModal({ user, onClose, onSuccess }: { user: UserItem; onClose: () => void; onSuccess: () => void }) {
   const { theme } = useTheme();
