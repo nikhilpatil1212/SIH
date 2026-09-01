@@ -11,7 +11,6 @@ import {
   Navigation,
   Route as RouteIcon,
   Settings as SettingsIcon,
-  SlidersHorizontal,
   Snowflake,
   Thermometer,
   Triangle,
@@ -33,7 +32,6 @@ export type PageId =
   | "environmental"
   | "hazards"
   | "rerouting"
-  | "whatif"
   | "reports"
   | "help"
   | "contact"
@@ -50,7 +48,6 @@ const OPERATIONS: NavItem[] = [
   { id: "environmental", label: "Environmental Data", icon: Thermometer },
   { id: "hazards", label: "Hazards", icon: AlertTriangle },
   { id: "rerouting", label: "Re-Routing", icon: Navigation },
-  { id: "whatif", label: "What-If Analysis", icon: SlidersHorizontal },
   { id: "reports", label: "Reports", icon: FileText },
 ];
 

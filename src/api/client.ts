@@ -888,6 +888,19 @@ export const apiClient = {
       return await res.json();
     },
   },
+
+  reports: {
+    async exportMissionAudit(payload?: any): Promise<Blob> {
+      const res = await fetch(`${API_BASE}/reports/export-mission-audit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {}),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!res.ok) throw new Error(`Failed to generate Mission Audit PDF (HTTP ${res.status})`);
+      return await res.blob();
+    },
+  },
 };
 
 export default apiClient;

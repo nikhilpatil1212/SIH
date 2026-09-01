@@ -6,7 +6,6 @@ import { MapPage } from "./pages/MapPage";
 import { Hazards } from "./pages/Hazards";
 import { Routes } from "./pages/Routes";
 import { Rerouting } from "./pages/Rerouting";
-import { WhatIf } from "./pages/WhatIf";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
 import { IcebergPrediction } from "./pages/IcebergPrediction";
@@ -26,7 +25,6 @@ const META: Record<PageId, { title: string; subtitle: string }> = {
   environmental: { title: "Environmental & Metocean Intelligence", subtitle: "ERA5 & ECMWF wind fields, waves, surface currents & SST" },
   hazards: { title: "Navigational Hazard Alert Register", subtitle: "Active & predicted ice threats, extreme weather & shallow bathymetry" },
   rerouting: { title: "Dynamic Tactical Re-Routing", subtitle: "Trigger automated corridor re-evaluation on severe ice anomalies" },
-  whatif: { title: "What-If Scenario Simulator", subtitle: "Stress-test passage plans under simulated severe weather and speed changes" },
   reports: { title: "Mission Reports & Voyage Summary", subtitle: "Compliance, telemetry logs & operational debrief export" },
   help: { title: "Help & Operational Guide", subtitle: "Complete documentation for polar navigation and AI capabilities" },
   contact: { title: "Contact Dhruv Sarthi Operations", subtitle: "Reach the NCPOR and Ministry of Earth Sciences polar navigation team" },
@@ -70,7 +68,6 @@ export function OperationalApp({
           {page === "environmental" && <Environmental />}
           {page === "hazards" && <Hazards />}
           {page === "rerouting" && <Rerouting />}
-          {page === "whatif" && <WhatIf />}
           {page === "reports" && <Reports />}
           {page === "help" && <Help onNavigate={setPage} />}
           {page === "contact" && <Contact />}

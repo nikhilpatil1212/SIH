@@ -1,6 +1,6 @@
 // Reliable Base Map Providers & Polar Geographic Metadata for Dhruv Sarthi
 
-export type MapTileProviderId = "esri-satellite" | "osm" | "carto-dark";
+export type MapTileProviderId = "esri-satellite";
 
 export interface MapTileProvider {
   id: MapTileProviderId;
@@ -21,24 +21,6 @@ export const MAP_PROVIDERS: MapTileProvider[] = [
     tileSize: 256,
     maxZoom: 19,
     attribution: "© ESRI, Maxar, Earthstar Geographics",
-  },
-  {
-    id: "osm",
-    name: "OpenStreetMap",
-    shortName: "OpenStreetMap",
-    tileUrl: "https://tile.openstreetmap.org/{z}/{y}/{x}.png",
-    tileSize: 256,
-    maxZoom: 19,
-    attribution: "© OpenStreetMap contributors",
-  },
-  {
-    id: "carto-dark",
-    name: "Nautical Dark",
-    shortName: "Nautical Dark",
-    tileUrl: "https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png",
-    tileSize: 512,
-    maxZoom: 19,
-    attribution: "© CartoDB, OpenStreetMap contributors",
   },
 ];
 

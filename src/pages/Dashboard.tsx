@@ -80,6 +80,23 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
 
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-3">
+      {/* 0. Operational Presence & Session Status */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#1d445c]/70 bg-[#0d2433]/80 light:border-[#dfd8cc] light:bg-[#f8f5ee] px-3.5 py-2 text-[11px] shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="flex h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
+          <span className="font-mono font-bold uppercase tracking-wider text-[#eaf6f8] light:text-[#0d2433]">
+            Presence Active · RV Polar Star Bridge Telemetry
+          </span>
+          <span className="rounded bg-[#10b981]/15 px-1.5 py-0.5 font-mono text-[9.5px] font-semibold text-[#10b981]">
+            ONLINE & TRACKED
+          </span>
+        </div>
+        <div className="flex items-center gap-3 font-mono text-[10.5px] text-[#91aeb9] light:text-[#5a7686]">
+          <span>Sector: <strong className="text-[#55d6e8] light:text-[#0f768e]">{selectedRoute.name.includes("Corridor") ? "Southern Ocean" : "Antarctic Gateway"}</strong></span>
+          <span>AIS Status: <strong className="text-[#10b981]">LIVE TELEMETRY</strong></span>
+        </div>
+      </div>
+
       {/* 1. Actionable Top KPI Overview Cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
         {dynamicKpis.map((k) => {
@@ -150,37 +167,8 @@ export function Dashboard({ onNavigate }: { onNavigate?: (p: PageId) => void }) 
                 </div>
               </div>
 
-              {/* Controls: Distance Unit Toggle & Map Mode Toggles */}
+              {/* Controls: Map Mode Toggles */}
               <div className="flex flex-wrap items-center gap-2">
-                {/* Distance Unit Toggle (NM / KM) */}
-                <div className="flex items-center gap-1 rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
-                  <span className="px-1.5 font-mono text-[9px] font-semibold uppercase text-[#91aeb9] light:text-[#5a7686]">
-                    UNIT:
-                  </span>
-                  <button
-                    onClick={() => nav.setDistanceUnit("NM")}
-                    className={cx(
-                      "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
-                      nav.distanceUnit === "NM"
-                        ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
-                        : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
-                    )}
-                  >
-                    NM
-                  </button>
-                  <button
-                    onClick={() => nav.setDistanceUnit("KM")}
-                    className={cx(
-                      "rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase transition-colors",
-                      nav.distanceUnit === "KM"
-                        ? "bg-[#55d6e8] text-[#071521] light:bg-[#0f768e] light:text-white shadow-sm"
-                        : "text-[#91aeb9] hover:text-[#eaf6f8] light:text-[#5a7686] light:hover:text-[#0d2433]",
-                    )}
-                  >
-                    KM
-                  </button>
-                </div>
-
                 <div className="flex items-center rounded-md border border-[#1d445c]/60 bg-[#071521]/80 light:border-[#d8d0c2] light:bg-[#eee8dc] p-0.5">
                   <button
                     onClick={() => setViewMode("polar")}

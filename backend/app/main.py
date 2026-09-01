@@ -26,6 +26,7 @@ from .api import (
     admin_weather,
     sea_ice_regions,
     admin_stats,
+    reports,
     ws
 )
 
@@ -101,6 +102,7 @@ app.include_router(admin_weather.router, prefix=settings.API_V1_STR)
 app.include_router(admin_weather.router, prefix=f"{settings.API_V1_STR}/weather-management")
 app.include_router(sea_ice_regions.router, prefix=settings.API_V1_STR)
 app.include_router(admin_stats.router, prefix=settings.API_V1_STR)
+app.include_router(reports.router, prefix=settings.API_V1_STR)
 app.include_router(ws.router, prefix=settings.API_V1_STR)
 app.include_router(ws.router)  # /ws fallback
 

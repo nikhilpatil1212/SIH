@@ -15,8 +15,6 @@ import {
   Snowflake,
   Waves,
 } from "lucide-react";
-import { AntarcticPolarMap } from "../components/map/AntarcticPolarMap";
-import { icebergs, routes, vessel } from "../data/mock";
 import { ThemeToggle, useTheme } from "../theme";
 
 export type LandingTarget = "user-login" | "admin-login" | "signup";
@@ -126,9 +124,30 @@ function Header({
   onOpenConsole?: () => void;
 }) {
   const [loginOpen, setLoginOpen] = useState(false);
+  const [timerId, setTimerId] = useState<any>(null);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  const handleToggleLogin = () => {
+    if (timerId) clearTimeout(timerId);
+    if (!loginOpen) {
+      setLoginOpen(true);
+      // Keep visible for at least 6 seconds before auto-closing if idle
+      const tid = setTimeout(() => {
+        setLoginOpen(false);
+      }, 6000);
+      setTimerId(tid);
+    } else {
+      setLoginOpen(false);
+    }
+  };
+
+  const handleSelectLogin = (target: LandingTarget) => {
+    if (timerId) clearTimeout(timerId);
+    setLoginOpen(false);
+    onAuth(target);
+  };
 
   return (
     <header
@@ -183,42 +202,47 @@ function Header({
         <div className="flex items-center gap-3">
           <ThemeToggle variant="icon" />
 
-          <div className="relative" onMouseLeave={() => setLoginOpen(false)}>
+          <div className="relative">
             <button
-              onClick={() => setLoginOpen((o) => !o)}
-              className={`flex items-center gap-1.5 rounded-md border px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+              onClick={handleToggleLogin}
+              className={`flex items-center gap-1.5 rounded-md border px-3.5 py-2 text-[13px] font-semibold transition-colors cursor-pointer ${
                 isDark
                   ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8] hover:bg-[#132f40]"
                   : "border-[#dfd8cc] bg-[#f2ece0] text-[#0d2433] hover:bg-[#eae2d4]"
               }`}
             >
-              <span>Login</span> <ChevronDown size={14} />
+              <span>Login</span> <ChevronDown size={14} className={loginOpen ? "rotate-180 transition-transform" : "transition-transform"} />
             </button>
             {loginOpen && (
               <div
-                className={`absolute right-0 top-full mt-1 w-44 overflow-hidden rounded-md border shadow-xl ${
+                className={`absolute right-0 top-full mt-1.5 w-52 overflow-hidden rounded-lg border shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150 ${
                   isDark
                     ? "border-[#1d445c] bg-[#0d2433] text-[#eaf6f8]"
                     : "border-[#e2d8c7] bg-white text-[#0d2433]"
                 }`}
               >
+                <div className="px-3 py-1.5 border-b border-[#1d445c]/40 light:border-[#e8e0d2] text-[10px] font-mono uppercase tracking-wider text-[#91aeb9] light:text-[#7a93a1]">
+                  Authentication Access
+                </div>
                 <button
-                  onClick={() => onAuth("user-login")}
-                  className={`block w-full px-4 py-2.5 text-left text-[13px] font-medium transition-colors ${
+                  onClick={() => handleSelectLogin("user-login")}
+                  className={`flex w-full flex-col px-3.5 py-2.5 text-left transition-colors cursor-pointer ${
                     isDark ? "hover:bg-[#132f40]" : "hover:bg-[#f6f0e4]"
                   }`}
                 >
-                  Researcher Login
+                  <span className="text-[13px] font-bold text-[#eaf6f8] light:text-[#0d2433]">User Login</span>
+                  <span className="text-[11px] text-[#91aeb9] light:text-[#5a7686]">Researcher & Vessel Operations</span>
                 </button>
                 <button
-                  onClick={() => onAuth("admin-login")}
-                  className={`block w-full border-t px-4 py-2.5 text-left text-[13px] font-medium transition-colors ${
+                  onClick={() => handleSelectLogin("admin-login")}
+                  className={`flex w-full flex-col border-t px-3.5 py-2.5 text-left transition-colors cursor-pointer ${
                     isDark
                       ? "border-[#1d445c]/60 hover:bg-[#132f40]"
                       : "border-[#e8e0d2] hover:bg-[#f6f0e4]"
                   }`}
                 >
-                  Operator / Admin
+                  <span className="text-[13px] font-bold text-[#55d6e8] light:text-[#0f768e]">Admin Login</span>
+                  <span className="text-[11px] text-[#91aeb9] light:text-[#5a7686]">Mission Control & Fleet Command</span>
                 </button>
               </div>
             )}
@@ -281,10 +305,10 @@ export function Landing({
         <div className="pointer-events-none absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-[#55d6e8]/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 left-0 h-[460px] w-[460px] rounded-full bg-[#3b82f6]/10 blur-3xl" />
 
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center flex flex-col items-center">
           <div className="relative">
             <div
-              className={`mb-5 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 backdrop-blur ${
+              className={`mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur ${
                 isDark
                   ? "border-[#1d445c] bg-[#0d2433]/70 text-[#8ccfe0]"
                   : "border-[#dfd8cc] bg-[#f2ece0]/80 text-[#3a5563]"
@@ -296,12 +320,12 @@ export function Landing({
               </span>
             </div>
 
-            <h1 className="text-[42px] font-bold leading-[1.08] tracking-tight sm:text-[54px]">
+            <h1 className="text-[44px] font-bold leading-[1.1] tracking-tight sm:text-[58px] max-w-3xl mx-auto">
               Navigate the Antarctic with intelligent risk awareness
             </h1>
 
             <p
-              className={`mt-5 max-w-xl text-[16px] leading-relaxed ${
+              className={`mt-6 max-w-2xl mx-auto text-[16px] sm:text-[18px] leading-relaxed ${
                 isDark ? "text-[#91aeb9]" : "text-[#4a6878]"
               }`}
             >
@@ -310,10 +334,10 @@ export function Landing({
               sea-ice compression dynamics, and dynamically re-route around drifting hazards across Southern Ocean waters.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <button
                 onClick={() => (onOpenConsole ? onOpenConsole() : onAuth("user-login"))}
-                className={`rounded-md px-6 py-3.5 text-[14px] font-semibold shadow-lg transition-all ${
+                className={`rounded-md px-7 py-3.5 text-[14px] font-semibold shadow-lg transition-all cursor-pointer ${
                   isDark
                     ? "bg-[#55d6e8] text-[#071521] hover:bg-[#7be3f2] shadow-[#55d6e8]/10"
                     : "bg-[#0d2433] text-[#faf8f5] hover:bg-[#16394f] shadow-[#0d2433]/15"
@@ -323,8 +347,7 @@ export function Landing({
               </button>
               <button
                 onClick={() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })}
-                className={`rounded-md border px-6 py-3.5 text-[14px] font-semibold transition-colors ${
-
+                className={`rounded-md border px-7 py-3.5 text-[14px] font-semibold transition-colors cursor-pointer ${
                   isDark
                     ? "border-[#1d445c] bg-[#0d2433]/60 text-[#eaf6f8] hover:bg-[#132f40]"
                     : "border-[#d8d0c2] bg-white text-[#0d2433] hover:bg-[#f2ebe0]"
@@ -332,51 +355,6 @@ export function Landing({
               >
                 Explore 6-Stage Workflow
               </button>
-            </div>
-          </div>
-
-          {/* Hero 2D Antarctic Polar Map Preview */}
-          <div className="relative">
-            <div
-              className={`overflow-hidden rounded-2xl border shadow-2xl transition-colors ${
-                isDark
-                  ? "border-[#1d445c]/80 bg-[#050d17] shadow-black/60"
-                  : "border-[#dfd8cc] bg-[#ede6da] shadow-[#0d2433]/15"
-              }`}
-            >
-              <div
-                className={`flex items-center justify-between border-b px-4 py-2.5 ${
-                  isDark
-                    ? "border-[#1d445c]/60 bg-[#071521] text-[#8ccfe0]"
-                    : "border-[#e2d8c7] bg-[#f8f5ee] text-[#0f768e]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Ship size={14} className={isDark ? "text-[#55d6e8]" : "text-[#0f768e]"} />
-                  <span className="font-mono text-[11px] font-semibold uppercase tracking-wider">
-                    Dhruv Sarthi · Live Polar Chart
-                  </span>
-                </div>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-[#10b981]">
-                  ● Live 2D Polar Chart
-                </span>
-              </div>
-              <div className="h-[380px]">
-                <AntarcticPolarMap
-                  routes={routes}
-                  icebergs={icebergs}
-                  selectedRouteId="route-b"
-                  vessel={{
-                    name: vessel.name,
-                    position: { lat: vessel.position.lat, lon: vessel.position.lon },
-                    headingDeg: vessel.headingDeg,
-                    speedKn: vessel.speedKn,
-                    status: vessel.status,
-                  }}
-                  compact
-                  className="h-full w-full border-none rounded-none"
-                />
-              </div>
             </div>
           </div>
         </div>
